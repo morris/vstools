@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>VSTOOLS</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div id="vstools">
+	<p>
+		<label>
+			SHP / WEP / ZUD
+			<input type="file" id="obj">
+		</label>
+	</p>
+	<p>
+		<label>
+			SEQ
+			<input type="file" id="seq">
+		</label>
+	</p>
+	<button id="load">LOAD</button>
+
+	<p>
+		Animations<br>
+		<button id="next">NEXT</button>
+		<button id="prev">PREV</button>
+	</p>
+</div>
+
+<div id="log"></div>
+
+<script src="lib/jquery-1.11.2.min.js"></script>
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+
+<script src="src/VSTOOLS.js"></script>
+<script src="src/Logger.js"></script>
+<script src="src/Util.js"></script>
+<script src="src/Reader.js"></script>
+<script src="src/WEP.js"></script>
+<script src="src/WEPJoint.js"></script>
+<script src="src/WEPGroup.js"></script>
+<script src="src/WEPVertex.js"></script>
+<script src="src/WEPPolygon.js"></script>
+<script src="src/WEPTextureMap.js"></script>
+<script src="src/WEPPalette.js"></script>
+<script src="src/SHP.js"></script>
+<script src="src/SEQ.js"></script>
+<script src="src/SEQAnimation.js"></script>
+<script src="src/ZUD.js"></script>
+<script src="src/Viewer.js"></script>
+
+<script>
+(function() {
+
+	var logger = new VSTOOLS.Logger( {
+
+		filter: function( obj ) {
+
+			if ( obj instanceof VSTOOLS.SEQAnimation ) {
+
+				return obj.id === 0;
+
+			}
+
+			return false;
+
+		}
+
+	} );
+
+	var viewer = new VSTOOLS.Viewer( logger );
+
+	viewer.run();
+
+})();
+</script>
+
+</body>
+</html>

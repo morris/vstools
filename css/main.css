@@ -1,0 +1,19 @@
+body {
+	margin: 0;
+	padding: 0;
+
+	font-family: Sans-Serif;
+	font-size: 16px;
+	overflow: hidden;
+}
+
+#vstools {
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	width: 300px;
+	margin: 0;
+	background: #fff;
+	padding: 10px;
+}
