@@ -9,7 +9,7 @@ Everything is work in progress.
 
 ## Usage
 
-[Run in browser](rawgit.com/morris/vstools/master/index.html)
+[Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
 Runs in browsers that supports WebGL, like Chrome or Firefox.
 The viewer opens individual files obtained from a CD image
