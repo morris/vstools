@@ -26,9 +26,18 @@ This code is developed for the US Version of Vagrant Story but should work with 
 - SEQ (animations, only poses)
 - ZUD (basically SHP + SEQ + WEP)
 
+## Motivation
+
+Reverse engineering is ridiculously rewarding.
+You get to know assembly, debuggers, system architecture, hacking live programs and much more.
+Making sense of undocumented file formats is great, kind of archeological fun.
+
+Vagrant Story itself is a unique piece of art,
+featuring an outstanding character and level design that has no equal.
+
 ## Acknowledgments
 
-Many thanks to Valendian and other hackers' tremendous work on analyzing VS.
+Many thanks to Valendian and other hackers' tremendous work on analyzing Vagrant Story.
 
 Most information on VS hacking can be found here:
 http://datacrystal.romhacking.net/wiki/Vagrant_Story
