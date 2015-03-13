@@ -14,7 +14,7 @@ VSTOOLS.WEPPolygon = function( reader, logger ) {
 		} else if ( type === 0x24 ) {
 			// triangle
 		} else {
-			this.log( "unknown poly: " + VSTOOLS.hex( type ) );
+			throw new Error( "unknown poly: " + VSTOOLS.hex( type ) );
 		}
 
 		this.size = u8();

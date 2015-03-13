@@ -5,6 +5,8 @@ written in JavaScript with Three.js.
 It contains a partially working model viewer.
 Everything is work in progress.
 
+<img src="https://rawgit.com/morris/vstools/master/dragon.png">
+
 (A prior version was written in Java, which can be found [here](https://github.com/morris/vstools-java).)
 
 ## Usage

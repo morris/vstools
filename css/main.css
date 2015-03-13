@@ -3,17 +3,56 @@ body {
 	padding: 0;
 
 	font-family: Sans-Serif;
-	font-size: 16px;
+	font-size: 14px;
+	color: #000;
+
 	overflow: hidden;
 }
 
-#vstools {
+#sidebar {
 	position: absolute;
 	top: 0;
 	right: 0;
+	bottom: 0;
+	width: 360px;
+	overflow-y: auto;
 
-	width: 300px;
-	margin: 0;
-	background: #fff;
-	padding: 10px;
+	background: #ccc;
+}
+
+	#sidebar .panel {
+		padding: 0 10px;
+
+		border-bottom: 1px solid #aaa;
+	}
+
+		#sidebar .panel h2 {
+
+			font-size: 12px;
+			font-weight: normal;
+			text-transform: uppercase;
+			color: #666;
+
+			cursor: pointer;
+		}
+
+		#sidebar .panel h2:before {
+			content: '- ';
+			display: inline-block;
+			width: 12px;
+		}
+
+		#sidebar .panel h2.collapsed:before {
+			content: '+ ';
+		}
+
+		#sidebar .panel h2.collapsed ~ p,
+		#sidebar .panel h2.collapsed ~ div {
+			display: none;
+			color: red;
+		}
+
+#textures img {
+	width: 150px;
+	margin: 0 10px 10px 0;
 }

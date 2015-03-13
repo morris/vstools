@@ -189,10 +189,10 @@ VSTOOLS.WEP.prototype.textureSection = function( numPalettes ) {
 
 };
 
-VSTOOLS.WEP.prototype.build = function( paletteId ) {
+VSTOOLS.WEP.prototype.build = function() {
 
 	this.buildGeometry();
-	this.buildMaterial( paletteId );
+	this.buildMaterial();
 	this.buildBones();
 	this.buildMesh();
 
@@ -296,15 +296,18 @@ VSTOOLS.WEP.prototype.buildGeometry = function() {
 
 	}
 
+	geometry.computeFaceNormals();
+	geometry.computeVertexNormals();
+
 };
 
-VSTOOLS.WEP.prototype.buildMaterial = function( paletteId ) {
+VSTOOLS.WEP.prototype.buildMaterial = function() {
 
-	this.textureMap.build( paletteId );
+	this.textureMap.build();
 
 	this.material = new THREE.MeshBasicMaterial( {
 
-		map: this.textureMap.texture,
+		map: this.textureMap.textures[0],
 		shading: THREE.FlatShading,
 		skinning: true,
 		transparent: true,
@@ -414,5 +417,20 @@ VSTOOLS.WEP.prototype.buildSkeleton2 = function() {
 		bones[ i ].pos = new THREE.Vector3( joints[i - numJoints].length, 0, 0 );
 
 	}
+
+};
+
+VSTOOLS.WEP.prototype.geometrySnapshot = function() {
+
+	var snapshot = this.geometry.clone();
+
+	for ( var i = 0, l = snapshot.vertices.length; i < l; ++i ) {
+
+		var bone = this.mesh.skeleton.bones[ this.geometry.skinIndices[ i ].x ];
+		snapshot.vertices[ i ].applyMatrix4( bone.matrixWorld );
+
+	}
+
+	return snapshot;
 
 };

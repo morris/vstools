@@ -1,5 +1,9 @@
 var VSTOOLS = {
 
+	// config
+
+	enableKeyFrames: true,
+
 	// utility
 
 	hex: function( i ) {
@@ -14,6 +18,29 @@ var VSTOOLS = {
 		var slash = path.lastIndexOf( '/' );
 
 		return dot > 0 && dot > slash ? path.substr( dot + 1 ).toLowerCase() : null;
+
+	},
+
+	// convert typed array to png data url
+	png: function( data, width, height ) {
+
+		var canvas = document.createElement( 'canvas' );
+		canvas.width = width;
+		canvas.height = height;
+
+		// Copy the image contents to the canvas
+		var ctx = canvas.getContext( '2d' );
+
+		var imageData = ctx.createImageData( width, height );
+		for ( var i = 0, l = data.length; i < l; ++i ) {
+
+			imageData.data[ i ] = data[ i ];
+
+		}
+
+		ctx.putImageData( imageData, 0, 0 );
+
+		return canvas.toDataURL( 'image/png' );
 
 	},
 

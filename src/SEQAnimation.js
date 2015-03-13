@@ -174,6 +174,8 @@ VSTOOLS.SEQAnimation.prototype.pose = function( i ) {
 
 VSTOOLS.SEQAnimation.prototype.opcodes = function( i ) {
 
+	if ( !VSTOOLS.enableKeyFrames ) return;
+
 	var u8 = this.u8, s8 = this.s8, s16big = this.s16big,
 		skip = this.skip, seek = this.seek, hex = VSTOOLS.hex, log = this.log;
 

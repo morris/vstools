@@ -10,9 +10,12 @@ VSTOOLS.Viewer = function( logger ) {
 
 		obj = new VSTOOLS.WEP( new VSTOOLS.Reader( data ), logger );
 		obj.read();
-		obj.build( 0 );
+		obj.build();
 
 		scene.add( obj.mesh );
+
+		renderTextures( obj.textureMap.textures );
+		renderAnimationName();
 
 	}
 
@@ -22,13 +25,20 @@ VSTOOLS.Viewer = function( logger ) {
 
 		obj = new VSTOOLS.SHP( new VSTOOLS.Reader( data ), logger );
 		obj.read();
-		obj.build( 0 );
+		obj.build();
 
 		scene.add( obj.mesh );
 
-		skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
-		scene.add( skeletonHelper );
-		skeletonHelper.material.linewidth = 3;
+		if ( $skeleton.is( ':checked' ) ) {
+
+			skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
+			scene.add( skeletonHelper );
+			skeletonHelper.material.linewidth = 3;
+
+		}
+
+		renderTextures( obj.textureMap.textures );
+		renderAnimationName();
 
 	}
 
@@ -45,6 +55,8 @@ VSTOOLS.Viewer = function( logger ) {
 			currentAnimation = 0;
 
 			seq.animations[0].animation.play();
+
+			renderAnimationName();
 
 		} else {
 
@@ -72,9 +84,16 @@ VSTOOLS.Viewer = function( logger ) {
 
 		scene.add( obj.mesh );
 
-		skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
-		scene.add( skeletonHelper );
-		skeletonHelper.material.linewidth = 3;
+		if ( $skeleton.is( ':checked' ) ) {
+
+			skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
+			scene.add( skeletonHelper );
+			skeletonHelper.material.linewidth = 3;
+
+		}
+
+		renderTextures( obj.shp.textureMap.textures );
+		renderAnimationName();
 
 	}
 
@@ -84,6 +103,8 @@ VSTOOLS.Viewer = function( logger ) {
 		currentAnimation = Math.min( seq.animations.length - 1, currentAnimation + 1 );
 		seq.animations[ currentAnimation ].animation.play();
 
+		renderAnimationName();
+
 	}
 
 	function prevAnim() {
@@ -91,6 +112,26 @@ VSTOOLS.Viewer = function( logger ) {
 		seq.animations[ currentAnimation ].animation.stop();
 		currentAnimation = Math.max( 0, currentAnimation - 1 );
 		seq.animations[ currentAnimation ].animation.play();
+
+		renderAnimationName();
+
+	}
+
+	function renderAnimationName() {
+
+		$animation.html( 'Animation ' + currentAnimation );
+
+	}
+
+	function renderTextures( textures ) {
+
+		$( '#textures' ).empty();
+
+		textures.forEach( function( texture ) {
+
+			$( '#textures' ).append( '<img src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
+
+		} );
 
 	}
 
@@ -106,8 +147,12 @@ VSTOOLS.Viewer = function( logger ) {
 	var $obj = $( '#obj' );
 	var $seq = $( '#seq' );
 	var $load = $( '#load' );
+	var $keyframes = $( '#keyframes' );
+	var $skeleton = $( '#skeleton' );
 
 	$load.on( 'click', function() {
+
+		VSTOOLS.enableKeyFrames = $keyframes.is( ':checked' );
 
 		var fobj = $obj[0].files[0];
 		var fseq = $seq[0].files[0];
@@ -234,6 +279,37 @@ VSTOOLS.Viewer = function( logger ) {
 
 	//
 
+	var $sidebar = $( '#sidebar' );
+	var $animation = $( '#animation' );
+	var $textures = $( '#textures' );
+
+	$sidebar.on( 'click', 'h2', function() {
+
+		$( this ).toggleClass( 'collapsed' );
+
+	} );
+
+	//
+
+	$( '#exportObj' ).on( 'click', function() {
+
+		var x = obj.shp || obj;
+		var snapshot = obj.geometrySnapshot();
+
+		var exporter = new THREE.OBJExporter();
+
+		exportString( exporter.parse( snapshot ) );
+
+		/*var mesh = new THREE.Mesh( snapshot, new THREE.MeshNormalMaterial() );
+		console.log( mesh );
+		scene.remove( obj.mesh );
+		mesh.position.y = 20;
+		scene.add( mesh );*/
+
+	} );
+
+	//
+
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 10000 );
 
@@ -243,7 +319,7 @@ VSTOOLS.Viewer = function( logger ) {
 	$( 'body' ).append( renderer.domElement );
 
 	camera.position.z = 100;
-	var orbitControls = new THREE.OrbitControls( camera );
+	var orbitControls = new THREE.OrbitControls( camera, renderer.domElement );
 
 	var render = function () {
 
