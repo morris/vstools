@@ -75,21 +75,21 @@ VSTOOLS.SHP.prototype.header = function() {
 	skip( 0x20 ); // unknown, more lbas?
 
 	this.magicPtr = u32() + 0xF8;
-	log("magicPtr: " + hex(this.magicPtr));
+	log('magicPtr: ' + hex(this.magicPtr));
 
-	skip(0x18 * 2);
+	skip( 0x18 * 2 );
 
 	this.akaoPtr = u32() + 0xF8;
-	log("akaoPtr: " + hex(this.akaoPtr));
+	log('akaoPtr: ' + hex(this.akaoPtr));
 
 	this.groupPtr = u32() + 0xF8;
-	log("groupPtr: " + hex(this.groupPtr));
+	log('groupPtr: ' + hex(this.groupPtr));
 
 	this.vertexPtr = u32() + 0xF8;
-	log("vertexPtr: " + hex(this.vertexPtr));
+	log('vertexPtr: ' + hex(this.vertexPtr));
 
 	this.polygonPtr = u32() + 0xF8;
-	log("polygonPtr: " + hex(this.polygonPtr));
+	log('polygonPtr: ' + hex(this.polygonPtr));
 
 	// static, unused
 	this.jointPtr = 0x138;
@@ -99,7 +99,7 @@ VSTOOLS.SHP.prototype.data = function() {
 
 	var u16 = this.u16, u32 = this.u32, skip = this.skip, hex = VSTOOLS.hex, log = this.log;
 
-	log("SHP data");
+	log('SHP data');
 
 	// inherited
 	this.jointSection();
@@ -113,32 +113,12 @@ VSTOOLS.SHP.prototype.data = function() {
 	// skip magic section
 	skip( 4 );
 	var length = u32();
-	log( "magicSectionLength: " + hex( length ) );
+	log( 'magicSectionLength: ' + hex( length ) );
 	skip( length );
 
-	log( "textureMapPtr should be " + hex( length + this.magicPtr + 8 ) );
+	log( 'textureMapPtr should be ' + hex( length + this.magicPtr + 8 ) );
 
 	// inherited
-	this.textureSection(2); // 2 palettes
-
-};
-
-VSTOOLS.SHP.prototype.setSEQ = function( seq ) {
-
-	this.activeSeq = seq;
-
-	/*// remove current animations
-	ArrayList<String> names = new ArrayList<String>(
-			control.getAnimationNames());
-
-	for (String name : names) {
-		control.removeAnim(control.getAnim(name));
-	}
-
-	// set new animations
-	for (int i = 0; i < seq.animations.length; ++i) {
-		if (seq.animations[i].ok)
-			control.addAnim(seq.animations[i].animation);
-	}*/
+	this.textureSection( 2 ); // 2 palettes
 
 };

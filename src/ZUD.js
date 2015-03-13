@@ -48,10 +48,10 @@ VSTOOLS.ZUD.prototype.header = function() {
 	this.ptrBattleSEQ = u32();
 	this.lenBattleSEQ = u32();
 
-	log("ptrWeaponWEP: " + hex( this.ptrWeaponWEP ) );
-	log("ptrShieldWEP: " + hex( this.ptrShieldWEP ) );
-	log("ptrCommonSEQ: " + hex( this.ptrCommonSEQ ) );
-	log("ptrBattleSEQ: " + hex( this.ptrBattleSEQ ) );
+	log('ptrWeaponWEP: ' + hex( this.ptrWeaponWEP ) );
+	log('ptrShieldWEP: ' + hex( this.ptrShieldWEP ) );
+	log('ptrCommonSEQ: ' + hex( this.ptrCommonSEQ ) );
+	log('ptrBattleSEQ: ' + hex( this.ptrBattleSEQ ) );
 
 };
 
@@ -71,7 +71,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log("weapon failed");
+		log('weapon failed');
 		log( ex.stack );
 		this.weapon = null;
 
@@ -86,7 +86,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log("shield failed");
+		log('shield failed');
 		log( ex.stack );
 		this.shield = null;
 
@@ -101,7 +101,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log("common seq failed");
+		log('common seq failed');
 		log( ex );
 		this.com = null;
 
@@ -116,7 +116,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log("battle seq failed");
+		log('battle seq failed');
 		log( ex );
 		this.bt = null;
 

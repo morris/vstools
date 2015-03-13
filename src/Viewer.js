@@ -1,8 +1,13 @@
-VSTOOLS.Viewer = function( logger ) {
+VSTOOLS.Viewer = function() {
 
-	logger.extend( this );
+	var self = this;
 
 	var obj, seq, skeletonHelper, currentAnimation;
+
+	var logger = new VSTOOLS.Logger();
+	logger.extend( this );
+
+	var $logFilter = $( '#logFilter' );
 
 	function loadWEP( data ) {
 
@@ -78,8 +83,6 @@ VSTOOLS.Viewer = function( logger ) {
 
 		seq = obj.bt || obj.com;
 
-		console.log( seq );
-
 		if ( seq ) seq.animations[0].animation.play();
 
 		scene.add( obj.mesh );
@@ -116,6 +119,27 @@ VSTOOLS.Viewer = function( logger ) {
 		renderAnimationName();
 
 	}
+
+	function updateLogFilter() {
+
+		var filter = $logFilter.val();
+
+		try {
+
+			filter = new Function( 'obj', filter );
+
+		} catch ( ex ) {
+
+			console.warn( ex );
+			filter = function() { return false; };
+
+		}
+
+		self.logger.filter = filter;
+
+	}
+
+	updateLogFilter();
 
 	function renderAnimationName() {
 
@@ -288,6 +312,9 @@ VSTOOLS.Viewer = function( logger ) {
 		$( this ).toggleClass( 'collapsed' );
 
 	} );
+
+
+	$logFilter.on( 'change', updateLogFilter );
 
 	//
 

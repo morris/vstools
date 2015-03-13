@@ -16,15 +16,16 @@ VSTOOLS.WEP.prototype.header = function() {
 
 	var log = this.log;
 
-	log("WEP header");
+	log( 'WEP header' );
 
 	this.header1();
 
-	this.texturePtr = this.u32() + 0x10;
+	this.texturePtr1 = this.u32() + 0x10;
 
 	this.skip( 0x30 ); // TODO whats this?
 
 	this.texturePtr = this.u32() + 0x10; // not a mistake
+	VSTOOLS.assert( this.texturePtr === this.texturePtr1 );
 	this.groupPtr = this.u32() + 0x10;
 	this.vertexPtr = this.u32() + 0x10;
 	this.polygonPtr = this.u32() + 0x10;
@@ -32,16 +33,17 @@ VSTOOLS.WEP.prototype.header = function() {
 	// unused
 	jointPtr = 0x4C + 0x4;
 
-	log( "texturePtr: " + VSTOOLS.hex( this.texturePtr ) );
-	log( "groupPtr: " + VSTOOLS.hex( this.groupPtr ) );
-	log( "vertexPtr: " + VSTOOLS.hex( this.vertexPtr ) );
-	log( "polygonPtr: " + VSTOOLS.hex( this.polygonPtr ) );
+	log( 'texturePtr1: ' + VSTOOLS.hex( this.texturePtr1 ) );
+	log( 'texturePtr: ' + VSTOOLS.hex( this.texturePtr ) );
+	log( 'groupPtr: ' + VSTOOLS.hex( this.groupPtr ) );
+	log( 'vertexPtr: ' + VSTOOLS.hex( this.vertexPtr ) );
+	log( 'polygonPtr: ' + VSTOOLS.hex( this.polygonPtr ) );
 
 };
 
 VSTOOLS.WEP.prototype.header1 = function() {
 
-	// magic "H01" + 0x00
+	// magic 'H01' + 0x00
 	var magic = this.buffer( 4 );
 	//assert Arrays.equals(magic, new int[] { 0x48, 0x30, 0x31, 0x00 });
 
@@ -60,24 +62,24 @@ VSTOOLS.WEP.prototype.logHeader = function() {
 
 	var log = this.log;
 
-	log("numberOfJoints: " + this.numJoints);
-	log("numberOfGroups: " + this.numGroups);
-	log("numberOfTriangles: " + this.numTriangles);
-	log("numberOfQuads: " + this.numQuads);
-	log("numberOfPolygons: " + this.numPolygons);
-	log("numberOfAllPolygons: " + this.numAllPolygons);
+	log( 'numberOfJoints: ' + this.numJoints );
+	log( 'numberOfGroups: ' + this.numGroups );
+	log( 'numberOfTriangles: ' + this.numTriangles );
+	log( 'numberOfQuads: ' + this.numQuads );
+	log( 'numberOfPolygons: ' + this.numPolygons );
+	log( 'numberOfAllPolygons: ' + this.numAllPolygons );
 
 };
 
 VSTOOLS.WEP.prototype.data = function() {
 
-	this.log("WEP data");
+	this.log( 'WEP data' );
 
 	this.jointSection();
 	this.groupSection();
 	this.vertexSection();
 	this.polygonSection();
-	this.textureSection(5); // 5 palettes
+	this.textureSection( 5 ); // 5 palettes
 
 };
 
@@ -107,8 +109,8 @@ VSTOOLS.WEP.prototype.jointSection = function() {
 		}
 
 		this.log(
-			"joint " + i + ": s=" + j.length + " p=" + j.parentJointId + " " +
-			j.x + " " + j.y + " " + j.z + " " + j.mode
+			'joint ' + i + ': s=' + j.length + ' p=' + j.parentJointId + ' ' +
+			j.x + ' ' + j.y + ' ' + j.z + ' ' + j.mode
 		);
 
 	}
@@ -130,8 +132,8 @@ VSTOOLS.WEP.prototype.groupSection = function() {
 		groups.push( group );
 
 		this.log(
-			"group " + i + ": joint=" + group.jointId +
-			" lv=" + group.lastVertex
+			'group ' + i + ': joint=' + group.jointId +
+			' lv=' + group.lastVertex
 		);
 
 	}
@@ -144,7 +146,7 @@ VSTOOLS.WEP.prototype.vertexSection = function() {
 	var numGroups = this.numGroups;
 	var numVertices = this.numVertices = groups[ numGroups - 1 ].lastVertex;
 
-	this.log( "numberOfVertices: " + numVertices );
+	this.log( 'numberOfVertices: ' + numVertices );
 
 	var vertices = this.vertices = [];
 
@@ -168,15 +170,26 @@ VSTOOLS.WEP.prototype.vertexSection = function() {
 
 VSTOOLS.WEP.prototype.polygonSection = function() {
 
-	var polygons = this.polygons = [];
-	var numAllPolygons = this.numAllPolygons;
+	try {
 
-	for ( var i = 0; i < numAllPolygons; ++i ) {
+		this.log( 'Polygon seciton at', VSTOOLS.hex( this.reader.pos() ) );
 
-		var polygon = new VSTOOLS.WEPPolygon( this.reader, this.logger );
-		polygon.read();
+		var polygons = this.polygons = [];
+		var numAllPolygons = this.numAllPolygons;
 
-		polygons.push( polygon );
+		for ( var i = 0; i < numAllPolygons; ++i ) {
+
+			var polygon = new VSTOOLS.WEPPolygon( this.reader, this.logger );
+			polygon.read();
+
+			polygons.push( polygon );
+
+		}
+
+	} catch ( ex ) {
+
+		console.log( ex );
+		this.seek( 0x51cc );
 
 	}
 

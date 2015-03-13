@@ -3,7 +3,7 @@ VSTOOLS.Logger = function( options ) {
 	options = options || {};
 
 	this.log = options.log || console.log.bind( console );
-	this.filter = options.filter || function() { return VSTOOLS.debug };
+	this.filter = options.filter || function() { return false };
 	this.filterMax = options.filterMax || 100;
 
 	this.filtered = 0;
@@ -35,11 +35,5 @@ VSTOOLS.Logger.prototype.extend = function( obj ) {
 		}
 
 	};
-
-};
-
-VSTOOLS.Logger.prototype.stringify = function( args ) {
-
-	return Array.prototype.slice.call( args, 0 ).join( ', ' );
 
 };

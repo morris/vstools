@@ -8,6 +8,7 @@
 <body>
 
 <div id="sidebar">
+
 	<div class="panel">
 		<h2>Import</h2>
 		<p>
@@ -56,6 +57,13 @@
 		<p><button id="exportObj">Export</button></p>
 		<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
 	</div>
+
+	<div class="panel">
+		<h2 class="collapsed">Log Filter</h2>
+		<p><textarea id="logFilter" rows="6" cols="40">return false;</textarea></p>
+		<p><small>JavaScript function body that returns whether an object should emit log messages. <em>obj</em> is the only argument.</small></p>
+	</div>
+
 </div>
 
 <script src="lib/jquery-1.11.2.min.js"></script>
@@ -84,24 +92,7 @@
 <script>
 (function() {
 
-	var logger = new VSTOOLS.Logger( {
-
-		filter: function( obj ) {
-
-			if ( obj instanceof VSTOOLS.SEQAnimation ) {
-
-				return obj.id === 0;
-
-			}
-
-			return false;
-
-		}
-
-	} );
-
-	var viewer = new VSTOOLS.Viewer( logger );
-
+	var viewer = new VSTOOLS.Viewer();
 	viewer.run();
 
 })();
