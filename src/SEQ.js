@@ -58,7 +58,9 @@ VSTOOLS.SEQ.prototype.data = function() {
 
 	var i;
 
-	// read all headers
+	log('-- SEQ animation headers');
+
+	// read animation headers
 	var animations = this.animations = [];
 
 	for ( i = 0; i < numAnimations; ++i ) {
@@ -80,12 +82,12 @@ VSTOOLS.SEQ.prototype.data = function() {
 
 	}
 
-	log('-- SEQ computation');
+	log('-- SEQ animation data');
 
-	// compute animations
+	// read animation data
 	for ( i = 0; i < numAnimations; ++i ) {
 
-		animations[i].compute();
+		animations[i].data();
 
 	}
 

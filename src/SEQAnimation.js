@@ -16,7 +16,7 @@ VSTOOLS.SEQAnimation.prototype.header = function( id ) {
 	var i;
 
 	this.id = id;
-	this.numFrames = u16(); // not sure about this. 2
+	this.numFrames = u16(); // yes!! 2
 
 	// some animations use a different animation as base
 	this.idOtherAnimation = s8(); // 3
@@ -64,7 +64,7 @@ VSTOOLS.SEQAnimation.prototype.header = function( id ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.compute = function() {
+VSTOOLS.SEQAnimation.prototype.data = function() {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16, s16big = this.s16big,
 		skip = this.skip, seek = this.seek, hex = VSTOOLS.hex, log = this.log;
@@ -85,10 +85,9 @@ VSTOOLS.SEQAnimation.prototype.compute = function() {
 
 	log( 'translation ' + x + ' ' + y + ' ' + z );
 
-	// TODO implement move
+	log( 'numFrames', this.numFrames );
 
-	// initialize joint rotations
-	this.quaternions = [];
+	// TODO implement move
 
 	// set base animation
 	this.base = this;
@@ -98,6 +97,11 @@ VSTOOLS.SEQAnimation.prototype.compute = function() {
 
 	}
 
+	// this holds the initial rotation of bones,
+	// i.e. the initial pose for the animation
+	this.pose = [];
+
+	// three js animation tracks
 	var tracks = this.tracks = [];
 
 	// read base pose and opcodes
@@ -108,8 +112,8 @@ VSTOOLS.SEQAnimation.prototype.compute = function() {
 
 		seek( seq.ptrData( this.base.ptrJoints[ i ] ) );
 
-		this.pose( i );
-		this.opcodes( i );
+		this.readPose( i );
+		this.readOpcodes( i );
 
 	}
 
@@ -146,7 +150,7 @@ VSTOOLS.SEQAnimation.prototype.compute = function() {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.pose = function( i ) {
+VSTOOLS.SEQAnimation.prototype.readPose = function( i ) {
 
 	var s16big = this.s16big, convert = VSTOOLS.rot13toRad, log = this.log;
 
@@ -157,11 +161,9 @@ VSTOOLS.SEQAnimation.prototype.pose = function( i ) {
 
 	log( 'rotation ' + i + ': ' + rx + ' ' + ry + ' ' + rz );
 
-	rx = convert( rx ),
-	ry = convert( ry ),
-	rz = convert( rz );
+	this.pose[i] = [ rx, ry, rz ];
 
-	var q = this.quaternions[i] = VSTOOLS.rot2quat( rx, ry, rz );
+	var q = VSTOOLS.rot2quat( convert( rx ), convert( ry ), convert( rz ) );
 
 	this.tracks[i].keys.unshift( {
 		time: 0,
@@ -172,7 +174,7 @@ VSTOOLS.SEQAnimation.prototype.pose = function( i ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.opcodes = function( i ) {
+VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
 
 	if ( !VSTOOLS.enableKeyFrames ) return;
 
@@ -285,10 +287,17 @@ VSTOOLS.SEQAnimation.prototype.opcodes = function( i ) {
 			rz = s8();
 		}
 
-		var q = VSTOOLS.rot2quat( rx/95, ry/95, rz/95 );
-		q = this.quaternions[ i ].multiply( q );
+		var r = this.pose[ i ];
 
-		//this.log( rx, ry, rz );
+		var kx = add( r[0], rx );
+		var ky = add( r[1], ry );
+		var kz = add( r[2], rz );
+
+		this.log( 'key', f, kx, ky, kz );
+
+		var rad = VSTOOLS.rot13toRad;
+
+		var q = VSTOOLS.rot2quat( rad( kx ), rad( ky ), rad( kz ) );
 
 		this.tracks[ i ].keys.push( {
 			time: f/20,
@@ -296,6 +305,17 @@ VSTOOLS.SEQAnimation.prototype.opcodes = function( i ) {
 			rot: [ q.x, q.y, q.z, q.w ],
 			scl: [ 1, 1, 1, 1 ]
 		} );
+
+	}
+
+	function add( r, s ) {
+
+		var a = r + s;
+
+		if ( a >= 4096 ) a -= 4096;
+		if ( a < 0 ) a += 4096;
+
+		return a;
 
 	}
 
@@ -309,7 +329,7 @@ VSTOOLS.SEQAnimation.prototype.build = function() {
 	var data = {
 		name: 'Animation' + this.id,
 		fps: 30,
-		length: 30/20,
+		length: this.numFrames/20,
 		hierarchy: this.tracks
 	};
 

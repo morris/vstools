@@ -32,7 +32,7 @@ VSTOOLS.Text = {
 				// unknown, skip
 				j += 2;
 
-			} else if (i[j] === 0xFB) { // control code 0xFB
+			} else if ( i[j] === 0xFB ) { // control code 0xFB
 
 				// unknown, skip
 				j += 2;
@@ -75,22 +75,23 @@ VSTOOLS.Text = {
 (function() {
 
 	var map = VSTOOLS.Text.map = new Array( 0xE9 );
-	var i;
 
 	// 0 - 9
-	for ( i = 0; i <= 0x09; ++i ) {
+	for ( var i = 0; i <= 0x09; ++i ) {
 
 		put( i, String.fromCharCode( i + 0x30 ) );
 
 	}
+
 	// A - Z
-	for ( i = 0x0A; i <= 0x23; ++i ) {
+	for ( var i = 0x0A; i <= 0x23; ++i ) {
 
 		put( i, String.fromCharCode( i + 0x41 - 0x0A ) );
 
 	}
+
 	// a - z
-	for ( i = 0x24; i <= 0x3D; ++i ) {
+	for ( var i = 0x24; i <= 0x3D; ++i ) {
 
 		put( i, String.fromCharCode( i + 0x61 - 0x24 ) );
 
