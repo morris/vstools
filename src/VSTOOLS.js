@@ -6,9 +6,13 @@ var VSTOOLS = {
 
 	// utility
 
-	hex: function( i ) {
+	hex: function( i, pad ) {
 
-		return '0x' + i.toString( 16 );
+		var x = i.toString( 16 );
+
+		while ( x.length < pad ) x = '0' + x;
+
+		return '0x' + x;
 
 	},
 
