@@ -8,7 +8,7 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 		var log = this.log, hex = VSTOOLS.hex;
 		var u8 = this.u8, s8 = this.s8, u32 = this.u32, skip = this.skip;
 
-		log("textureMap at " + hex( this.reader.pos() ) );
+		log( 'textureMap at ' + hex( this.reader.pos() ) );
 
 		var size = this.size = u32();
 		skip(1); // unknown, always 1?
@@ -16,15 +16,15 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 		var height = this.height = u8() * 2;
 		var colorsPerPalette = this.colorsPerPalette = u8();
 
-		log( "size: " + size );
-		log( "width: " + width );
-		log( "height: " + height );
-		log( "numberOfPalettes: " + numberOfPalettes );
-		log( "colorsPerPalette: " + colorsPerPalette );
+		log( 'size: ' + size );
+		log( 'width: ' + width );
+		log( 'height: ' + height );
+		log( 'numberOfPalettes: ' + numberOfPalettes );
+		log( 'colorsPerPalette: ' + colorsPerPalette );
 
 		var palettes = this.palettes = [];
 
-		for ( var i = 0; i < numberOfPalettes; ++i) {
+		for ( var i = 0; i < numberOfPalettes; ++i ) {
 
 			var palette = new VSTOOLS.WEPPalette( this.reader );
 			palette.read( this.colorsPerPalette );
@@ -39,9 +39,9 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 
 			for ( var x = 0; x < width; ++x ) {
 
-				if ( !map[x] ) map[x] = [];
+				if ( !map[ x ] ) map[ x ] = [];
 
-				map[x][y] = u8();
+				map[ x ][ y ] = u8();
 
 			}
 
@@ -68,16 +68,16 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 
 				for ( var x = 0; x < width; ++x ) {
 
-					c = map[x][y];
+					var c = map[ x ][ y ];
 
 					// TODO sometimes c >= colorsPerPalette?? set transparent, for now
 					if ( c < colorsPerPalette ) {
 
 						buffer.push(
-							palette.colors[c][0],
-							palette.colors[c][1],
-							palette.colors[c][2],
-							palette.colors[c][3]
+							palette.colors[ c ][ 0 ],
+							palette.colors[ c ][ 1 ],
+							palette.colors[ c ][ 2 ],
+							palette.colors[ c ][ 3 ]
 						);
 
 					} else {
@@ -92,6 +92,7 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 
 			var texture = new THREE.DataTexture( new Uint8Array( buffer ), width, height, THREE.RGBAFormat );
 			texture.magFilter = THREE.NearestFilter;
+			texture.minFilter = THREE.NearestFilter;
 			texture.needsUpdate = true;
 
 			this.textures.push( texture );

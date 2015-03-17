@@ -27,7 +27,7 @@ VSTOOLS.SHP.prototype.header = function() {
 	this.width = [];
 	this.height = [];
 
-	for ( i = 0; i < 8; ++i ) {
+	for ( var i = 0; i < 8; ++i ) {
 
 		this.overlayX.push( u8() );
 		this.overlayY.push( u8() );
@@ -52,60 +52,62 @@ VSTOOLS.SHP.prototype.header = function() {
 	skip( 8 );
 
 	this.animLBAs = [];
-	for ( i = 0; i < 0xC; ++i) {
+	for ( var i = 0; i < 0xC; ++i ) {
 
 		this.animLBAs.push( u32() );
 
 	}
 
 	this.chainIds = [];
-	for ( i = 0; i < 0xC; ++i) {
+	for ( var i = 0; i < 0xC; ++i ) {
 
 		this.chainIds.push( u16() );
 
 	}
 
 	this.specialLBAs = [];
-	for ( i = 0; i < 4; ++i) {
+	for ( var i = 0; i < 4; ++i ) {
 
-		this.specialLBAs[i] = u32();
+		this.specialLBAs.push( u32() );
 
 	}
 
 	skip( 0x20 ); // unknown, more lbas?
 
 	this.magicPtr = u32() + 0xF8;
-	log('magicPtr: ' + hex(this.magicPtr));
+	log( 'magicPtr: ' + hex( this.magicPtr ) );
 
-	skip( 0x18 * 2 );
+	skip( 0x18 * 2 ); // TODO whats this?
 
 	this.akaoPtr = u32() + 0xF8;
-	log('akaoPtr: ' + hex(this.akaoPtr));
+	log( 'akaoPtr: ' + hex( this.akaoPtr ) );
 
 	this.groupPtr = u32() + 0xF8;
-	log('groupPtr: ' + hex(this.groupPtr));
+	log( 'groupPtr: ' + hex( this.groupPtr ) );
 
 	this.vertexPtr = u32() + 0xF8;
-	log('vertexPtr: ' + hex(this.vertexPtr));
+	log( 'vertexPtr: ' + hex( this.vertexPtr ) );
 
-	this.polygonPtr = u32() + 0xF8;
-	log('polygonPtr: ' + hex(this.polygonPtr));
+	this.facePtr = u32() + 0xF8;
+	log( 'facePtr: ' + hex( this.facePtr ) );
 
 	// static, unused
-	this.jointPtr = 0x138;
-}
+	this.bonePtr = 0x138;
+
+};
 
 VSTOOLS.SHP.prototype.data = function() {
 
-	var u16 = this.u16, u32 = this.u32, skip = this.skip, hex = VSTOOLS.hex, log = this.log;
+	var u16 = this.u16, u32 = this.u32, skip = this.skip,
+		hex = VSTOOLS.hex, log = this.log;
 
-	log('SHP data');
+	log( 'SHP data' );
 
 	// inherited
-	this.jointSection();
+	this.boneSection();
 	this.groupSection();
 	this.vertexSection();
-	this.polygonSection();
+	this.faceSection();
 
 	// skip akao
 	skip( this.magicPtr - this.akaoPtr );

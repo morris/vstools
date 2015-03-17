@@ -4,6 +4,10 @@ var VSTOOLS = {
 
 	enableKeyFrames: true,
 
+	// constants
+
+	timeScale: 0.05,
+
 	// utility
 
 	hex: function( i, pad ) {
@@ -49,7 +53,7 @@ var VSTOOLS = {
 	},
 
 	// get RGBA from 16 bit color value
-	// first bit === 1 or bits === 0 is fully transparent
+	// first bit === 1 or bits === 0 means fully transparent
 	// then 5 bits for each of B, G, R
 	color: function( c ) {
 
@@ -58,14 +62,13 @@ var VSTOOLS = {
 		var g = ( c & 0x03E0 ) >> 5;
 		var r = ( c & 0x001F );
 
-		if ( c === 0 || t === 1  ) {
+		if ( c === 0 || t === 1 ) {
 
 			return [ 0, 0, 0, 0 ];
 
 		}
 
 		// 5bit -> 8bit is factor 2^3 = 8
-		// TODO different conversions were suggested, investigate
 		return [ r * 8, g * 8, b * 8, 255 ];
 
 	},
@@ -124,11 +127,12 @@ var VSTOOLS = {
 
 	debug: true,
 
-	assert: function( x, msg ) {
+	assert: function( x, msg, err ) {
 
 		if ( VSTOOLS.debug && !x ) {
 
-			throw new Error( msg || 'Assertion failed' );
+			var stack = err ? err.stack : '';
+			throw new Error( msg || 'Assertion failed' + stack );
 
 		}
 

@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>VSTOOLS</title>
-<link rel="stylesheet" href="css/normalize.css">
-<link rel="stylesheet" href="css/main.css">
+
+	<title>VSTOOLS</title>
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/main.css">
+
 </head>
 <body>
 
 <div id="sidebar">
 
 	<div class="panel">
+
 		<h2>Import</h2>
 		<p>
 			<label>
 				Select SHP / WEP / ZUD<br>
-				<input type="file" id="obj">
+				<input type="file" id="file1">
 			</label>
 		</p>
 		<p>
 			<label>
 				Select SEQ<br>
-				<input type="file" id="seq">
+				<input type="file" id="file2">
 			</label>
 		</p>
 		<p>
@@ -36,32 +39,39 @@
 		<p>
 			<button id="load">Load</button>
 		</p>
+
 	</div>
 
 	<div class="panel">
+
 		<h2>Animation</h2>
-		<p id="animation"></p>
 		<p>
-			<button id="prev">Prev</button>
-			<button id="next">Next</button>
+			<button id="prev">&lt;</button> <input id="animation" size="3"> of <span id="animationCount"></span> <button id="next">&gt;</button>
 		</p>
+
 	</div>
 
 	<div class="panel">
+
 		<h2>Textures</h2>
 		<div id="textures"></div>
+
 	</div>
 
 	<div class="panel">
+
 		<h2>OBJ Export</h2>
-		<p><button id="exportObj">Export</button></p>
+		<p><button id="exportOBJ">Export</button></p>
 		<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
+
 	</div>
 
 	<div class="panel">
+
 		<h2 class="collapsed">Log Filter</h2>
 		<p><textarea id="logFilter" rows="6" cols="40">return false;</textarea></p>
 		<p><small>JavaScript function body that returns whether an object should emit log messages. <em>obj</em> is the only argument.</small></p>
+
 	</div>
 
 </div>
@@ -73,20 +83,33 @@
 
 <script src="src/VSTOOLS.js"></script>
 <script src="src/Logger.js"></script>
-<script src="src/Util.js"></script>
 <script src="src/Reader.js"></script>
+
 <script src="src/WEP.js"></script>
-<script src="src/WEPJoint.js"></script>
+<script src="src/WEPBone.js"></script>
 <script src="src/WEPGroup.js"></script>
 <script src="src/WEPVertex.js"></script>
-<script src="src/WEPPolygon.js"></script>
+<script src="src/WEPFace.js"></script>
 <script src="src/WEPTextureMap.js"></script>
 <script src="src/WEPPalette.js"></script>
+
 <script src="src/SHP.js"></script>
+
 <script src="src/SEQ.js"></script>
 <script src="src/SEQAnimation.js"></script>
+
 <script src="src/ZUD.js"></script>
+
+<script src="src/ZND.js"></script>
+
+<script src="src/MPD.js"></script>
+<script src="src/MPDGroup.js"></script>
+<script src="src/MPDFace.js"></script>
+<script src="src/MPDMesh.js"></script>
+
+<script src="src/FrameBuffer.js"></script>
 <script src="src/Text.js"></script>
+
 <script src="src/Viewer.js"></script>
 
 <script>

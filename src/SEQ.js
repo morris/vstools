@@ -28,16 +28,16 @@ VSTOOLS.SEQ.prototype.header = function() {
 	this.basePtr = this.reader.pos();
 
 	this.numSlots = u16(); // 'slots' is just some random name, purpose unknown
-	this.numJoints = u8();
+	this.numBones = u8();
 	skip( 1 ); // padding
 
 	this.size = u32(); // file size
 	this.h3 = u32(); // unknown
 	this.slotPtr = u32() + 8; // ptr to slots
-	this.dataPtr = this.slotPtr + this.numSlots; // ptr to rotation and opcode data
+	this.dataPtr = this.slotPtr + this.numSlots; // ptr to rotation and keyframe data
 
 	log( 'numSlots: ' + this.numSlots );
-	log( 'numJoints: ' + this.numJoints );
+	log( 'numBones: ' + this.numBones );
 	log( 'h3: ' + this.h3 );
 	log( 'dataPtr ' + hex( this.dataPtr ) );
 
@@ -47,26 +47,26 @@ VSTOOLS.SEQ.prototype.data = function() {
 
 	var s8 = this.s8, skip = this.skip, log = this.log;
 
-	log('-- SEQ data');
+	log( '-- SEQ data' );
 
-	var dataPtr = this.dataPtr, numJoints = this.numJoints, numSlots = this.numSlots;
+	var dataPtr = this.dataPtr, numBones = this.numBones, numSlots = this.numSlots;
 
 	// number of animations has to be computed
-	//                                       length of all headers     / length of one animation header
-	var numAnimations = this.numAnimations = (dataPtr - numSlots - 16) / (numJoints * 4 + 10);
-	log('numAnimations: ' + numAnimations);
+	//                                         length of all headers     /   length of one animation header
+	var numAnimations = this.numAnimations = ( dataPtr - numSlots - 16 ) / ( numBones * 4 + 10 );
+	log( 'numAnimations: ' + numAnimations );
 
-	var i;
-
-	log('-- SEQ animation headers');
+	log( '-- SEQ animation headers' );
 
 	// read animation headers
 	var animations = this.animations = [];
 
-	for ( i = 0; i < numAnimations; ++i ) {
+	for ( var i = 0; i < numAnimations; ++i ) {
 
-		animations[i] = new VSTOOLS.SEQAnimation( this.reader, this.logger, this );
-		animations[i].header( i );
+		var animation = new VSTOOLS.SEQAnimation( this.reader, this.logger, this );
+		animation.header( i );
+
+		animations.push( animation );
 
 	}
 
@@ -76,18 +76,18 @@ VSTOOLS.SEQ.prototype.data = function() {
 	var numSlots = this.numSlots;
 	var slots = this.slots = [];
 
-	for ( i = 0; i < numSlots; ++i ) {
+	for ( var i = 0; i < numSlots; ++i ) {
 
-		slots[i] = s8();
+		slots[ i ] = s8();
 
 	}
 
 	log('-- SEQ animation data');
 
 	// read animation data
-	for ( i = 0; i < numAnimations; ++i ) {
+	for ( var i = 0; i < numAnimations; ++i ) {
 
-		animations[i].data();
+		animations[ i ].data();
 
 	}
 
@@ -95,9 +95,11 @@ VSTOOLS.SEQ.prototype.data = function() {
 
 VSTOOLS.SEQ.prototype.build = function() {
 
-	for ( var i = 0; i < this.numAnimations; ++i ) {
+	var numAnimations = this.numAnimations, animations = this.animations;
 
-		this.animations[ i ].build();
+	for ( var i = 0; i < numAnimations; ++i ) {
+
+		animations[ i ].build();
 
 	}
 

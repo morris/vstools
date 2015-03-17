@@ -13,10 +13,9 @@ VSTOOLS.SEQAnimation.prototype.header = function( id ) {
 		skip = this.skip, hex = VSTOOLS.hex, log = this.log;
 
 	var seq = this.seq;
-	var i;
 
 	this.id = id;
-	this.numFrames = u16(); // yes!! 2
+	this.length = u16(); // 2
 
 	// some animations use a different animation as base
 	this.idOtherAnimation = s8(); // 3
@@ -25,42 +24,42 @@ VSTOOLS.SEQAnimation.prototype.header = function( id ) {
 
 	this.mode = u8(); // unknown. has weird effects on mesh. 4
 
-	// seems to point to an opcode block that controls looping
+	// seems to point to a data block that controls looping
 	this.ptr1 = u16(); // 6
 
 	// points to a translation vector for the animated mesh
 	this.ptrTranslation = u16(); // 8
 
-	// points to an opcode block that controls movement
+	// points to a data block that controls movement
 	this.ptrMove = u16(); // 10
 
 	// just some logging
 	log( 'animation ' + this.id );
-	log( 'numFrames: ' + this.numFrames );
+	log( 'length: ' + this.length );
 	log( 'idOtherPose: ' + this.idOtherAnimation );
 	log( 'mode: ' + this.mode );
 	log( 'ptr1: ' + hex( seq.ptrData( this.ptr1 ) ) + ' (' + this.ptr1 + ')' );
 	log( 'ptrTranslation: ' + hex( seq.ptrData( this.ptrTranslation ) ) + ' (' + this.ptrTranslation + ')' );
-	log('ptrMove: ' + hex( seq.ptrData( this.ptrMove ) ) + ' (' + this.ptrMove + ')' );
+	log( 'ptrMove: ' + hex( seq.ptrData( this.ptrMove ) ) + ' (' + this.ptrMove + ')' );
 
-	// read pointers to rotations and opcodes for individual joints
-	this.ptrJoints = [];
+	// read pointers to pose and keyframes for individual bones
+	this.ptrBones = [];
 
-	for ( i = 0; i < seq.numJoints; ++i ) {
+	for ( var i = 0; i < seq.numBones; ++i ) {
 
 		var ptr = u16();
-		this.ptrJoints.push( ptr );
+		this.ptrBones.push( ptr );
 		log( i + ' ' + hex( seq.ramPtr + seq.ptrData( ptr ) ) );
 
-	} // 10 + numJoints * 2
+	} // 10 + numBones * 2
 
-	for ( i = 0; i < seq.numJoints; ++i ) {
+	for ( var i = 0; i < seq.numBones; ++i ) {
 
 		// TODO is this true for all SEQ?
 		//VSTOOLS.assert( u16() === 0 );
 		skip( 2 );
 
-	} // 10 + numJoints * 4
+	} // 10 + numBones * 4
 
 };
 
@@ -79,13 +78,13 @@ VSTOOLS.SEQAnimation.prototype.data = function() {
 	// big endian
 	seek( seq.ptrData( this.ptrTranslation ) );
 
-	x = s16big();
-	y = s16big();
-	z = s16big();
+	var x = s16big();
+	var y = s16big();
+	var z = s16big();
 
 	log( 'translation ' + x + ' ' + y + ' ' + z );
 
-	log( 'numFrames', this.numFrames );
+	log( 'length', this.length );
 
 	// TODO implement move
 
@@ -101,82 +100,40 @@ VSTOOLS.SEQAnimation.prototype.data = function() {
 	// i.e. the initial pose for the animation
 	this.pose = [];
 
-	// three js animation tracks
-	var tracks = this.tracks = [];
+	this.keyframes = [];
 
-	// read base pose and opcodes
-	// add to tracks for rotation bones
-	for ( var i = 0; i < seq.numJoints; ++i ) {
+	// read base pose and keyframes
+	for ( var i = 0; i < seq.numBones; ++i ) {
 
-		tracks.push( { keys: [] } );
+		this.keyframes.push( [ [ 0, 0, 0, 0 ] ] );
 
-		seek( seq.ptrData( this.base.ptrJoints[ i ] ) );
+		seek( seq.ptrData( this.base.ptrBones[ i ] ) );
 
 		this.readPose( i );
-		this.readOpcodes( i );
+		this.readKeyframes( i );
 
 	}
-
-	// root's translation bone
-	tracks.push( {
-		keys: [
-			{
-				time: 0,
-				pos: [ 0, 0, 0 ],
-				rot: [ 0, 0, 0, 1 ],
-				scl: [ 1, 1, 1 ]
-			}
-		]
-	} );
-
-	// translation bones
-	for ( var i = 1; i < seq.numJoints; ++i) {
-
-		tracks.push( {
-			keys: [
-				{
-					time: 0,
-					pos: [ shp.joints[i].length, 0, 0 ],
-					rot: [ 0, 0, 0, 1 ],
-					scl: [ 1, 1, 1 ]
-				}
-			]
-		} );
-
-	}
-
-	/*if ( this.id === 0 )
-		console.log( this.tracks );*/
 
 };
 
 VSTOOLS.SEQAnimation.prototype.readPose = function( i ) {
 
-	var s16big = this.s16big, convert = VSTOOLS.rot13toRad, log = this.log;
+	var s16big = this.s16big, log = this.log;
 
 	// big endian! but... WHY?!
 	var rx = s16big(),
 		ry = s16big(),
 		rz = s16big();
 
-	log( 'rotation ' + i + ': ' + rx + ' ' + ry + ' ' + rz );
+	log( 'pose ' + i + ': ' + rx + ' ' + ry + ' ' + rz );
 
-	this.pose[i] = [ rx, ry, rz ];
-
-	var q = VSTOOLS.rot2quat( convert( rx ), convert( ry ), convert( rz ) );
-
-	this.tracks[i].keys.unshift( {
-		time: 0,
-		pos: [ 0, 0, 0 ],
-		rot: [ q.x, q.y, q.z, q.w ],
-		scl: [ 1, 1, 1, 1 ]
-	} );
+	this.pose[ i ] = [ rx, ry, rz ];
 
 };
 
-VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
+VSTOOLS.SEQAnimation.prototype.readKeyframes = function( i ) {
 
-	if ( !VSTOOLS.enableKeyFrames ) return;
+	if ( !VSTOOLS.enableKeyframes ) return;
 
 	var u8 = this.u8, s8 = this.s8, s16big = this.s16big,
 		skip = this.skip, seek = this.seek, hex = VSTOOLS.hex, log = this.log;
@@ -192,12 +149,12 @@ VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
 
 		if ( op === 0x1c ) break; // most likely wrong
 
-		// actual amount of rotation
+		// rotation speed
 		var rx = 0,
 			ry = 0,
 			rz = 0;
 
-		if ( (op & 0xe0) > 0 ) {
+		if ( ( op & 0xe0 ) > 0 ) {
 
 			t = op & 0x1f;
 
@@ -214,9 +171,11 @@ VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
 
 		} else {
 
+			var half = true;
+
 			t = op & 0x3;
 
-			if (t === 0x3) {
+			if ( t === 0x3 ) {
 
 				t = u8();
 				f += 0x4 + t;
@@ -233,38 +192,38 @@ VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
 
 			var h = s16big();
 
-			if ( (h & 0x4) > 0 ) {
+			if ( ( h & 0x4 ) > 0 ) {
 
 				rx = h >> 3;
 				op = op & 0x60;
 
-				if ( (h & 0x2) > 0 ) {
+				if ( ( h & 0x2 ) > 0 ) {
 
 					ry = s16big();
 					op = op & 0xa0;
 
 				}
 
-				if ( (h & 0x1) > 0 ) {
+				if ( ( h & 0x1 ) > 0 ) {
 
 					rz = s16big();
 					op = op & 0xc0;
 
 				}
 
-			} else if ( (h & 0x2) > 0 ) {
+			} else if ( ( h & 0x2 ) > 0 ) {
 
 				ry = h >> 3;
 				op = op & 0xa0;
 
-				if ((h & 0x1) > 0 ) {
+				if ( ( h & 0x1 ) > 0 ) {
 
 					rz = s16big();
 					op = op & 0xc0;
 
 				}
 
-			} else if ( (h & 0x1) > 0 ) {
+			} else if ( ( h & 0x1 ) > 0 ) {
 
 				rz = h >> 3;
 				op = op & 0xc0;
@@ -275,47 +234,29 @@ VSTOOLS.SEQAnimation.prototype.readOpcodes = function( i ) {
 
 		// byte rotation
 
-		if ( (op & 0x80) > 0 ) {
+		if ( ( op & 0x80 ) > 0 ) {
+
 			rx = s8();
+
 		}
 
-		if ( (op & 0x40) > 0 ) {
+		if ( ( op & 0x40 ) > 0 ) {
+
 			ry = s8();
+
 		}
 
-		if ( (op & 0x20) > 0 ) {
+		if ( ( op & 0x20 ) > 0 ) {
+
 			rz = s8();
+
 		}
 
-		var r = this.pose[ i ];
+		this.keyframes[ i ].push( [ rx, ry, rz, f ] );
 
-		var kx = add( r[0], rx );
-		var ky = add( r[1], ry );
-		var kz = add( r[2], rz );
+		this.log( 'key', f, rx, ry, rz, half ? 'H' : ' ' );
 
-		this.log( 'key', f, kx, ky, kz );
-
-		var rad = VSTOOLS.rot13toRad;
-
-		var q = VSTOOLS.rot2quat( rad( kx ), rad( ky ), rad( kz ) );
-
-		this.tracks[ i ].keys.push( {
-			time: f/20,
-			pos: [ 0, 0, 0 ],
-			rot: [ q.x, q.y, q.z, q.w ],
-			scl: [ 1, 1, 1, 1 ]
-		} );
-
-	}
-
-	function add( r, s ) {
-
-		var a = r + s;
-
-		if ( a >= 4096 ) a -= 4096;
-		if ( a < 0 ) a += 4096;
-
-		return a;
+		if ( f >= this.length - 1 ) break;
 
 	}
 
@@ -326,11 +267,108 @@ VSTOOLS.SEQAnimation.prototype.build = function() {
 	var seq = this.seq;
 	var shp = seq.shp;
 
+	var numBones = seq.numBones;
+
+	var hierarchy = [];
+
+	var rad = VSTOOLS.rot13toRad;
+
+	// rotation bones
+
+	for ( var i = 0; i < numBones; ++i ) {
+
+		var keyframes = this.keyframes[ i ];
+		var pose = this.pose[ i ];
+
+		var rx = pose[ 0 ];
+		var ry = pose[ 1 ];
+		var rz = pose[ 2 ];
+
+		var keys = [];
+
+		this.log( 'bone', i );
+
+		var f0 = 0;
+
+		for ( var j = 0, l = keyframes.length; j < l; ++j ) {
+
+			var keyframe = keyframes[ j ];
+
+			var f = keyframe[ 3 ];
+			var df = f - f0;
+
+			// TODO whats up with this division by 2??
+			rx = add( rx, keyframe[ 0 ] * df / 2 );
+			ry = add( ry, keyframe[ 1 ] * df / 2 );
+			rz = add( rz, keyframe[ 2 ] * df / 2 );
+
+			var q = VSTOOLS.rot2quat( rad( rx ), rad( ry ), rad( rz ) );
+
+			keys.push( {
+				time: f * VSTOOLS.timeScale,
+				pos: [ 0, 0, 0 ],
+				rot: [ q.x, q.y, q.z, q.w ],
+				scl: [ 1, 1, 1 ]
+			} );
+
+			f0 = f;
+
+		}
+
+		hierarchy.push( { keys: keys } );
+
+	}
+
+	function add( r, s ) {
+
+		var a = r + s;
+
+		return a;
+
+		// TODO is this better?
+
+		if ( a >= 4096 ) a -= 4096;
+		if ( a < 0 ) a += 4096;
+
+		return a;
+
+	}
+
+	// root's translation bone
+
+	hierarchy.push( {
+		keys: [
+			{
+				time: 0,
+				pos: [ 0, 0, 0 ],
+				rot: [ 0, 0, 0, 1 ],
+				scl: [ 1, 1, 1 ]
+			}
+		]
+	} );
+
+	// translation bones
+
+	for ( var i = 1; i < numBones; ++i ) {
+
+		hierarchy.push( {
+			keys: [
+				{
+					time: 0,
+					pos: [ shp.bones[i].length, 0, 0 ],
+					rot: [ 0, 0, 0, 1 ],
+					scl: [ 1, 1, 1 ]
+				}
+			]
+		} );
+
+	}
+
 	var data = {
 		name: 'Animation' + this.id,
 		fps: 30,
-		length: this.numFrames/20,
-		hierarchy: this.tracks
+		length: this.length * VSTOOLS.timeScale,
+		hierarchy: hierarchy
 	};
 
 	this.animation = new THREE.Animation( shp.mesh, data );

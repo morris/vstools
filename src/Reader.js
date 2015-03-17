@@ -64,7 +64,7 @@ VSTOOLS.Reader = function( data ) {
 
 		var arr = new Array( len );
 
-		for ( i  = 0; i < len; ++i ) {
+		for ( var i  = 0; i < len; ++i ) {
 
 			arr[ i ] = u8();
 

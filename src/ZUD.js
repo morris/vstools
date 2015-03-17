@@ -12,18 +12,6 @@ VSTOOLS.ZUD.prototype.read = function() {
 
 };
 
-VSTOOLS.ZUD.prototype.build = function() {
-
-	this.shp.build( 0 );
-	if ( this.weapon ) this.weapon.build( 0 );
-	if ( this.shield ) this.shield.build( 0 );
-	if ( this.bt ) this.bt.build( 0 );
-	if ( this.com ) this.com.build( 0 );
-
-	this.mesh = this.shp.mesh;
-
-};
-
 VSTOOLS.ZUD.prototype.header = function() {
 
 	var u8 = this.u8, u32 = this.u32,
@@ -35,8 +23,8 @@ VSTOOLS.ZUD.prototype.header = function() {
 	this.idWeaponMaterial = u8();
 	this.idShield = u8();
 	this.idShieldMaterial = u8();
-	this.Unknown = u8();
-	skip(1); // padding
+	this.unknown = u8();
+	skip( 1 ); // padding
 	this.ptrCharacterSHP = u32();
 	this.lenCharacterSHP = u32();
 	this.ptrWeaponWEP = u32();
@@ -48,10 +36,10 @@ VSTOOLS.ZUD.prototype.header = function() {
 	this.ptrBattleSEQ = u32();
 	this.lenBattleSEQ = u32();
 
-	log('ptrWeaponWEP: ' + hex( this.ptrWeaponWEP ) );
-	log('ptrShieldWEP: ' + hex( this.ptrShieldWEP ) );
-	log('ptrCommonSEQ: ' + hex( this.ptrCommonSEQ ) );
-	log('ptrBattleSEQ: ' + hex( this.ptrBattleSEQ ) );
+	log( 'ptrWeaponWEP: ' + hex( this.ptrWeaponWEP ) );
+	log( 'ptrShieldWEP: ' + hex( this.ptrShieldWEP ) );
+	log( 'ptrCommonSEQ: ' + hex( this.ptrCommonSEQ ) );
+	log( 'ptrBattleSEQ: ' + hex( this.ptrBattleSEQ ) );
 
 };
 
@@ -71,7 +59,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log('weapon failed');
+		log( 'weapon failed' );
 		log( ex.stack );
 		this.weapon = null;
 
@@ -86,7 +74,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log('shield failed');
+		log( 'shield failed' );
 		log( ex.stack );
 		this.shield = null;
 
@@ -101,8 +89,8 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log('common seq failed');
-		log( ex );
+		log( 'common seq failed' );
+		log( ex.stack );
 		this.com = null;
 
 	}
@@ -116,11 +104,23 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 	} catch ( ex ) {
 
-		log('battle seq failed');
-		log( ex );
+		log( 'battle seq failed' );
+		log( ex.tack );
 		this.bt = null;
 
 	}
 
 };
 
+VSTOOLS.ZUD.prototype.build = function() {
+
+	this.shp.build();
+
+	if ( this.weapon ) this.weapon.build();
+	if ( this.shield ) this.shield.build();
+	if ( this.bt ) this.bt.build();
+	if ( this.com ) this.com.build();
+
+	this.mesh = this.shp.mesh;
+
+};

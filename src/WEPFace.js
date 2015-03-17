@@ -1,4 +1,4 @@
-VSTOOLS.WEPPolygon = function( reader, logger ) {
+VSTOOLS.WEPFace = function( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -9,17 +9,23 @@ VSTOOLS.WEPPolygon = function( reader, logger ) {
 
 		var type = this.type = u8(); // 1
 
-		if ( type === 0x2C ) {
-			// quad
-		} else if ( type === 0x24 ) {
+		if ( type === 0x24 ) {
+
 			// triangle
+
+		} else if ( type === 0x2C ) {
+
+			// quad
+
 		} else {
-			throw new Error( 'unknown poly: ' + VSTOOLS.hex( type ) );
+
+			throw new Error( 'Unknown face type: ' + VSTOOLS.hex( type ) );
+
 		}
 
 		this.size = u8(); // 2
 		this.info = u8(); // 3
-		this.skip( 1 ); // always 0; 4
+		this.u = u8(); // TODO whats this? 4
 
 		this.vertex1 = u16() / 4; // 6
 		this.vertex2 = u16() / 4; // 8
@@ -43,14 +49,9 @@ VSTOOLS.WEPPolygon = function( reader, logger ) {
 			this.u4 = u8(); // + 3
 			this.v4 = u8(); // + 4
 
-			//log('  quad(' + this.vertex1 + ',' + this.vertex2 + ',' + this.vertex3 + ',' + this.vertex4 + ')');
-			//log('  quad.uv(' + u1 + ',' + v1 + '/' + u2 + ',' + v2 + '/' + u3 + ',' + v3 + '/' + u4 + ',' + v4 + ')');
-		} else {
-			//log('  triangle(' + this.vertex1 + ',' + this.vertex2 + ',' + this.vertex3 +')');
-			// log('  triangle.uv(' + u1 + ',' + v1 + '/' + u2 + ',' + v2 + '/' + u3 + ',' + v3 + ')');
 		}
 
-		// tri is 16, quad is 20
+		// size of triangle is 16, quad is 20
 
 	};
 

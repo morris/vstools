@@ -46,11 +46,10 @@ body {
 			content: '+ ';
 		}
 
-		#sidebar .panel h2.collapsed ~ p,
-		#sidebar .panel h2.collapsed ~ div {
-			display: none;
-			color: red;
-		}
+			#sidebar .panel h2.collapsed ~ p,
+			#sidebar .panel h2.collapsed ~ div {
+				display: none;
+			}
 
 #textures img {
 	width: 150px;
