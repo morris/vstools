@@ -56,24 +56,6 @@ VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 		this.textureId = s16();
 
-		this.p1 = new THREE.Vector3( this.p1x, this.p1y, this.p1z );
-
-		this.p2 = new THREE.Vector3(
-			this.p2x * this.group.scale + this.p1x,
-			this.p2y * this.group.scale + this.p1y,
-			this.p2z * this.group.scale + this.p1z
-		);
-
-		this.p3 = new THREE.Vector3(
-			this.p3x * this.group.scale + this.p1x,
-			this.p3y * this.group.scale + this.p1y,
-			this.p3z * this.group.scale + this.p1z
-		);
-
-		this.uv1 = uv( this.u1, this.v1 );
-		this.uv2 = uv( this.u2, this.v2 );
-		this.uv3 = uv( this.u3, this.v3 );
-
 		if ( this.quad ) {
 
 			this.p4x = s8();
@@ -88,30 +70,40 @@ VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 			this.v4 = u8();
 
+		}
+
+	};
+
+	this.build = function() {
+
+		this.p1 = new THREE.Vector3( this.p1x, this.p1y, this.p1z );
+
+		this.p2 = new THREE.Vector3(
+			this.p2x * this.group.scale + this.p1x,
+			this.p2y * this.group.scale + this.p1y,
+			this.p2z * this.group.scale + this.p1z
+		);
+
+		this.p3 = new THREE.Vector3(
+			this.p3x * this.group.scale + this.p1x,
+			this.p3y * this.group.scale + this.p1y,
+			this.p3z * this.group.scale + this.p1z
+		);
+
+		if ( this.quad ) {
+
 			this.p4 = new THREE.Vector3(
 				this.p4x * this.group.scale + this.p1x,
 				this.p4y * this.group.scale + this.p1y,
 				this.p4z * this.group.scale + this.p1z
 			);
 
-			this.uv4 = uv( this.u4, this.v4 );
-
 		}
 
-		//log("  polygon");
-		//log(textureId + " -> " + clutId);
-		//assert t2 == 56;
-		//log("textureId: " + ;
-		//log("    type: " + type + " / " + quad);
-		//log("    rgb1: " + r1 + " " + g1 + " " + b1);
-		//log("    rgb2: " + r2 + " " + g2 + " " + b2);
-		//log("    rgb3: " + r3 + " " + g3 + " " + b3);
-
-		function uv( u, v ) {
-
-			return new THREE.Vector2( u / 256, v / 256 );
-
-		}
+		var n = this.n = new THREE.Vector3( f.p2x, f.p2y, f.p2z );
+		n.cross( f.p3x, f.p3y, f.p3z );
+		n.normalize();
+		n.negate();
 
 	};
 

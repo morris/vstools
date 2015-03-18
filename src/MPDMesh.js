@@ -6,168 +6,110 @@ VSTOOLS.MPDMesh = function( reader, logger, group, textureId, clutId ) {
 	this.group = group;
 	this.textureId = textureId;
 	this.clutId = clutId;
-	this.polygons = [];
+	this.faces = [];
 
-	this.add = function( polygon ) {
+	this.add = function( face ) {
 
-		this.polygons.push( polygon );
+		this.faces.push( face );
 
 	};
 
 	this.build = function() {
 
-		var polygons = this.polygons;
-		var nv = 0;
-		var ni = 0;
+		var geometry = this.geometry = new THREE.Geometry();
 
-		for ( var i = 0, l = polygons.length; i < l; ++i ) {
-
-			var p = polygons[ i ];
-
-			if ( p.quad ) {
-
-				nv += 4;
-				ni += 6;
-
-			} else {
-
-				ni += 3;
-				nv += 3;
-
-			}
-
-		}
-
-		vertices3 = [];
-		indices = [];
-		normals = [];
-		uv = [];
-		colors = [];
-
+		var faces = this.faces;
 		var iv = 0;
-		var ii = 0;
-		var colorsIndex = 0;
 
-		for ( var i = 0, l = polygons.length; i < l; ++i ) {
+		var tw = 256, th = 256;
 
-			var p = polygons[ i ];
+		for ( var i = 0, l = faces.length; i < l; ++i ) {
 
-			// compute normal
-			var n = new THREE.Vector3( p.p2x, p.p2y, p.p2z );
-			n.crossLocal( p.p3x, p.p3y, p.p3z );
-			n.normalizeLocal();
-			n.negateLocal();
+			var f = face[ i ];
 
-			if ( p.quad ) {
+			f.build();
 
-				vertices3[ iv + 0 ] = p.p1;
-				vertices3[ iv + 1 ] = p.p2;
-				vertices3[ iv + 2 ] = p.p3;
-				vertices3[ iv + 3 ] = p.p4;
+			if ( f.quad ) {
 
-				// 321
-				indices[ ii + 0 ] = iv + 2;
-				indices[ ii + 1 ] = iv + 1;
-				indices[ ii + 2 ] = iv + 0;
-				// 234
-				indices[ ii + 3 ] = iv + 1;
-				indices[ ii + 4 ] = iv + 2;
-				indices[ ii + 5 ] = iv + 3;
+				geometry.vertices.push( f.p1, f.p2, f.p3, f.p4 );
 
-				normals[ iv + 0 ] = n;
-				normals[ iv + 1 ] = n;
-				normals[ iv + 2 ] = n;
-				normals[ iv + 3 ] = n;
+				var c1 = [
+					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
+					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
+					new THREE.Color( f.r1 / 255, f.g1 / 255, f.b1 / 255 )
+				];
 
-				// CORRECT
-				uv[ iv + 0 ] = p.uv2;
-				uv[ iv + 1 ] = p.uv3;
-				uv[ iv + 2 ] = p.uv1;
-				uv[ iv + 3 ] = p.uv4;
+				var c2 = [
+					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
+					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
+					new THREE.Color( f.r4 / 255, f.g4 / 255, f.b4 / 255 )
+				];
 
-				colors[ colorsIndex++ ] = p.r1 / 255;
-				colors[ colorsIndex++ ] = p.g1 / 255;
-				colors[ colorsIndex++ ] = p.b1 / 255;
-				colors[ colorsIndex++ ] = 1;
+				geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0, f.n, c1 ) );
+				geometry.faces.push( new THREE.Face3( iv + 1, iv + 2, iv + 3, f.n, c2 ) );
 
-				colors[ colorsIndex++ ] = p.r2 / 255;
-				colors[ colorsIndex++ ] = p.g2 / 255;
-				colors[ colorsIndex++ ] = p.b2 / 255;
-				colors[ colorsIndex++ ] = 1;
+				var uv1 = [
+					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th ),
+					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
+					new THREE.Vector2( f.u2 / tw, 1 - f.v2 / th )
+				];
 
-				colors[ colorsIndex++ ] = p.r3 / 255;
-				colors[ colorsIndex++ ] = p.g3 / 255;
-				colors[ colorsIndex++ ] = p.b3 / 255;
-				colors[ colorsIndex++ ] = 1;
+				var uv2 = [
+					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
+					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th ),
+					new THREE.Vector2( f.u4 / tw, 1 - f.v4 / th )
+				];
 
-				colors[ colorsIndex++ ] = p.r4 / 255;
-				colors[ colorsIndex++ ] = p.g4 / 255;
-				colors[ colorsIndex++ ] = p.b4 / 255;
-				colors[ colorsIndex++ ] = 1;
+				geometry.faceVertexUvs[ 0 ].push( uv1, uv2 );
+
+				//uv[ iv + 0 ] = f.uv2;
+				//uv[ iv + 1 ] = f.uv3;
+				//uv[ iv + 2 ] = f.uv1;
+				//uv[ iv + 3 ] = f.uv4;
 
 				iv += 4;
-				ii += 6;
 
 			} else {
 
-				vertices3[ iv + 0 ] = p.p1;
-				vertices3[ iv + 1 ] = p.p2;
-				vertices3[ iv + 2 ] = p.p3;
+				geometry.vertices.push( f.p1, f.p2, f.p3 );
 
-				indices[ ii + 0 ] = iv + 2;
-				indices[ ii + 1 ] = iv + 1;
-				indices[ ii + 2 ] = iv;
+				var c = [
+					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
+					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
+					new THREE.Color( f.r1 / 255, f.g1 / 255, f.b1 / 255 )
+				];
 
-				normals[ iv + 0 ] = n;
-				normals[ iv + 1 ] = n;
-				normals[ iv + 2 ] = n;
+				geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0, f.n, c ) );
 
-				uv[ iv + 0 ] = p.uv2;
-				uv[ iv + 1 ] = p.uv3;
-				uv[ iv + 2 ] = p.uv1;
+				var uv = [
+					new THREE.Vector2( f.u2 / tw, 1 - f.v2 / th ),
+					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
+					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th )
+				];
 
-				colors[ colorsIndex++ ] = p.r1 / 255;
-				colors[ colorsIndex++ ] = p.g1 / 255;
-				colors[ colorsIndex++ ] = p.b1 / 255;
-				colors[ colorsIndex++ ] = 1;
+				geometry.faceVertexUvs[ 0 ].push( uv );
 
-				colors[ colorsIndex++ ] = p.r2 / 255;
-				colors[ colorsIndex++ ] = p.g2 / 255;
-				colors[ colorsIndex++ ] = p.b2 / 255;
-				colors[ colorsIndex++ ] = 1;
-
-				colors[ colorsIndex++ ] = p.r3 / 255;
-				colors[ colorsIndex++ ] = p.g3 / 255;
-				colors[ colorsIndex++ ] = p.b3 / 255;
-				colors[ colorsIndex++ ] = 1;
-
-				ii += 3;
 				iv += 3;
 
 			}
 
 		}
 
-		var mesh = this.mesh = new Mesh();
-		mesh.setBuffer(Type.Position, 3,
-				BufferUtils.createFloatBuffer(vertices3));
-		mesh.setBuffer(Type.Index, 3, BufferUtils.createIntBuffer(indices));
-		mesh.setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
-		mesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(uv));
-		mesh.setBuffer(Type.Color, 4, BufferUtils.createFloatBuffer(colors));
+		var group = this.group;
 
-		mesh.updateBound();
-		mesh.updateCounts();
+		if ( group && group.mpd && group.mpd.znd ) {
 
-		geom = new Geometry("MPDMesh", mesh);
-		geom.scale( 0.1 );
-		geom.rotate( Math.PI, 0, 0 );
+			this.material = group.mpd.znd.getMaterial( this.textureId, this.clutId) );
 
-		if (group != null && group.mpd != null && group.mpd.znd != null) {
+		} else {
 
-			geom.setMaterial( group.mpd.znd.getMaterial( textureId, clutId) );
+			this.material = new THREE.MeshNormalMaterial();
 
 		}
+
+		this.mesh = new THREE.Mesh( geometry, this.material );
+		this.mesh.rotation.x = Math.PI;
+		this.mesh.scale.set( 0.1, 0.1, 0.1 );
 
 	};
 
