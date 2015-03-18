@@ -1,7 +1,9 @@
-VSTOOLS.MPDFace = function( reader, logger ) {
+VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 	reader.extend( this );
 	logger.extend( this );
+
+	this.group = group;
 
 	this.read = function( quad ) {
 
@@ -96,14 +98,14 @@ VSTOOLS.MPDFace = function( reader, logger ) {
 
 		}
 
-		// log("  polygon");
-		// log(textureId + " -> " + clutId);
-		// assert t2 == 56;
-		// log("textureId: " + ;
-		// log("    type: " + type + " / " + quad);
-		// log("    rgb1: " + r1 + " " + g1 + " " + b1);
-		// log("    rgb2: " + r2 + " " + g2 + " " + b2);
-		// log("    rgb3: " + r3 + " " + g3 + " " + b3);
+		//log("  polygon");
+		//log(textureId + " -> " + clutId);
+		//assert t2 == 56;
+		//log("textureId: " + ;
+		//log("    type: " + type + " / " + quad);
+		//log("    rgb1: " + r1 + " " + g1 + " " + b1);
+		//log("    rgb2: " + r2 + " " + g2 + " " + b2);
+		//log("    rgb3: " + r3 + " " + g3 + " " + b3);
 
 		function uv( u, v ) {
 

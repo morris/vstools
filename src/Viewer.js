@@ -271,7 +271,11 @@ VSTOOLS.Viewer = function() {
 
 		clean();
 
-		// TODO
+		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), logger );
+		obj.read();
+
+		updateTextures();
+		updateAnim();
 
 	}
 
@@ -374,6 +378,8 @@ VSTOOLS.Viewer = function() {
 	function updateTextures( textures ) {
 
 		$( '#textures' ).empty();
+
+		if ( !textures ) return;
 
 		textures.forEach( function( texture ) {
 
