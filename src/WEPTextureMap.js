@@ -11,7 +11,7 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 		log( 'textureMap at ' + hex( this.reader.pos() ) );
 
 		var size = this.size = u32();
-		skip(1); // unknown, always 1?
+		skip( 1 ); // unknown, always 1?
 		var width = this.width = u8() * 2;
 		var height = this.height = u8() * 2;
 		var colorsPerPalette = this.colorsPerPalette = u8();

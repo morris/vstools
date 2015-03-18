@@ -3,8 +3,6 @@ VSTOOLS.MPD = function( reader, logger ) {
 	reader.extend( this );
 	logger.extend( this );
 
-	this.type = 'MPD';
-
 };
 
 VSTOOLS.MPD.prototype.read = function( znd ) {
@@ -115,15 +113,15 @@ VSTOOLS.MPD.prototype.geometrySection = function() {
 	for ( var i = 0; i < numGroups; ++i ) {
 
 		log( 'group ' + i + ' header' );
-		groups[i] = new VSTOOLS.MPDGroup( this.reader, this.logger, this );
-		groups[i].header();
+		groups[ i ] = new VSTOOLS.MPDGroup( this.reader, this.logger, this );
+		groups[ i ].header();
 
 	}
 
 	for ( var i = 0; i < numGroups; ++i ) {
 
 		log( 'group ' + i + ' data' );
-		groups[i].data();
+		groups[ i ].data();
 
 	}
 

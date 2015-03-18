@@ -17,7 +17,7 @@ VSTOOLS.FrameBuffer = function() {
 		buffer[ i + 0 ] = c[ 0 ];
 		buffer[ i + 1 ] = c[ 1 ];
 		buffer[ i + 2 ] = c[ 2 ];
-		buffer[ i + 3 ] = c[ 4 ];
+		buffer[ i + 3 ] = c[ 3 ];
 
 		this.texture.needsUpdate = true;
 
@@ -29,8 +29,7 @@ VSTOOLS.FrameBuffer = function() {
 
 			map: this.texture,
 			shading: THREE.FlatShading,
-			transparent: true,
-			transparency: true
+			transparent: true
 
 		} );
 

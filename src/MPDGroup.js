@@ -5,8 +5,8 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 	this.read = function() {
 
-		header();
-		data();
+		this.header();
+		this.data();
 
 	};
 
@@ -22,12 +22,13 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 		}
 
-		//log( hex( header, 2 ) );
+		//log( hex( head, 2 ) );
 
 		// the header is not well understood
 		// it seems that the bits in the second byte are flag bits
+
 		// the following fixes the scaling issues in maps 001 and 002
-		if ( ( head[1] & 0x08 ) > 0 ) {
+		if ( ( head[ 1 ] & 0x08 ) > 0 ) {
 
 			scale = 1;
 
@@ -43,32 +44,31 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 		var u32 = this.u32;
 
-		this.numPoly3gts = u32();
-		this.numPoly4gts = u32();
-		this.numPoly = numPoly3gts + numPoly4gts;
+		var triangleCount = this.triangleCount = u32();
+		var quadCount = this.quadCount = u32();
+		var faceCount = this.faceCount = triangleCount + quadCount;
 
-		log( 'numPoly: ' + numPoly );
+		log( 'faceCount: ' + faceCount );
 
-		var polygons = this.polygons = [];
 		var meshes = this.meshes = {};
 
-		for ( var i = 0; i < numPoly3gts; ++i ) {
+		for ( var i = 0; i < triangleCount; ++i ) {
 
-			polygons[i] = new VSTOOLS.MPDPolygon( this, data );
-			polygons[i].read( false );
+			var face = new VSTOOLS.MPDFace( this.reader, this.logger );
+			face.read( false );
 
-			var mesh = this.getMesh( polygons[i].textureId, polygons[i].clutId );
-			mesh.add( polygons[i] );
+			var mesh = this.getMesh( face.textureId, face.clutId );
+			mesh.add( face );
 
 		}
 
-		for ( var i = numPoly3gts; i < numPoly; ++i ) {
+		for ( var i = triangleCount; i < faceCount; ++i ) {
 
-			polygons[i] = new VSTOOLS.MPDPolygon( this.reader, this.logger );
-			polygons[i].read( true );
+			var face = new VSTOOLS.MPDFace( this.reader, this.logger );
+			face.read( true );
 
-			var mesh = this.getMesh( polygons[i].textureId, polygons[i].clutId );
-			mesh.add( polygons[i] );
+			var mesh = this.getMesh( face.textureId, face.clutId );
+			mesh.add( face );
 
 		}
 

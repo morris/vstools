@@ -1,4 +1,4 @@
-VSTOOLS.MPDPolygon = function( reader, logger ) {
+VSTOOLS.MPDFace = function( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
