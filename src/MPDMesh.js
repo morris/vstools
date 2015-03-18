@@ -25,7 +25,7 @@ VSTOOLS.MPDMesh = function( reader, logger, group, textureId, clutId ) {
 
 		for ( var i = 0, l = faces.length; i < l; ++i ) {
 
-			var f = face[ i ];
+			var f = faces[ i ];
 
 			f.build();
 
@@ -99,7 +99,7 @@ VSTOOLS.MPDMesh = function( reader, logger, group, textureId, clutId ) {
 
 		if ( group && group.mpd && group.mpd.znd ) {
 
-			this.material = group.mpd.znd.getMaterial( this.textureId, this.clutId) );
+			this.material = group.mpd.znd.getMaterial( this.textureId, this.clutId );
 
 		} else {
 

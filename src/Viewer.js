@@ -273,6 +273,9 @@ VSTOOLS.Viewer = function() {
 
 		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), logger );
 		obj.read();
+		obj.build();
+
+		scene.add( obj.mesh );
 
 		updateTextures();
 		updateAnim();

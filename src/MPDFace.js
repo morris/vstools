@@ -100,8 +100,8 @@ VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 		}
 
-		var n = this.n = new THREE.Vector3( f.p2x, f.p2y, f.p2z );
-		n.cross( f.p3x, f.p3y, f.p3z );
+		var n = this.n = new THREE.Vector3( this.p2x, this.p2y, this.p2z );
+		n.cross( new THREE.Vector3( this.p3x, this.p3y, this.p3z ) );
 		n.normalize();
 		n.negate();
 

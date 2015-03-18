@@ -30,11 +30,11 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 		// the following fixes the scaling issues in maps 001 and 002
 		if ( ( head[ 1 ] & 0x08 ) > 0 ) {
 
-			scale = 1;
+			this.scale = 1;
 
 		} else {
 
-			scale = 8; // TODO is this the default?
+			this.scale = 8; // TODO is this the default?
 
 		}
 
@@ -78,7 +78,7 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 		for ( var id in this.meshes ) {
 
-			this.mesh[ id ].build();
+			this.meshes[ id ].build();
 
 		}
 

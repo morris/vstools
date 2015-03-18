@@ -296,14 +296,16 @@ VSTOOLS.MPD.prototype.build = function() {
 
 	var groups = this.groups, numGroups = this.numGroups;
 
+	this.mesh = new THREE.Object3D();
+
 	for ( var i = 0; i < numGroups; ++i ) {
 
-		var group = groups[i];
+		var group = groups[ i ];
 		group.build();
 
 		for ( var id in group.meshes ) {
 
-			node.attachChild( group.meshes[ id ].mesh );
+			this.mesh.add( group.meshes[ id ].mesh );
 
 		}
 
