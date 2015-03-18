@@ -48,7 +48,7 @@ VSTOOLS.Viewer = function() {
 
 	var self = this;
 
-	var obj, seq, skeletonHelper;
+	var obj, seq, znd, skeletonHelper;
 
 	var logger = new VSTOOLS.Logger();
 	logger.extend( this );
@@ -263,7 +263,12 @@ VSTOOLS.Viewer = function() {
 
 		clean();
 
-		// TODO
+		znd = new VSTOOLS.ZND( new VSTOOLS.Reader( data ), logger );
+		znd.read();
+
+		znd.frameBuffer.build();
+
+		updateTextures( znd.textures );
 
 	}
 
@@ -271,14 +276,13 @@ VSTOOLS.Viewer = function() {
 
 		clean();
 
-		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), logger );
+		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), logger, znd );
 		obj.read();
 		obj.build();
 
 		scene.add( obj.mesh );
 
-		updateTextures();
-		updateAnim();
+		if ( znd ) updateTextures( znd.textures );
 
 	}
 

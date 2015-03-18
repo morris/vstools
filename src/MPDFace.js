@@ -56,6 +56,8 @@ VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 		this.textureId = s16();
 
+		this.log( this.textureId );
+
 		if ( this.quad ) {
 
 			this.p4x = s8();

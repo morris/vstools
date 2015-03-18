@@ -25,6 +25,12 @@ This code is developed for the US Version of Vagrant Story but should work with 
 - SHP (characters, partially)
 - SEQ (animations, only poses)
 - ZUD (basically SHP + SEQ + WEP)
+- ZND (zone data)
+- MPD (map)
+
+To open an MPD file, you'll need the correct ZND file.
+You can find the Zone/Map list
+[here](http://datacrystal.romhacking.net/wiki/Vagrant_Story:rooms_list).
 
 ## Motivation
 

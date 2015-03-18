@@ -1,13 +1,13 @@
-VSTOOLS.MPD = function( reader, logger ) {
+VSTOOLS.MPD = function( reader, logger, znd ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
+	this.znd = znd;
+
 };
 
-VSTOOLS.MPD.prototype.read = function( znd ) {
-
-	this.znd = znd;
+VSTOOLS.MPD.prototype.read = function() {
 
 	this.header();
 	this.roomHeader();

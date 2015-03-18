@@ -4,7 +4,8 @@ body {
 
 	font-family: Sans-Serif;
 	font-size: 14px;
-	color: #000;
+	color: #fff;
+	background: #000;
 
 	overflow: hidden;
 }
@@ -17,6 +18,7 @@ body {
 	width: 360px;
 	overflow-y: auto;
 
+	color: #111;
 	background: #ccc;
 }
 

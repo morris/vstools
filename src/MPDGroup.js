@@ -3,6 +3,8 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 	reader.extend( this );
 	logger.extend( this );
 
+	this.mpd = mpd;
+
 	this.read = function() {
 
 		this.header();
