@@ -65,7 +65,7 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 		for ( var i = triangleCount; i < faceCount; ++i ) {
 
 			var face = new VSTOOLS.MPDFace( this.reader, this.logger );
-			face.read( true );
+			face.read( true ); // quad
 
 			var mesh = this.getMesh( face.textureId, face.clutId );
 			mesh.add( face );

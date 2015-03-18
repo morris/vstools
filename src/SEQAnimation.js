@@ -366,7 +366,6 @@ VSTOOLS.SEQAnimation.prototype.build = function() {
 
 	var data = {
 		name: 'Animation' + this.id,
-		fps: 30,
 		length: this.length * VSTOOLS.timeScale,
 		hierarchy: hierarchy
 	};
