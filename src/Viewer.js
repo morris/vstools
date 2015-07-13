@@ -1,4 +1,4 @@
-VSTOOLS.Viewer = function() {
+VSTOOLS.Viewer = function () {
 
 	//
 
@@ -38,7 +38,7 @@ VSTOOLS.Viewer = function() {
 
 	$( window ).on( 'resize', resize );
 
-	this.run = function() {
+	this.run = function () {
 
 		render();
 
@@ -57,7 +57,7 @@ VSTOOLS.Viewer = function() {
 
 	var $sidebar = $( '#sidebar' );
 
-	$sidebar.on( 'click', 'h2', function() {
+	$sidebar.on( 'click', 'h2', function () {
 
 		$( this ).toggleClass( 'collapsed' );
 
@@ -115,7 +115,7 @@ VSTOOLS.Viewer = function() {
 		var f2 = $file2[ 0 ].files[ 0 ];
 
 		var reader = new FileReader();
-		reader.onload = function() {
+		reader.onload = function () {
 
 			var filename = f1.name;
 			var ext = VSTOOLS.ext( filename );
@@ -148,7 +148,7 @@ VSTOOLS.Viewer = function() {
 		};
 
 		var reader2 = new FileReader();
-		reader2.onload = function() {
+		reader2.onload = function () {
 
 			var filename = f2.name;
 			var ext = VSTOOLS.ext( filename );
@@ -372,7 +372,7 @@ VSTOOLS.Viewer = function() {
 		} catch ( ex ) {
 
 			console.warn( ex );
-			filter = function() { return false; };
+			filter = function () { return false; };
 
 		}
 
@@ -388,7 +388,7 @@ VSTOOLS.Viewer = function() {
 
 		if ( !textures ) return;
 
-		textures.forEach( function( texture ) {
+		textures.forEach( function ( texture ) {
 
 			$( '#textures' ).append( '<img src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
 
@@ -442,7 +442,7 @@ VSTOOLS.Viewer = function() {
 		function faces( arr ) {
 
 			var flat = [];
-			arr.forEach( function( f ) { flat.push( 0, f.a, f.b, f.c ); } );
+			arr.forEach( function ( f ) { flat.push( 0, f.a, f.b, f.c ); } );
 			return flat;
 
 		};
@@ -450,7 +450,7 @@ VSTOOLS.Viewer = function() {
 		function flatten2( arr ) {
 
 			var flat = [];
-			arr.forEach( function( v ) { flat.push( v.x, v.y ); } );
+			arr.forEach( function ( v ) { flat.push( v.x, v.y ); } );
 			return flat;
 
 		}
@@ -458,7 +458,7 @@ VSTOOLS.Viewer = function() {
 		function flatten3( arr ) {
 
 			var flat = [];
-			arr.forEach( function( v ) { flat.push( v.x, v.y, v.z ); } );
+			arr.forEach( function ( v ) { flat.push( v.x, v.y, v.z ); } );
 			return flat;
 
 		}
@@ -466,7 +466,7 @@ VSTOOLS.Viewer = function() {
 		function flatten4( arr ) {
 
 			var flat = [];
-			arr.forEach( function( v ) { flat.push( v.x, v.y, v.z, v.w ); } );
+			arr.forEach( function ( v ) { flat.push( v.x, v.y, v.z, v.w ); } );
 			return flat;
 
 		}

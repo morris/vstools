@@ -1,6 +1,6 @@
-VSTOOLS.WEPPalette = function( reader ) {
+VSTOOLS.WEPPalette = function ( reader ) {
 
-	this.read = function( size ) {
+	this.read = function ( size ) {
 
 		this.size = size;
 		this.colors = [];

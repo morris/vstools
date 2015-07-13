@@ -1,4 +1,4 @@
-VSTOOLS.MPDMesh = function( reader, logger, group, textureId, clutId ) {
+VSTOOLS.MPDMesh = function ( reader, logger, group, textureId, clutId ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -8,13 +8,13 @@ VSTOOLS.MPDMesh = function( reader, logger, group, textureId, clutId ) {
 	this.clutId = clutId;
 	this.faces = [];
 
-	this.add = function( face ) {
+	this.add = function ( face ) {
 
 		this.faces.push( face );
 
 	};
 
-	this.build = function() {
+	this.build = function () {
 
 		var geometry = this.geometry = new THREE.Geometry();
 

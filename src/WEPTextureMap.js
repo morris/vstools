@@ -1,9 +1,9 @@
-VSTOOLS.WEPTextureMap = function( reader, logger ) {
+VSTOOLS.WEPTextureMap = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
-	this.read = function( numberOfPalettes ) {
+	this.read = function ( numberOfPalettes ) {
 
 		var log = this.log, hex = VSTOOLS.hex;
 		var u8 = this.u8, s8 = this.s8, u32 = this.u32, skip = this.skip;
@@ -51,7 +51,7 @@ VSTOOLS.WEPTextureMap = function( reader, logger ) {
 
 	};
 
-	this.build = function() {
+	this.build = function () {
 
 		this.textures = [];
 

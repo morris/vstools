@@ -1,6 +1,6 @@
-VSTOOLS.WEPGroup = function( reader ) {
+VSTOOLS.WEPGroup = function ( reader ) {
 
-	this.read = function() {
+	this.read = function () {
 
 		this.boneId = reader.s16();
 		this.lastVertex = reader.u16();

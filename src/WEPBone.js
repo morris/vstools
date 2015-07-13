@@ -1,8 +1,8 @@
-VSTOOLS.WEPBone = function( reader ) {
+VSTOOLS.WEPBone = function ( reader ) {
 
 	var s8 = reader.s8, s16 = reader.s16, skip = reader.skip;
 
-	this.read = function() {
+	this.read = function () {
 
 		this.length = -s16(); // negative
 

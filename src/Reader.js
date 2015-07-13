@@ -1,4 +1,4 @@
-VSTOOLS.Reader = function( data ) {
+VSTOOLS.Reader = function ( data ) {
 
 	var pos = 0;
 
@@ -74,7 +74,7 @@ VSTOOLS.Reader = function( data ) {
 
 	}
 
-	this.extend = function( obj ) {
+	this.extend = function ( obj ) {
 
 		obj.reader = this;
 		obj.seek = seek;
@@ -87,7 +87,7 @@ VSTOOLS.Reader = function( data ) {
 		obj.s32 = s32;
 		obj.u32 = u32;
 		obj.buffer = buffer;
-		obj.pos = function() { return pos; };
+		obj.pos = function () { return pos; };
 
 	};
 
@@ -95,7 +95,7 @@ VSTOOLS.Reader = function( data ) {
 
 };
 
-VSTOOLS.Reader.test = function() {
+VSTOOLS.Reader.test = function () {
 
 	// TODO this test should be more exhaustive. i'm worried there might
 	// still be a few bugs here...

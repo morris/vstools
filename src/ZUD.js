@@ -1,18 +1,18 @@
-VSTOOLS.ZUD = function( reader, logger ) {
+VSTOOLS.ZUD = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
 };
 
-VSTOOLS.ZUD.prototype.read = function() {
+VSTOOLS.ZUD.prototype.read = function () {
 
 	this.header();
 	this.data();
 
 };
 
-VSTOOLS.ZUD.prototype.header = function() {
+VSTOOLS.ZUD.prototype.header = function () {
 
 	var u8 = this.u8, u32 = this.u32,
 		skip = this.skip, log = this.log, hex = VSTOOLS.hex;
@@ -43,7 +43,7 @@ VSTOOLS.ZUD.prototype.header = function() {
 
 };
 
-VSTOOLS.ZUD.prototype.data = function() {
+VSTOOLS.ZUD.prototype.data = function () {
 
 	var reader = this.reader, logger = this.logger, seek = this.seek, log = this.log;
 
@@ -112,7 +112,7 @@ VSTOOLS.ZUD.prototype.data = function() {
 
 };
 
-VSTOOLS.ZUD.prototype.build = function() {
+VSTOOLS.ZUD.prototype.build = function () {
 
 	this.shp.build();
 

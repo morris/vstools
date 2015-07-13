@@ -1,4 +1,4 @@
-VSTOOLS.SEQ = function( reader, logger, shp ) {
+VSTOOLS.SEQ = function ( reader, logger, shp ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -7,14 +7,14 @@ VSTOOLS.SEQ = function( reader, logger, shp ) {
 
 };
 
-VSTOOLS.SEQ.prototype.read = function() {
+VSTOOLS.SEQ.prototype.read = function () {
 
 	this.header();
 	this.data();
 
 };
 
-VSTOOLS.SEQ.prototype.header = function() {
+VSTOOLS.SEQ.prototype.header = function () {
 
 	var u8 = this.u8, u16 = this.u16, u32 = this.u32,
 		skip = this.skip, log = this.log, hex = VSTOOLS.hex;
@@ -43,7 +43,7 @@ VSTOOLS.SEQ.prototype.header = function() {
 
 };
 
-VSTOOLS.SEQ.prototype.data = function() {
+VSTOOLS.SEQ.prototype.data = function () {
 
 	var s8 = this.s8, skip = this.skip, log = this.log;
 
@@ -93,7 +93,7 @@ VSTOOLS.SEQ.prototype.data = function() {
 
 };
 
-VSTOOLS.SEQ.prototype.build = function() {
+VSTOOLS.SEQ.prototype.build = function () {
 
 	var numAnimations = this.numAnimations, animations = this.animations;
 
@@ -105,7 +105,7 @@ VSTOOLS.SEQ.prototype.build = function() {
 
 };
 
-VSTOOLS.SEQ.prototype.ptrData = function( i ) {
+VSTOOLS.SEQ.prototype.ptrData = function ( i ) {
 
 	return i + this.dataPtr + this.basePtr;
 

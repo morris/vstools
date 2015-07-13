@@ -1,4 +1,4 @@
-VSTOOLS.SHP = function( reader, logger ) {
+VSTOOLS.SHP = function ( reader, logger ) {
 
 	VSTOOLS.WEP.call( this, reader, logger );
 
@@ -6,14 +6,14 @@ VSTOOLS.SHP = function( reader, logger ) {
 
 VSTOOLS.SHP.prototype = Object.create( VSTOOLS.WEP.prototype );
 
-VSTOOLS.SHP.prototype.read = function() {
+VSTOOLS.SHP.prototype.read = function () {
 
 	this.header();
 	this.data();
 
 };
 
-VSTOOLS.SHP.prototype.header = function() {
+VSTOOLS.SHP.prototype.header = function () {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16, s16 = this.s16, u32 = this.u32,
 		skip = this.skip, hex = VSTOOLS.hex, log = this.log;
@@ -96,7 +96,7 @@ VSTOOLS.SHP.prototype.header = function() {
 
 };
 
-VSTOOLS.SHP.prototype.data = function() {
+VSTOOLS.SHP.prototype.data = function () {
 
 	var u16 = this.u16, u32 = this.u32, skip = this.skip,
 		hex = VSTOOLS.hex, log = this.log;

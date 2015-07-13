@@ -10,7 +10,7 @@ var VSTOOLS = {
 
 	// utility
 
-	hex: function( i, pad ) {
+	hex: function ( i, pad ) {
 
 		var x = i.toString( 16 );
 
@@ -20,7 +20,7 @@ var VSTOOLS = {
 
 	},
 
-	ext: function( path ) {
+	ext: function ( path ) {
 
 		var dot = path.lastIndexOf( '.' );
 		var slash = path.lastIndexOf( '/' );
@@ -30,7 +30,7 @@ var VSTOOLS = {
 	},
 
 	// convert typed array to png data url
-	png: function( data, width, height ) {
+	png: function ( data, width, height ) {
 
 		var canvas = document.createElement( 'canvas' );
 		canvas.width = width;
@@ -55,7 +55,7 @@ var VSTOOLS = {
 	// get RGBA from 16 bit color value
 	// first bit === 1 or bits === 0 means fully transparent
 	// then 5 bits for each of B, G, R
-	color: function( c ) {
+	color: function ( c ) {
 
 		var t = ( c & 0x8000 ) >> 15;
 		var b = ( c & 0x7C00 ) >> 10;
@@ -74,7 +74,7 @@ var VSTOOLS = {
 	},
 
 	// convert 13-bit rotation to radians
-	rot13toRad: function( angle ) {
+	rot13toRad: function ( angle ) {
 
 		return angle * VSTOOLS.Rot13toRad;
 
@@ -86,7 +86,7 @@ var VSTOOLS = {
 	// first apply x, then y, then z rotation
 	// THREE.Quaternion.setFromEuler is not equivalent
 
-	rot2quat: function( rx, ry, rz ) {
+	rot2quat: function ( rx, ry, rz ) {
 
 		var Quaternion = THREE.Quaternion;
 
@@ -105,15 +105,15 @@ var VSTOOLS = {
 	UnitY: new THREE.Vector3( 0, 1, 0 ),
 	UnitZ: new THREE.Vector3( 0, 0, 1 ),
 
-	u: function( b ) {
+	u: function ( b ) {
 
 		return b < 0 ? 256 + b : b;
 
 	},
 
-	log: function( filter, log ) {
+	log: function ( filter, log ) {
 
-		return function( obj ) {
+		return function ( obj ) {
 
 			if ( filter.call( obj, obj ) ) {
 
@@ -127,7 +127,7 @@ var VSTOOLS = {
 
 	debug: true,
 
-	assert: function( x, msg, err ) {
+	assert: function ( x, msg, err ) {
 
 		if ( VSTOOLS.debug && !x ) {
 
@@ -140,7 +140,7 @@ var VSTOOLS = {
 
 	//
 
-	testQuat: function() {
+	testQuat: function () {
 
 		var d2r = 2 * Math.PI / 360;
 

@@ -1,11 +1,11 @@
-VSTOOLS.MPDFace = function( reader, logger, group ) {
+VSTOOLS.MPDFace = function ( reader, logger, group ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
 	this.group = group;
 
-	this.read = function( quad ) {
+	this.read = function ( quad ) {
 
 		var s8 = this.s8, u8 = this.u8, s16 = this.s16, u16 = this.u16;
 
@@ -76,7 +76,7 @@ VSTOOLS.MPDFace = function( reader, logger, group ) {
 
 	};
 
-	this.build = function() {
+	this.build = function () {
 
 		this.p1 = new THREE.Vector3( this.p1x, this.p1y, this.p1z );
 

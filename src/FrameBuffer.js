@@ -1,4 +1,4 @@
-VSTOOLS.FrameBuffer = function() {
+VSTOOLS.FrameBuffer = function () {
 
 	var width = 1024;
 	var height = 512;
@@ -9,7 +9,7 @@ VSTOOLS.FrameBuffer = function() {
 	this.texture.magFilter = THREE.NearestFilter;
 	this.texture.minFilter = THREE.NearestFilter;
 
-	this.setPixel = function( x, y, c ) {
+	this.setPixel = function ( x, y, c ) {
 
 		var buffer = this.buffer;
 		var i = ( y * width + x ) * 4;
@@ -23,7 +23,7 @@ VSTOOLS.FrameBuffer = function() {
 
 	};
 
-	this.build = function() {
+	this.build = function () {
 
 		this.material = new THREE.MeshBasicMaterial( {
 
@@ -42,7 +42,7 @@ VSTOOLS.FrameBuffer = function() {
 
 	// debug
 
-	this.markCLUT = function( id ) {
+	this.markCLUT = function ( id ) {
 
 		var buffer = this.buffer;
 		var ilo = id * 64;

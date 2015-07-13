@@ -1,6 +1,6 @@
-VSTOOLS.WEPVertex = function( reader ) {
+VSTOOLS.WEPVertex = function ( reader ) {
 
-	this.read = function() {
+	this.read = function () {
 
 		this.x = reader.s16();
 		this.y = reader.s16();

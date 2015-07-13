@@ -1,18 +1,18 @@
-VSTOOLS.WEP = function( reader, logger ) {
+VSTOOLS.WEP = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
 };
 
-VSTOOLS.WEP.prototype.read = function() {
+VSTOOLS.WEP.prototype.read = function () {
 
 	this.header();
 	this.data();
 
 };
 
-VSTOOLS.WEP.prototype.header = function() {
+VSTOOLS.WEP.prototype.header = function () {
 
 	var log = this.log, hex = VSTOOLS.hex, u32 = this.u32;
 
@@ -42,7 +42,7 @@ VSTOOLS.WEP.prototype.header = function() {
 
 };
 
-VSTOOLS.WEP.prototype.header1 = function() {
+VSTOOLS.WEP.prototype.header1 = function () {
 
 	var u8 = this.u8, u16 = this.u16, buffer = this.buffer;
 
@@ -61,7 +61,7 @@ VSTOOLS.WEP.prototype.header1 = function() {
 
 };
 
-VSTOOLS.WEP.prototype.logHeader = function() {
+VSTOOLS.WEP.prototype.logHeader = function () {
 
 	var log = this.log;
 
@@ -74,7 +74,7 @@ VSTOOLS.WEP.prototype.logHeader = function() {
 
 };
 
-VSTOOLS.WEP.prototype.data = function() {
+VSTOOLS.WEP.prototype.data = function () {
 
 	this.log( 'WEP data' );
 
@@ -86,7 +86,7 @@ VSTOOLS.WEP.prototype.data = function() {
 
 };
 
-VSTOOLS.WEP.prototype.boneSection = function() {
+VSTOOLS.WEP.prototype.boneSection = function () {
 
 	var bones = this.bones = [];
 	var numBones = this.numBones;
@@ -120,7 +120,7 @@ VSTOOLS.WEP.prototype.boneSection = function() {
 
 };
 
-VSTOOLS.WEP.prototype.groupSection = function() {
+VSTOOLS.WEP.prototype.groupSection = function () {
 
 	var bones = this.bones;
 	var groups = this.groups = [];
@@ -143,7 +143,7 @@ VSTOOLS.WEP.prototype.groupSection = function() {
 
 };
 
-VSTOOLS.WEP.prototype.vertexSection = function() {
+VSTOOLS.WEP.prototype.vertexSection = function () {
 
 	var groups = this.groups;
 	var numGroups = this.numGroups;
@@ -171,7 +171,7 @@ VSTOOLS.WEP.prototype.vertexSection = function() {
 
 };
 
-VSTOOLS.WEP.prototype.faceSection = function() {
+VSTOOLS.WEP.prototype.faceSection = function () {
 
 	this.log( 'Polygon section at', VSTOOLS.hex( this.reader.pos() ) );
 
@@ -189,14 +189,14 @@ VSTOOLS.WEP.prototype.faceSection = function() {
 
 };
 
-VSTOOLS.WEP.prototype.textureSection = function( numPalettes ) {
+VSTOOLS.WEP.prototype.textureSection = function ( numPalettes ) {
 
 	this.textureMap = new VSTOOLS.WEPTextureMap( this.reader, this.logger );
 	this.textureMap.read( numPalettes );
 
 };
 
-VSTOOLS.WEP.prototype.build = function() {
+VSTOOLS.WEP.prototype.build = function () {
 
 	this.buildGeometry();
 	this.buildMaterial();
@@ -205,7 +205,7 @@ VSTOOLS.WEP.prototype.build = function() {
 
 };
 
-VSTOOLS.WEP.prototype.buildGeometry = function() {
+VSTOOLS.WEP.prototype.buildGeometry = function () {
 
 	var tw = this.textureMap.width;
 	var th = this.textureMap.height;
@@ -304,7 +304,7 @@ VSTOOLS.WEP.prototype.buildGeometry = function() {
 
 };
 
-VSTOOLS.WEP.prototype.buildMaterial = function() {
+VSTOOLS.WEP.prototype.buildMaterial = function () {
 
 	this.textureMap.build();
 
@@ -319,7 +319,7 @@ VSTOOLS.WEP.prototype.buildMaterial = function() {
 
 };
 
-VSTOOLS.WEP.prototype.buildBones = function() {
+VSTOOLS.WEP.prototype.buildBones = function () {
 
 	var bones = this.bones, numBones = this.numBones;
 	this.geometry.bones = [];
@@ -356,7 +356,7 @@ VSTOOLS.WEP.prototype.buildBones = function() {
 
 };
 
-VSTOOLS.WEP.prototype.buildMesh = function() {
+VSTOOLS.WEP.prototype.buildMesh = function () {
 
 	var bones = this.bones, numBones = this.numBones;
 	var mesh = this.mesh = new THREE.SkinnedMesh( this.geometry, this.material );
@@ -374,7 +374,7 @@ VSTOOLS.WEP.prototype.buildMesh = function() {
 
 };
 
-VSTOOLS.WEP.prototype.geometrySnapshot = function() {
+VSTOOLS.WEP.prototype.geometrySnapshot = function () {
 
 	var snapshot = this.geometry.clone();
 

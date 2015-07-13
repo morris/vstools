@@ -1,9 +1,9 @@
-VSTOOLS.WEPFace = function( reader, logger ) {
+VSTOOLS.WEPFace = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
-	this.read = function() {
+	this.read = function () {
 
 		var u8 = this.u8, u16 = this.u16, log = this.log;
 
@@ -55,13 +55,13 @@ VSTOOLS.WEPFace = function( reader, logger ) {
 
 	};
 
-	this.quad = function() {
+	this.quad = function () {
 
 		return this.type === 0x2C;
 
 	};
 
-	this.double = function() {
+	this.double = function () {
 
 		return this.info === 0x5;
 

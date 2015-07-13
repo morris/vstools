@@ -1,18 +1,18 @@
-VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
+VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
 	this.mpd = mpd;
 
-	this.read = function() {
+	this.read = function () {
 
 		this.header();
 		this.data();
 
 	};
 
-	this.header = function() {
+	this.header = function () {
 
 		var u8 = this.u8;
 
@@ -42,7 +42,7 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 	};
 
-	this.data = function() {
+	this.data = function () {
 
 		var u32 = this.u32, log = this.log;
 
@@ -76,7 +76,7 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 	};
 
-	this.build = function() {
+	this.build = function () {
 
 		for ( var id in this.meshes ) {
 
@@ -86,7 +86,7 @@ VSTOOLS.MPDGroup = function( reader, logger, mpd ) {
 
 	};
 
-	this.getMesh = function( textureId, clutId ) {
+	this.getMesh = function ( textureId, clutId ) {
 
 		var meshes = this.meshes;
 		var id = textureId + '-' + clutId;

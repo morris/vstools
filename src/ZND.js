@@ -1,4 +1,4 @@
-VSTOOLS.ZND = function( reader, logger ) {
+VSTOOLS.ZND = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -8,14 +8,14 @@ VSTOOLS.ZND = function( reader, logger ) {
 
 };
 
-VSTOOLS.ZND.prototype.read = function() {
+VSTOOLS.ZND.prototype.read = function () {
 
 	this.header();
 	this.data();
 
 };
 
-VSTOOLS.ZND.prototype.header = function() {
+VSTOOLS.ZND.prototype.header = function () {
 
 	var u8 = this.u8, u32 = this.u32, skip = this.skip,
 		log = this.log, hex = VSTOOLS.hex;
@@ -38,7 +38,7 @@ VSTOOLS.ZND.prototype.header = function() {
 
 };
 
-VSTOOLS.ZND.prototype.data = function() {
+VSTOOLS.ZND.prototype.data = function () {
 
 	this.log( '-- ZND data' );
 
@@ -48,7 +48,7 @@ VSTOOLS.ZND.prototype.data = function() {
 
 };
 
-VSTOOLS.ZND.prototype.mpdSection = function() {
+VSTOOLS.ZND.prototype.mpdSection = function () {
 
 	var u32 = this.u32;
 
@@ -65,13 +65,13 @@ VSTOOLS.ZND.prototype.mpdSection = function() {
 
 };
 
-VSTOOLS.ZND.prototype.enemiesSection = function() {
+VSTOOLS.ZND.prototype.enemiesSection = function () {
 
 	this.skip( this.enemyLen );
 
 };
 
-VSTOOLS.ZND.prototype.timSection = function() {
+VSTOOLS.ZND.prototype.timSection = function () {
 
 	var u32 = this.u32, skip = this.skip,
 		log = this.log, hex = VSTOOLS.hex;
@@ -111,7 +111,7 @@ VSTOOLS.ZND.prototype.timSection = function() {
 
 };
 
-VSTOOLS.ZND.prototype.getMaterial = function( textureId, clutId ) {
+VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
 
 	var log = this.log;
 

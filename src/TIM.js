@@ -1,11 +1,11 @@
-VSTOOLS.TIM = function( reader, logger ) {
+VSTOOLS.TIM = function ( reader, logger ) {
 
 	reader.extend( this );
 	logger.extend( this );
 
 };
 
-VSTOOLS.TIM.prototype.read = function() {
+VSTOOLS.TIM.prototype.read = function () {
 
 	var u16 = this.u16, u32 = this.u32, buf = this.buffer, skip = this.skip,
 		log = this.log;
@@ -41,7 +41,7 @@ VSTOOLS.TIM.prototype.read = function() {
 
 };
 
-VSTOOLS.TIM.prototype.copyToFrameBuffer = function( fb ) {
+VSTOOLS.TIM.prototype.copyToFrameBuffer = function ( fb ) {
 
 	var s16 = this.s16, seek = this.seek;
 
@@ -61,7 +61,7 @@ VSTOOLS.TIM.prototype.copyToFrameBuffer = function( fb ) {
 	}
 };
 
-VSTOOLS.TIM.prototype.markFrameBuffer = function( fb ) {
+VSTOOLS.TIM.prototype.markFrameBuffer = function ( fb ) {
 
 	var c = [ 255, Math.random() * 255, Math.random() * 255, Math.random() * 255 ];
 
@@ -77,7 +77,7 @@ VSTOOLS.TIM.prototype.markFrameBuffer = function( fb ) {
 
 };
 
-VSTOOLS.TIM.prototype.buildCLUT = function( x, y ) {
+VSTOOLS.TIM.prototype.buildCLUT = function ( x, y ) {
 
 	var s16 = this.s16, seek = this.seek, log = this.log;
 
@@ -106,7 +106,7 @@ VSTOOLS.TIM.prototype.buildCLUT = function( x, y ) {
 
 };
 
-VSTOOLS.TIM.prototype.build = function( clut ) {
+VSTOOLS.TIM.prototype.build = function ( clut ) {
 
 	var s8 = this.s8, seek = this.seek;
 

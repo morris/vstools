@@ -1,4 +1,4 @@
-VSTOOLS.MPD = function( reader, logger, znd ) {
+VSTOOLS.MPD = function ( reader, logger, znd ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -7,7 +7,7 @@ VSTOOLS.MPD = function( reader, logger, znd ) {
 
 };
 
-VSTOOLS.MPD.prototype.read = function() {
+VSTOOLS.MPD.prototype.read = function () {
 
 	this.header();
 	this.roomHeader();
@@ -17,7 +17,7 @@ VSTOOLS.MPD.prototype.read = function() {
 
 };
 
-VSTOOLS.MPD.prototype.header = function() {
+VSTOOLS.MPD.prototype.header = function () {
 
 	var u32 = this.u32;
 
@@ -36,7 +36,7 @@ VSTOOLS.MPD.prototype.header = function() {
 
 };
 
-VSTOOLS.MPD.prototype.roomHeader = function() {
+VSTOOLS.MPD.prototype.roomHeader = function () {
 
 	var u32 = this.u32;
 
@@ -72,7 +72,7 @@ VSTOOLS.MPD.prototype.roomHeader = function() {
 
 };
 
-VSTOOLS.MPD.prototype.roomSection = function() {
+VSTOOLS.MPD.prototype.roomSection = function () {
 
 	this.geometrySection();
 	this.collisionSection();
@@ -101,7 +101,7 @@ VSTOOLS.MPD.prototype.roomSection = function() {
 
 };
 
-VSTOOLS.MPD.prototype.geometrySection = function() {
+VSTOOLS.MPD.prototype.geometrySection = function () {
 
 	var u32 = this.u32, log = this.log;
 
@@ -127,151 +127,151 @@ VSTOOLS.MPD.prototype.geometrySection = function() {
 
 };
 
-VSTOOLS.MPD.prototype.collisionSection = function() {
+VSTOOLS.MPD.prototype.collisionSection = function () {
 
 	this.skip( this.lenCollisionSection );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection03 = function() {
+VSTOOLS.MPD.prototype.SubSection03 = function () {
 
 	this.skip( this.lenSubSection03 );
 
 };
 
-VSTOOLS.MPD.prototype.doorSectionRoom = function() {
+VSTOOLS.MPD.prototype.doorSectionRoom = function () {
 
 	this.skip( this.lenDoorSectionRoom );
 
 };
 
-VSTOOLS.MPD.prototype.lightingSection = function() {
+VSTOOLS.MPD.prototype.lightingSection = function () {
 
 	this.skip( this.lenLightingSection );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection06 = function() {
+VSTOOLS.MPD.prototype.SubSection06 = function () {
 
 	this.skip( this.lenSubSection06 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection07 = function() {
+VSTOOLS.MPD.prototype.SubSection07 = function () {
 
 	this.skip( this.lenSubSection07 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection08 = function() {
+VSTOOLS.MPD.prototype.SubSection08 = function () {
 
 	this.skip( this.lenSubSection08 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection09 = function() {
+VSTOOLS.MPD.prototype.SubSection09 = function () {
 
 	this.skip( this.lenSubSection09 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection0A = function() {
+VSTOOLS.MPD.prototype.SubSection0A = function () {
 
 	this.skip( this.lenSubSection0A );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection0B = function() {
+VSTOOLS.MPD.prototype.SubSection0B = function () {
 
 	this.skip( this.lenSubSection0B );
 
 };
 
-VSTOOLS.MPD.prototype.textureEffectsSection = function() {
+VSTOOLS.MPD.prototype.textureEffectsSection = function () {
 
 	this.skip( this.lenTextureEffectsSection );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection0D = function() {
+VSTOOLS.MPD.prototype.SubSection0D = function () {
 
 	this.skip( this.lenSubSection0D );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection0E = function() {
+VSTOOLS.MPD.prototype.SubSection0E = function () {
 
 	this.skip( this.lenSubSection0E );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection0F = function() {
+VSTOOLS.MPD.prototype.SubSection0F = function () {
 
 	this.skip( this.lenSubSection0F );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection10 = function() {
+VSTOOLS.MPD.prototype.SubSection10 = function () {
 
 	this.skip( this.lenSubSection10 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection11 = function() {
+VSTOOLS.MPD.prototype.SubSection11 = function () {
 
 	this.skip( this.lenSubSection11 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection12 = function() {
+VSTOOLS.MPD.prototype.SubSection12 = function () {
 
 	this.skip( this.lenSubSection12 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection13 = function() {
+VSTOOLS.MPD.prototype.SubSection13 = function () {
 
 	this.skip( this.lenSubSection13 );
 
 };
 
-VSTOOLS.MPD.prototype.akaoSubSection = function() {
+VSTOOLS.MPD.prototype.akaoSubSection = function () {
 
 	this.skip( this.lenAKAOSubSection );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection15 = function() {
+VSTOOLS.MPD.prototype.SubSection15 = function () {
 
 	this.skip( this.lenSubSection15 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection16 = function() {
+VSTOOLS.MPD.prototype.SubSection16 = function () {
 
 	this.skip( this.lenSubSection16 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection17 = function() {
+VSTOOLS.MPD.prototype.SubSection17 = function () {
 
 	this.skip( this.lenSubSection17 );
 
 };
 
-VSTOOLS.MPD.prototype.SubSection18 = function() {
+VSTOOLS.MPD.prototype.SubSection18 = function () {
 
 	this.skip( this.lenSubSection18 );
 
 };
 
-VSTOOLS.MPD.prototype.clearedSection = function() {
+VSTOOLS.MPD.prototype.clearedSection = function () {
 
 	this.skip( this.lenClearedSection );
 
 };
 
-VSTOOLS.MPD.prototype.scriptSection = function() {
+VSTOOLS.MPD.prototype.scriptSection = function () {
 
 	var u16 = this.u16, buffer = this.buffer,
 		hex = VSTOOLS.hex, log = this.log;
@@ -292,7 +292,7 @@ VSTOOLS.MPD.prototype.scriptSection = function() {
 
 //
 
-VSTOOLS.MPD.prototype.build = function() {
+VSTOOLS.MPD.prototype.build = function () {
 
 	var groups = this.groups, numGroups = this.numGroups;
 
@@ -313,7 +313,7 @@ VSTOOLS.MPD.prototype.build = function() {
 
 };
 
-VSTOOLS.MPD.prototype.setMaterial = function( mat ) {
+VSTOOLS.MPD.prototype.setMaterial = function ( mat ) {
 
 	var groups = this.groups, numGroups = this.numGroups;
 

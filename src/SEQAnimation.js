@@ -1,4 +1,4 @@
-VSTOOLS.SEQAnimation = function( reader, logger, seq ) {
+VSTOOLS.SEQAnimation = function ( reader, logger, seq ) {
 
 	reader.extend( this );
 	logger.extend( this );
@@ -7,7 +7,7 @@ VSTOOLS.SEQAnimation = function( reader, logger, seq ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.header = function( id ) {
+VSTOOLS.SEQAnimation.prototype.header = function ( id ) {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16,
 		skip = this.skip, hex = VSTOOLS.hex, log = this.log;
@@ -63,7 +63,7 @@ VSTOOLS.SEQAnimation.prototype.header = function( id ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.data = function() {
+VSTOOLS.SEQAnimation.prototype.data = function () {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16, s16big = this.s16big,
 		skip = this.skip, seek = this.seek, hex = VSTOOLS.hex, log = this.log;
@@ -116,7 +116,7 @@ VSTOOLS.SEQAnimation.prototype.data = function() {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.readPose = function( i ) {
+VSTOOLS.SEQAnimation.prototype.readPose = function ( i ) {
 
 	var s16big = this.s16big, log = this.log;
 
@@ -131,7 +131,7 @@ VSTOOLS.SEQAnimation.prototype.readPose = function( i ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.readKeyframes = function( i ) {
+VSTOOLS.SEQAnimation.prototype.readKeyframes = function ( i ) {
 
 	if ( !VSTOOLS.enableKeyframes ) return;
 
@@ -262,7 +262,7 @@ VSTOOLS.SEQAnimation.prototype.readKeyframes = function( i ) {
 
 };
 
-VSTOOLS.SEQAnimation.prototype.build = function() {
+VSTOOLS.SEQAnimation.prototype.build = function () {
 
 	var seq = this.seq;
 	var shp = seq.shp;
