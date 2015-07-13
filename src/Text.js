@@ -1,6 +1,6 @@
 VSTOOLS.Text = {
 
-	convert: function( i, len, end ) {
+	convert: function ( i, len, end ) {
 
 		len = len || i.length;
 
@@ -54,7 +54,7 @@ VSTOOLS.Text = {
 
 	},
 
-	chr: function( i ) {
+	chr: function ( i ) {
 
 		var c = VSTOOLS.Text.map[ i ];
 
@@ -72,7 +72,7 @@ VSTOOLS.Text = {
 
 };
 
-(function() {
+( function () {
 
 	var map = VSTOOLS.Text.map = new Array( 0xE9 );
 
@@ -98,48 +98,48 @@ VSTOOLS.Text = {
 	}
 
 	put( 0x40, '_' );
-	put( 0x41, 'Â' );
-	put( 0x42, 'Ä' );
-	put( 0x43, 'Ç' );
-	put( 0x44, 'È' );
-	put( 0x45, 'É' );
-	put( 0x46, 'Ê' );
-	put( 0x47, 'Ë' );
-	put( 0x48, 'Ì' );
+	put( 0x41, 'Ã‚' );
+	put( 0x42, 'Ã„' );
+	put( 0x43, 'Ã‡' );
+	put( 0x44, 'Ãˆ' );
+	put( 0x45, 'Ã‰' );
+	put( 0x46, 'ÃŠ' );
+	put( 0x47, 'Ã‹' );
+	put( 0x48, 'ÃŒ' );
 	put( 0x49, '_' );
-	put( 0x4A, 'Î' );
+	put( 0x4A, 'ÃŽ' );
 	put( 0x4B, '_' );
-	put( 0x4C, 'Ò' );
-	put( 0x4D, 'Ó' );
-	put( 0x4E, 'Ô' );
-	put( 0x4F, 'Ö' );
-	put( 0x50, 'Ù' );
-	put( 0x51, 'Ú' );
-	put( 0x52, 'Û' );
-	put( 0x53, 'Ü' );
-	put( 0x54, 'ß' );
-	put( 0x55, 'æ' );
-	put( 0x56, 'à' );
-	put( 0x57, 'á' );
-	put( 0x58, 'â' );
-	put( 0x59, 'ä' );
-	put( 0x5A, 'ç' );
-	put( 0x5B, 'è' );
-	put( 0x5C, 'é' );
-	put( 0x5D, 'ê' );
-	put( 0x5E, 'ë' );
-	put( 0x5F, 'ì' );
-	put( 0x60, 'í' );
-	put( 0x61, 'î' );
-	put( 0x62, 'ï' );
-	put( 0x63, 'ò' );
-	put( 0x64, 'ó' );
-	put( 0x65, 'ô' );
-	put( 0x66, 'ö' );
-	put( 0x67, 'ù' );
-	put( 0x68, 'ú' );
-	put( 0x69, 'û' );
-	put( 0x6A, 'ü' );
+	put( 0x4C, 'Ã’' );
+	put( 0x4D, 'Ã“' );
+	put( 0x4E, 'Ã”' );
+	put( 0x4F, 'Ã–' );
+	put( 0x50, 'Ã™' );
+	put( 0x51, 'Ãš' );
+	put( 0x52, 'Ã›' );
+	put( 0x53, 'Ãœ' );
+	put( 0x54, 'ÃŸ' );
+	put( 0x55, 'Ã¦' );
+	put( 0x56, 'Ã ' );
+	put( 0x57, 'Ã¡' );
+	put( 0x58, 'Ã¢' );
+	put( 0x59, 'Ã¤' );
+	put( 0x5A, 'Ã§' );
+	put( 0x5B, 'Ã¨' );
+	put( 0x5C, 'Ã©' );
+	put( 0x5D, 'Ãª' );
+	put( 0x5E, 'Ã«' );
+	put( 0x5F, 'Ã¬' );
+	put( 0x60, 'Ã­' );
+	put( 0x61, 'Ã®' );
+	put( 0x62, 'Ã¯' );
+	put( 0x63, 'Ã²' );
+	put( 0x64, 'Ã³' );
+	put( 0x65, 'Ã´' );
+	put( 0x66, 'Ã¶' );
+	put( 0x67, 'Ã¹' );
+	put( 0x68, 'Ãº' );
+	put( 0x69, 'Ã»' );
+	put( 0x6A, 'Ã¼' );
 
 	put(0x8f, ' ');
 
@@ -180,4 +180,4 @@ VSTOOLS.Text = {
 
 	}
 
-})();
+} )();
