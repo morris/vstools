@@ -124,3 +124,9 @@ VSTOOLS.ZUD.prototype.build = function () {
 	this.mesh = this.shp.mesh;
 
 };
+
+VSTOOLS.ZUD.prototype.geometrySnapshot = function () {
+
+	return this.shp.geometrySnapshot();
+
+};
