@@ -3,7 +3,7 @@ VSTOOLS.Logger = function ( options ) {
 	options = options || {};
 
 	this.log = options.log || console.log.bind( console );
-	this.filter = options.filter || function () { return false };
+	this.filter = options.filter || function () { return false; };
 	this.filterMax = options.filterMax || 100;
 
 	this.filtered = 0;
