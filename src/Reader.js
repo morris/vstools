@@ -14,7 +14,7 @@ VSTOOLS.Reader = function ( data ) {
 
 	}
 
-	function s8() {
+	function u8() {
 
 		if ( pos >= data.length ) throw new Error( 'Out of bounds' );
 
@@ -23,9 +23,9 @@ VSTOOLS.Reader = function ( data ) {
 
 	}
 
-	function u8() {
+	function s8() {
 
-		return s8() & 0xff;
+		return ( u8() << 24 ) >> 24;
 
 	}
 

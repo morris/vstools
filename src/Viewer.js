@@ -119,7 +119,7 @@ VSTOOLS.Viewer = function () {
 
 			var filename = f1.name;
 			var ext = VSTOOLS.ext( filename );
-			var data = new Int8Array( reader.result );
+			var data = new Uint8Array( reader.result );
 
 			if ( ext === 'wep' ) {
 
@@ -152,7 +152,7 @@ VSTOOLS.Viewer = function () {
 
 			var filename = f2.name;
 			var ext = VSTOOLS.ext( filename );
-			var data = new Int8Array( reader2.result );
+			var data = new Uint8Array( reader2.result );
 
 			if ( ext === 'seq' ) {
 
@@ -445,7 +445,7 @@ VSTOOLS.Viewer = function () {
 			arr.forEach( function ( f ) { flat.push( 0, f.a, f.b, f.c ); } );
 			return flat;
 
-		};
+		}
 
 		function flatten2( arr ) {
 
