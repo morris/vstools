@@ -170,5 +170,3 @@ var VSTOOLS = {
 	},
 
 };
-
-if ( typeof module === 'object' ) module.exports = VSTOOLS;
