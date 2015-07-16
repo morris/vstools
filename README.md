@@ -23,7 +23,7 @@ This code is developed for the US Version of Vagrant Story but should work with 
 
 - WEP (weapons)
 - SHP (characters, partially)
-- SEQ (animations, only poses)
+- SEQ (animations, 90%)
 - ZUD (basically SHP + SEQ + WEP)
 - ZND (zone data)
 - MPD (map)

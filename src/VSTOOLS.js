@@ -2,7 +2,7 @@ var VSTOOLS = {
 
 	// constants
 
-	timeScale: 0.05,
+	timeScale: 0.04,
 
 	// utility
 
