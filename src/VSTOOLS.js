@@ -80,7 +80,7 @@ var VSTOOLS = {
 
 	},
 
-	Rot13toRad: (1 / 4096) * 2 * Math.PI,
+	Rot13toRad: ( 1 / 4096 ) * Math.PI,
 
 	// convert XYZ rotation in radians to quaternion
 	// first apply x, then y, then z rotation
