@@ -1,9 +1,5 @@
 var VSTOOLS = {
 
-	// config
-
-	enableKeyFrames: true,
-
 	// constants
 
 	timeScale: 0.05,

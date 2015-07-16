@@ -72,7 +72,6 @@ VSTOOLS.Viewer = function () {
 	var $file1 = $( '#file1' );
 	var $file2 = $( '#file2' );
 	var $load = $( '#load' );
-	var $keyframes = $( '#keyframes' );
 	var $skeleton = $( '#skeleton' );
 
 	$load.on( 'click', load );
@@ -112,8 +111,6 @@ VSTOOLS.Viewer = function () {
 	// loading
 
 	function load() {
-
-		VSTOOLS.enableKeyframes = $keyframes.is( ':checked' );
 
 		var f1 = $file1[ 0 ].files[ 0 ];
 		var f2 = $file2[ 0 ].files[ 0 ];
