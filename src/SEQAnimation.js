@@ -393,7 +393,7 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
 			keys: [
 				{
 					time: 0,
-					pos: [ shp.bones[i].length, 0, 0 ],
+					pos: [ shp.bones[ i ].length, 0, 0 ],
 					rot: [ 0, 0, 0, 1 ],
 					scl: [ 1, 1, 1 ]
 				}

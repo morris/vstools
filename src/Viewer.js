@@ -317,7 +317,6 @@ VSTOOLS.Viewer = function () {
 
 		if ( !seq ) {
 
-			$animation.val( '' );
 			return;
 
 		}
@@ -326,22 +325,22 @@ VSTOOLS.Viewer = function () {
 
 		var id = parseAnim();
 
-		seq.animations[ id - 1 ].animation.play();
+		seq.animations[ id ].animation.play();
 
 		$animation.val( id );
-		$animationCount.html( seq.animations.length );
+		$animationCount.html( '0&ndash;' + ( seq.animations.length - 1 ) );
 
 	}
 
 	function parseAnim() {
 
-		if ( !seq ) return 1;
+		if ( !seq ) return 0;
 
 		var id = parseInt( $animation.val() );
 
-		if ( !id ) id = 1;
+		if ( !id ) id = 0;
 
-		id = Math.min( seq.animations.length,  Math.max( 1, id ) );
+		id = Math.min( seq.animations.length - 1,  Math.max( 0, id ) );
 
 		return id;
 
