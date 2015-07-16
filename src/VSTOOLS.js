@@ -169,4 +169,36 @@ var VSTOOLS = {
 
 	},
 
+	logReal: function ( x, path ) {
+
+		path = path || [];
+
+		if ( typeof x === 'number' && ( isNaN( x ) || !isFinite( x ) ) ) {
+
+			console.log( path.join( '/' ) );
+
+		} else if ( Object.prototype.toString.call( x ) === '[object Array]' ) {
+
+			for ( var i = 0; i < x.length; ++i ) {
+
+				VSTOOLS.logReal( x[ i ], path.concat( [ i ] ) );
+
+			}
+
+		} else if ( typeof x === 'object' ) {
+
+			for ( var p in x ) {
+
+				if ( x.hasOwnProperty( p ) ) {
+
+					VSTOOLS.logReal( x[ p ], path.concat( [ p ] ) );
+
+				}
+
+			}
+
+		}
+
+	}
+
 };
