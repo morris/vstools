@@ -30,9 +30,13 @@ VSTOOLS.Viewer = function () {
 
 	function resize() {
 
-		camera.aspect =  ( window.innerWidth - 360 ) / window.innerHeight;
-		camera.updateProjectionMatrix();
-		renderer.setSize( ( window.innerWidth - 360 ), window.innerHeight );
+		setTimeout( function () {
+
+			camera.aspect =  ( window.innerWidth - 360 ) / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( ( window.innerWidth - 360 ), window.innerHeight );
+
+		}, 1 );
 
 	}
 
