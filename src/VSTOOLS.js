@@ -2,19 +2,15 @@ var VSTOOLS = {
 
 	// constants
 
-	timeScale: 0.04,
+	TimeScale: 0.04,
+
+	Rot13toRad: ( 1 / 4096 ) * Math.PI,
+
+	UnitX: new THREE.Vector3( 1, 0, 0 ),
+	UnitY: new THREE.Vector3( 0, 1, 0 ),
+	UnitZ: new THREE.Vector3( 0, 0, 1 ),
 
 	// utility
-
-	hex: function ( i, pad ) {
-
-		var x = i.toString( 16 );
-
-		while ( x.length < pad ) x = '0' + x;
-
-		return '0x' + x;
-
-	},
 
 	ext: function ( path ) {
 
@@ -76,12 +72,9 @@ var VSTOOLS = {
 
 	},
 
-	Rot13toRad: ( 1 / 4096 ) * Math.PI,
-
 	// convert XYZ rotation in radians to quaternion
 	// first apply x, then y, then z rotation
 	// THREE.Quaternion.setFromEuler is not equivalent
-
 	rot2quat: function ( rx, ry, rz ) {
 
 		var Quaternion = THREE.Quaternion;
@@ -97,103 +90,13 @@ var VSTOOLS = {
 
 	},
 
-	UnitX: new THREE.Vector3( 1, 0, 0 ),
-	UnitY: new THREE.Vector3( 0, 1, 0 ),
-	UnitZ: new THREE.Vector3( 0, 0, 1 ),
+	hex: function ( i, pad ) {
 
-	u: function ( b ) {
+		var x = i.toString( 16 );
 
-		return b < 0 ? 256 + b : b;
+		while ( x.length < pad ) x = '0' + x;
 
-	},
-
-	log: function ( filter, log ) {
-
-		return function ( obj ) {
-
-			if ( filter.call( obj, obj ) ) {
-
-
-
-			}
-
-		};
-
-	},
-
-	debug: true,
-
-	assert: function ( x, msg, err ) {
-
-		if ( VSTOOLS.debug && !x ) {
-
-			var stack = err ? err.stack : '';
-			throw new Error( msg || 'Assertion failed' + stack );
-
-		}
-
-	},
-
-	//
-
-	testQuat: function () {
-
-		var d2r = 2 * Math.PI / 360;
-
-		qtv(100, 0, 0, 45, 0, 0); // 100 0 0 (no changes)
-
-		qtv(100, 0, 0, 0, 45, 0); // 70 0 -70
-		qtv(100, 0, 0, 0, 0, 45); // 70 70 0
-
-		qtv(100, 0, 0, 45, 45, 0); // 70 0 -70
-		qtv(100, 0, 0, 45, 0, 45); // 70 70 0
-		qtv(100, 0, 0, 0, 10, 10); // 97 17 -17
-		qtv(100, 0, 0, 0, 45, 90); // 0 70 -70
-
-		qtv(100, 0, 0, 0, 0, 270); // 0 -100 0
-
-		qtv(100, 0, 0, 0, 290, 60);
-
-		function qtv( x, y, z, u, v, w ) {
-
-			var q = VSTOOLS.rot2quat( u * d2r, v * d2r, w * d2r );
-			var p = new THREE.Vector3( x, y, z );
-			p.applyQuaternion( q );
-			console.log( p );
-
-		}
-
-	},
-
-	logReal: function ( x, path ) {
-
-		path = path || [];
-
-		if ( typeof x === 'number' && ( isNaN( x ) || !isFinite( x ) ) ) {
-
-			console.log( path.join( '/' ) );
-
-		} else if ( Object.prototype.toString.call( x ) === '[object Array]' ) {
-
-			for ( var i = 0; i < x.length; ++i ) {
-
-				VSTOOLS.logReal( x[ i ], path.concat( [ i ] ) );
-
-			}
-
-		} else if ( typeof x === 'object' ) {
-
-			for ( var p in x ) {
-
-				if ( x.hasOwnProperty( p ) ) {
-
-					VSTOOLS.logReal( x[ p ], path.concat( [ p ] ) );
-
-				}
-
-			}
-
-		}
+		return '0x' + x;
 
 	}
 

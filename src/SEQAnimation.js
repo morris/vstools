@@ -18,8 +18,6 @@ VSTOOLS.SEQAnimation.prototype.header = function ( id ) {
 	// some animations use a different animation as base
 	this.idOtherAnimation = s8(); // 3
 
-	VSTOOLS.assert( this.idOtherAnimation >= -1 && this.idOtherAnimation < seq.numAnimations );
-
 	this.mode = u8(); // unknown. has weird effects on mesh. 4
 
 	// seems to point to a data block that controls looping
@@ -43,8 +41,7 @@ VSTOOLS.SEQAnimation.prototype.header = function ( id ) {
 
 	for ( var i = 0; i < seq.numBones; ++i ) {
 
-		// TODO is this true for all SEQ?
-		//VSTOOLS.assert( u16() === 0 );
+		// TODO is this 0 for all SEQ?
 		skip( 2 );
 
 	} // 10 + numBones * 4
@@ -341,7 +338,7 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
 	var data = this.animationData = {
 		name: 'Animation' + this.id,
 		fps: 25,
-		length: this.length * VSTOOLS.timeScale,
+		length: this.length * VSTOOLS.TimeScale,
 		hierarchy: hierarchy
 	};
 

@@ -16,7 +16,6 @@ VSTOOLS.TIM.prototype.read = function () {
 
 	// magic 10 00 00 00
 	this.magic = buf( 4 );
-	//assert Arrays.equals(magic, new int[] { 0x10, 0, 0, 0 });
 
 	this.bpp = u32();
 	this.imgLen = u32();

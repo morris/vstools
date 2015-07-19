@@ -25,7 +25,6 @@ VSTOOLS.WEP.prototype.header = function () {
 	this.skip( 0x30 ); // TODO whats this?
 
 	this.texturePtr = u32() + 0x10;
-	VSTOOLS.assert( this.texturePtr === this.texturePtr1 );
 
 	this.groupPtr = u32() + 0x10;
 	this.vertexPtr = u32() + 0x10;
@@ -48,7 +47,6 @@ VSTOOLS.WEP.prototype.header1 = function () {
 
 	// magic 'H01' + 0x00
 	var magic = buffer( 4 );
-	//assert Arrays.equals(magic, new int[] { 0x48, 0x30, 0x31, 0x00 });
 
 	this.numBones = u8();
 	this.numGroups = u8();

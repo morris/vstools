@@ -27,6 +27,7 @@ This code is developed for the US Version of Vagrant Story but should work with 
 - ZUD (basically SHP + SEQ + WEP)
 - ZND (zone data)
 - MPD (map)
+- ARM (minimap)
 
 To open an MPD file, you'll need the correct ZND file.
 You can find the Zone/Map list
@@ -43,7 +44,7 @@ featuring an outstanding character and level design that has no equal.
 
 ## Acknowledgments
 
-Many thanks to Valendian and other hackers' tremendous work on analyzing Vagrant Story.
+Many thanks to Valendian and other people's tremendous work on analyzing Vagrant Story.
 
 Most information on VS hacking can be found here:
 http://datacrystal.romhacking.net/wiki/Vagrant_Story
