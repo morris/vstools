@@ -140,6 +140,10 @@ VSTOOLS.Viewer = function () {
 
 				loadZND( data );
 
+			} else if ( ext === 'arm' ) {
+
+				loadARM( data );
+
 			} else {
 
 				throw new Error( 'Unknown file extension ' + ext );
@@ -286,6 +290,20 @@ VSTOOLS.Viewer = function () {
 		scene.add( obj.mesh );
 
 		if ( znd ) updateTextures( znd.textures );
+
+	}
+
+	function loadARM( data ) {
+
+		clean();
+
+		obj = new VSTOOLS.ARM( new VSTOOLS.Reader( data ) );
+		obj.read();
+		obj.build();
+
+		scene.add( obj.object );
+
+		updateTextures( [] );
 
 	}
 
