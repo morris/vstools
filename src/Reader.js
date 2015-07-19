@@ -94,26 +94,3 @@ VSTOOLS.Reader = function ( data ) {
 	this.extend( this );
 
 };
-
-VSTOOLS.Reader.test = function () {
-
-	// TODO this test should be more exhaustive. i'm worried there might
-	// still be a few bugs here...
-	var data = new Int8Array( [ 0x01, 0xff ] );
-	var reader = new Reader( data );
-
-	console.log( reader.u8() );
-	console.log( reader.s8() );
-	reader.seek( 1 );
-	console.log( reader.u8() );
-
-	reader.seek( 0 );
-	console.log( reader.s16() );
-
-	reader.seek( 0 );
-	console.log( reader.s16big() );
-
-	reader.seek( 0 );
-	console.log( reader.u16() );
-
-};

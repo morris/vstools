@@ -1,11 +1,10 @@
-VSTOOLS.WEPFace = function ( reader, logger ) {
+VSTOOLS.WEPFace = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.read = function () {
 
-		var u8 = this.u8, u16 = this.u16, log = this.log;
+		var u8 = this.u8, u16 = this.u16;
 
 		var type = this.type = u8(); // 1
 

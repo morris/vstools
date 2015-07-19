@@ -1,7 +1,6 @@
-VSTOOLS.MPDFace = function ( reader, logger, group ) {
+VSTOOLS.MPDFace = function ( reader, group ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.group = group;
 
@@ -55,8 +54,6 @@ VSTOOLS.MPDFace = function ( reader, logger, group ) {
 		this.v3 = u8();
 
 		this.textureId = s16();
-
-		this.log( this.textureId );
 
 		if ( this.quad ) {
 

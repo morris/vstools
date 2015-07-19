@@ -1,7 +1,6 @@
-VSTOOLS.AkaoFrame = function ( reader, logger ) {
+VSTOOLS.AkaoFrame = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 };
 

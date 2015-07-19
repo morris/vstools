@@ -1,7 +1,6 @@
-VSTOOLS.MPDMesh = function ( reader, logger, group, textureId, clutId ) {
+VSTOOLS.MPDMesh = function ( reader, group, textureId, clutId ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.group = group;
 	this.textureId = textureId;

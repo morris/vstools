@@ -1,7 +1,6 @@
-VSTOOLS.SEQ = function ( reader, logger, shp ) {
+VSTOOLS.SEQ = function ( reader, shp ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.shp = shp;
 
@@ -16,10 +15,7 @@ VSTOOLS.SEQ.prototype.read = function () {
 
 VSTOOLS.SEQ.prototype.header = function () {
 
-	var u8 = this.u8, u16 = this.u16, u32 = this.u32,
-		skip = this.skip, log = this.log, hex = VSTOOLS.hex;
-
-	log( '-- SEQ header' );
+	var u8 = this.u8, u16 = this.u16, u32 = this.u32, skip = this.skip;
 
 	this.ramPtr = 0x125e9e; // TODO fix this for ashley?
 	this.ramPtr = 0;
@@ -36,34 +32,24 @@ VSTOOLS.SEQ.prototype.header = function () {
 	this.slotPtr = u32() + 8; // ptr to slots
 	this.dataPtr = this.slotPtr + this.numSlots; // ptr to rotation and keyframe data
 
-	log( 'numSlots: ' + this.numSlots );
-	log( 'numBones: ' + this.numBones );
-	log( 'h3: ' + this.h3 );
-	log( 'dataPtr ' + hex( this.dataPtr ) );
-
 };
 
 VSTOOLS.SEQ.prototype.data = function () {
 
-	var s8 = this.s8, skip = this.skip, log = this.log;
-
-	log( '-- SEQ data' );
+	var s8 = this.s8, skip = this.skip;
 
 	var dataPtr = this.dataPtr, numBones = this.numBones, numSlots = this.numSlots;
 
 	// number of animations has to be computed
 	//                                         length of all headers     /   length of one animation header
 	var numAnimations = this.numAnimations = ( dataPtr - numSlots - 16 ) / ( numBones * 4 + 10 );
-	log( 'numAnimations: ' + numAnimations );
-
-	log( '-- SEQ animation headers' );
 
 	// read animation headers
 	var animations = this.animations = [];
 
 	for ( var i = 0; i < numAnimations; ++i ) {
 
-		var animation = new VSTOOLS.SEQAnimation( this.reader, this.logger, this );
+		var animation = new VSTOOLS.SEQAnimation( this.reader, this );
 		animation.header( i );
 
 		animations.push( animation );
@@ -81,8 +67,6 @@ VSTOOLS.SEQ.prototype.data = function () {
 		slots[ i ] = s8();
 
 	}
-
-	log('-- SEQ animation data');
 
 	// read animation data
 	for ( var i = 0; i < numAnimations; ++i ) {

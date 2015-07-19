@@ -1,7 +1,6 @@
-VSTOOLS.WEP = function ( reader, logger ) {
+VSTOOLS.WEP = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 };
 
@@ -14,9 +13,7 @@ VSTOOLS.WEP.prototype.read = function () {
 
 VSTOOLS.WEP.prototype.header = function () {
 
-	var log = this.log, hex = VSTOOLS.hex, u32 = this.u32;
-
-	log( 'WEP header' );
+	var u32 = this.u32;
 
 	this.header1();
 
@@ -32,12 +29,6 @@ VSTOOLS.WEP.prototype.header = function () {
 
 	// unused
 	this.bonePtr = 0x4C + 0x04;
-
-	log( 'texturePtr1: ' + hex( this.texturePtr1 ) );
-	log( 'texturePtr: ' + hex( this.texturePtr ) );
-	log( 'groupPtr: ' + hex( this.groupPtr ) );
-	log( 'vertexPtr: ' + hex( this.vertexPtr ) );
-	log( 'facePtr: ' + hex( this.facePtr ) );
 
 };
 
@@ -55,26 +46,9 @@ VSTOOLS.WEP.prototype.header1 = function () {
 	this.numPolygons = u16();
 	this.numAllPolygons = this.numTriangles + this.numQuads + this.numPolygons;
 
-	this.logHeader();
-
-};
-
-VSTOOLS.WEP.prototype.logHeader = function () {
-
-	var log = this.log;
-
-	log( 'numberOfBones: ' + this.numBones );
-	log( 'numberOfGroups: ' + this.numGroups );
-	log( 'numberOfTriangles: ' + this.numTriangles );
-	log( 'numberOfQuads: ' + this.numQuads );
-	log( 'numberOfPolygons: ' + this.numPolygons );
-	log( 'numberOfAllPolygons: ' + this.numAllPolygons );
-
 };
 
 VSTOOLS.WEP.prototype.data = function () {
-
-	this.log( 'WEP data' );
 
 	this.boneSection();
 	this.groupSection();
@@ -109,11 +83,6 @@ VSTOOLS.WEP.prototype.boneSection = function () {
 
 		}
 
-		this.log(
-			'bone ' + i + ': l=' + bone.length + ' p=' + bone.parentBoneId + ' ' +
-			bone.x + ' ' + bone.y + ' ' + bone.z + ' ' + bone.mode
-		);
-
 	}
 
 };
@@ -132,11 +101,6 @@ VSTOOLS.WEP.prototype.groupSection = function () {
 
 		groups.push( group );
 
-		this.log(
-			'group ' + i + ': bone=' + group.boneId +
-			' lv=' + group.lastVertex
-		);
-
 	}
 
 };
@@ -146,8 +110,6 @@ VSTOOLS.WEP.prototype.vertexSection = function () {
 	var groups = this.groups;
 	var numGroups = this.numGroups;
 	var numVertices = this.numVertices = groups[ numGroups - 1 ].lastVertex;
-
-	this.log( 'numberOfVertices: ' + numVertices );
 
 	var vertices = this.vertices = [];
 
@@ -171,14 +133,12 @@ VSTOOLS.WEP.prototype.vertexSection = function () {
 
 VSTOOLS.WEP.prototype.faceSection = function () {
 
-	this.log( 'Polygon section at', VSTOOLS.hex( this.reader.pos() ) );
-
 	var faces = this.faces = [];
 	var numAllPolygons = this.numAllPolygons;
 
 	for ( var i = 0; i < numAllPolygons; ++i ) {
 
-		var face = new VSTOOLS.WEPFace( this.reader, this.logger );
+		var face = new VSTOOLS.WEPFace( this.reader );
 		face.read();
 
 		faces.push( face );
@@ -189,7 +149,7 @@ VSTOOLS.WEP.prototype.faceSection = function () {
 
 VSTOOLS.WEP.prototype.textureSection = function ( numPalettes ) {
 
-	this.textureMap = new VSTOOLS.WEPTextureMap( this.reader, this.logger );
+	this.textureMap = new VSTOOLS.WEPTextureMap( this.reader );
 	this.textureMap.read( numPalettes );
 
 };

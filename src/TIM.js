@@ -1,16 +1,12 @@
-VSTOOLS.TIM = function ( reader, logger ) {
+VSTOOLS.TIM = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 };
 
 VSTOOLS.TIM.prototype.read = function () {
 
-	var u16 = this.u16, u32 = this.u32, buf = this.buffer, skip = this.skip,
-		log = this.log;
-
-	log( '-- TIM header' );
+	var u16 = this.u16, u32 = this.u32, buf = this.buffer, skip = this.skip;
 
 	// 12 byte header
 
@@ -29,10 +25,6 @@ VSTOOLS.TIM.prototype.read = function () {
 	this.height = u16(); // height in frame buffer
 
 	this.dataPtr = this.reader.pos();
-
-	log( 'bpp: ' + this.bpp );
-	log( 'position: ' + this.fx + ',' + this.fy );
-	log( 'size: ' + this.width + 'x' + this.height );
 
 	// skip data as we don't know what kind of texture this is
 	// will read data on build
@@ -78,13 +70,10 @@ VSTOOLS.TIM.prototype.markFrameBuffer = function ( fb ) {
 
 VSTOOLS.TIM.prototype.buildCLUT = function ( x, y ) {
 
-	var s16 = this.s16, seek = this.seek, log = this.log;
+	var s16 = this.s16, seek = this.seek;
 
 	var ox = x - this.fx;
 	var oy = y - this.fy;
-
-	log( 'clut' );
-	log( ox + ', ' + oy );
 
 	seek( this.dataPtr + ( oy * this.width + ox ) * 2 );
 

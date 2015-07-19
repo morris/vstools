@@ -10,8 +10,6 @@ var files = [
 	'VSTOOLS.js',
 
 	'Reader.js',
-	'Logger.js',
-	'FrameBuffer.js',
 
 	'WEP.js',
 	'WEPBone.js',
@@ -21,22 +19,24 @@ var files = [
 	'WEPTextureMap.js',
 	'WEPVertex.js',
 
+	'SHP.js',
+
 	'SEQ.js',
 	'SEQAnimation.js',
 
-	'SHP.js',
+	'ZUD.js',
 
 	'ZND.js',
-	'ZUD.js',
 
 	'MPD.js',
 	'MPDFace.js',
 	'MPDGroup.js',
 	'MPDMesh.js',
 
-	'Text.js',
 	'TIM.js',
-	
+	'FrameBuffer.js',
+	'Text.js',
+
 	'Collada.js'
 ];
 

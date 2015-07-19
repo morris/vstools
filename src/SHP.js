@@ -1,6 +1,6 @@
-VSTOOLS.SHP = function ( reader, logger ) {
+VSTOOLS.SHP = function ( reader ) {
 
-	VSTOOLS.WEP.call( this, reader, logger );
+	VSTOOLS.WEP.call( this, reader );
 
 };
 
@@ -16,9 +16,7 @@ VSTOOLS.SHP.prototype.read = function () {
 VSTOOLS.SHP.prototype.header = function () {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16, s16 = this.s16, u32 = this.u32,
-		skip = this.skip, hex = VSTOOLS.hex, log = this.log;
-
-	log( 'SHP header' );
+		skip = this.skip;
 
 	this.header1(); // inherited from WEP
 
@@ -75,21 +73,11 @@ VSTOOLS.SHP.prototype.header = function () {
 	skip( 0x20 ); // unknown, more lbas?
 
 	this.magicPtr = u32() + 0xF8;
-	log( 'magicPtr: ' + hex( this.magicPtr ) );
-
 	skip( 0x18 * 2 ); // TODO whats this?
-
 	this.akaoPtr = u32() + 0xF8;
-	log( 'akaoPtr: ' + hex( this.akaoPtr ) );
-
 	this.groupPtr = u32() + 0xF8;
-	log( 'groupPtr: ' + hex( this.groupPtr ) );
-
 	this.vertexPtr = u32() + 0xF8;
-	log( 'vertexPtr: ' + hex( this.vertexPtr ) );
-
 	this.facePtr = u32() + 0xF8;
-	log( 'facePtr: ' + hex( this.facePtr ) );
 
 	// static, unused
 	this.bonePtr = 0x138;
@@ -98,10 +86,7 @@ VSTOOLS.SHP.prototype.header = function () {
 
 VSTOOLS.SHP.prototype.data = function () {
 
-	var u16 = this.u16, u32 = this.u32, skip = this.skip,
-		hex = VSTOOLS.hex, log = this.log;
-
-	log( 'SHP data' );
+	var u16 = this.u16, u32 = this.u32, skip = this.skip;
 
 	// inherited
 	this.boneSection();
@@ -115,10 +100,7 @@ VSTOOLS.SHP.prototype.data = function () {
 	// skip magic section
 	skip( 4 );
 	var length = u32();
-	log( 'magicSectionLength: ' + hex( length ) );
 	skip( length );
-
-	log( 'textureMapPtr should be ' + hex( length + this.magicPtr + 8 ) );
 
 	// inherited
 	this.textureSection( 2 ); // 2 palettes

@@ -1,7 +1,6 @@
-VSTOOLS.ZND = function ( reader, logger ) {
+VSTOOLS.ZND = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.materials = {};
 	this.textures = [];
@@ -17,10 +16,7 @@ VSTOOLS.ZND.prototype.read = function () {
 
 VSTOOLS.ZND.prototype.header = function () {
 
-	var u8 = this.u8, u32 = this.u32, skip = this.skip,
-		log = this.log, hex = VSTOOLS.hex;
-
-	log( '-- ZND header' );
+	var u8 = this.u8, u32 = this.u32, skip = this.skip;
 
 	this.mpdPtr = u32();
 	this.mpdLen = u32();
@@ -32,15 +28,9 @@ VSTOOLS.ZND.prototype.header = function () {
 	this.wave = u8();
 	skip( 7 );
 
-	log( 'mpdNum: ' + this.mpdNum );
-	log( 'timLen: ' + hex( this.timLen ) );
-	log( 'tim section: ' + hex( this.timPtr ) + '-' + hex( this.timPtr + this.timLen ) );
-
 };
 
 VSTOOLS.ZND.prototype.data = function () {
-
-	this.log( '-- ZND data' );
 
 	this.mpdSection();
 	this.enemiesSection();
@@ -73,15 +63,11 @@ VSTOOLS.ZND.prototype.enemiesSection = function () {
 
 VSTOOLS.ZND.prototype.timSection = function () {
 
-	var u32 = this.u32, skip = this.skip,
-		log = this.log, hex = VSTOOLS.hex;
+	var u32 = this.u32, skip = this.skip;
 
 	this.timLen2 = u32();
 	skip( 12 ); // TODO whats this?
 	var timNum = this.timNum = u32();
-
-	log( 'timLen2: ' + hex( this.timLen2 ) );
-	log( 'timNum: ' + timNum );
 
 	var frameBuffer = this.frameBuffer = new VSTOOLS.FrameBuffer();
 	var tims = this.tims = [];
@@ -91,11 +77,9 @@ VSTOOLS.ZND.prototype.timSection = function () {
 		// not technically part of tim, unused
 		var timlen = u32();
 
-		var tim = new VSTOOLS.TIM( this.reader, this.logger );
+		var tim = new VSTOOLS.TIM( this.reader );
 		tim.read();
 		tim.id = i;
-
-		console.log( "tim", tim.id, tim.width, tim.height );
 
 		if ( tim.height < 5 ) {
 
@@ -112,10 +96,6 @@ VSTOOLS.ZND.prototype.timSection = function () {
 };
 
 VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
-
-	var log = this.log;
-
-	log( clutId );
 
 	//this.frameBuffer.markCLUT( clutId );
 	var tims = this.tims;
@@ -142,8 +122,6 @@ VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
 		// find CLUT
 		var x = ( clutId * 16 ) % 1024;
 		var y = Math.floor( ( clutId * 16 ) / 1024 );
-
-		log( x + ',' + y );
 
 		var clut = null;
 

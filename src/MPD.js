@@ -1,7 +1,6 @@
-VSTOOLS.MPD = function ( reader, logger, znd ) {
+VSTOOLS.MPD = function ( reader, znd ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.znd = znd;
 
@@ -103,24 +102,21 @@ VSTOOLS.MPD.prototype.roomSection = function () {
 
 VSTOOLS.MPD.prototype.geometrySection = function () {
 
-	var u32 = this.u32, log = this.log;
+	var u32 = this.u32;
 
 	var numGroups = this.numGroups = u32();
-	log( 'numGroups: ' + numGroups );
 
 	var groups = this.groups = [];
 
 	for ( var i = 0; i < numGroups; ++i ) {
 
-		log( 'group ' + i + ' header' );
-		groups[ i ] = new VSTOOLS.MPDGroup( this.reader, this.logger, this );
+		groups[ i ] = new VSTOOLS.MPDGroup( this.reader, this );
 		groups[ i ].header();
 
 	}
 
 	for ( var i = 0; i < numGroups; ++i ) {
 
-		log( 'group ' + i + ' data' );
 		groups[ i ].data();
 
 	}
@@ -273,20 +269,16 @@ VSTOOLS.MPD.prototype.clearedSection = function () {
 
 VSTOOLS.MPD.prototype.scriptSection = function () {
 
-	var u16 = this.u16, buffer = this.buffer,
-		hex = VSTOOLS.hex, log = this.log;
+	var u16 = this.u16, buffer = this.buffer;
 
 	var len = u16();
-	log( hex( this.lenScriptSection ) );
-	log( hex( len ) );
 
 	this.ptrDialogText = u16();
-	log( hex( this.ptrDialogText + this.ptrScriptSection ) );
 
 	this.skip( this.ptrDialogText );
 
 	var s = buffer( 700 );
-	log( Text.convert( s, 700 ) );
+	var text = Text.convert( s, 700 );
 
 };
 

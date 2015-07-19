@@ -54,9 +54,6 @@ VSTOOLS.Viewer = function () {
 
 	var obj, seq, znd, skeletonHelper;
 
-	var logger = new VSTOOLS.Logger();
-	logger.extend( this );
-
 	//
 
 	var $sidebar = $( '#sidebar' );
@@ -100,13 +97,6 @@ VSTOOLS.Viewer = function () {
 	$exportOBJ.on( 'click', exportOBJ );
 	var $exportJSON = $( '#exportJSON' );
 	$exportJSON.on( 'click', exportJSON );
-
-	//
-
-	var $logFilter = $( '#logFilter' );
-	$logFilter.on( 'change', updateLogFilter );
-
-	updateLogFilter();
 
 	//
 
@@ -185,7 +175,7 @@ VSTOOLS.Viewer = function () {
 
 		clean();
 
-		obj = new VSTOOLS.WEP( new VSTOOLS.Reader( data ), logger );
+		obj = new VSTOOLS.WEP( new VSTOOLS.Reader( data ) );
 		obj.read();
 		obj.build();
 
@@ -200,7 +190,7 @@ VSTOOLS.Viewer = function () {
 
 		clean();
 
-		obj = new VSTOOLS.SHP( new VSTOOLS.Reader( data ), logger );
+		obj = new VSTOOLS.SHP( new VSTOOLS.Reader( data ) );
 		obj.read();
 		obj.build();
 
@@ -225,7 +215,7 @@ VSTOOLS.Viewer = function () {
 
 			stopAnim();
 
-			seq = new VSTOOLS.SEQ( new VSTOOLS.Reader( data ), logger, obj );
+			seq = new VSTOOLS.SEQ( new VSTOOLS.Reader( data ), obj );
 			seq.read();
 			seq.build();
 
@@ -243,7 +233,7 @@ VSTOOLS.Viewer = function () {
 
 		clean();
 
-		obj = new VSTOOLS.ZUD( new VSTOOLS.Reader( data ), logger );
+		obj = new VSTOOLS.ZUD( new VSTOOLS.Reader( data ) );
 		obj.read();
 		obj.build();
 
@@ -270,7 +260,7 @@ VSTOOLS.Viewer = function () {
 
 		clean();
 
-		znd = new VSTOOLS.ZND( new VSTOOLS.Reader( data ), logger );
+		znd = new VSTOOLS.ZND( new VSTOOLS.Reader( data ) );
 		znd.read();
 
 		znd.frameBuffer.build();
@@ -283,7 +273,7 @@ VSTOOLS.Viewer = function () {
 
 		clean();
 
-		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), logger, znd );
+		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), znd );
 		obj.read();
 		obj.build();
 
@@ -376,27 +366,6 @@ VSTOOLS.Viewer = function () {
 			seq.animations[ i ].animation.stop();
 
 		}
-
-	}
-
-	// log filter
-
-	function updateLogFilter() {
-
-		var filter = $logFilter.val();
-
-		try {
-
-			filter = new Function( 'obj', filter );
-
-		} catch ( ex ) {
-
-			console.warn( ex );
-			filter = function () { return false; };
-
-		}
-
-		self.logger.filter = filter;
 
 	}
 

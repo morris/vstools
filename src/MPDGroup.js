@@ -1,7 +1,6 @@
-VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
+VSTOOLS.MPDGroup = function ( reader, mpd ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.mpd = mpd;
 
@@ -24,8 +23,6 @@ VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
 
 		}
 
-		//log( hex( head, 2 ) );
-
 		// the header is not well understood
 		// it seems that the bits in the second byte are flag bits
 
@@ -44,19 +41,17 @@ VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
 
 	this.data = function () {
 
-		var u32 = this.u32, log = this.log;
+		var u32 = this.u32;
 
 		var triangleCount = this.triangleCount = u32();
 		var quadCount = this.quadCount = u32();
 		var faceCount = this.faceCount = triangleCount + quadCount;
 
-		log( 'faceCount: ' + faceCount );
-
 		var meshes = this.meshes = {};
 
 		for ( var i = 0; i < triangleCount; ++i ) {
 
-			var face = new VSTOOLS.MPDFace( this.reader, this.logger, this );
+			var face = new VSTOOLS.MPDFace( this.reader, this );
 			face.read( false );
 
 			var mesh = this.getMesh( face.textureId, face.clutId );
@@ -66,7 +61,7 @@ VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
 
 		for ( var i = triangleCount; i < faceCount; ++i ) {
 
-			var face = new VSTOOLS.MPDFace( this.reader, this.logger, this );
+			var face = new VSTOOLS.MPDFace( this.reader, this );
 			face.read( true ); // quad
 
 			var mesh = this.getMesh( face.textureId, face.clutId );
@@ -99,7 +94,7 @@ VSTOOLS.MPDGroup = function ( reader, logger, mpd ) {
 
 		} else {
 
-			mesh = new VSTOOLS.MPDMesh( this.reader, this.logger, this, textureId, clutId );
+			mesh = new VSTOOLS.MPDMesh( this.reader, this, textureId, clutId );
 			meshes[ id ] = mesh;
 			return mesh;
 

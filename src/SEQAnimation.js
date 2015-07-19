@@ -1,7 +1,6 @@
-VSTOOLS.SEQAnimation = function ( reader, logger, seq ) {
+VSTOOLS.SEQAnimation = function ( reader, seq ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 	this.seq = seq;
 
@@ -51,7 +50,7 @@ VSTOOLS.SEQAnimation.prototype.header = function ( id ) {
 VSTOOLS.SEQAnimation.prototype.data = function () {
 
 	var u8 = this.u8, s8 = this.s8, u16 = this.u16, s16big = this.s16big,
-		skip = this.skip, seek = this.seek, hex = VSTOOLS.hex, log = this.log;
+		skip = this.skip, seek = this.seek;
 
 	var seq = this.seq;
 	var shp = seq.shp;
@@ -293,7 +292,7 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
 			var q = VSTOOLS.rot2quat( rad( rx ), rad( ry ), rad( rz ) );
 
 			keys.push( {
-				time: t * VSTOOLS.timeScale,
+				time: t * VSTOOLS.TimeScale,
 				pos: [ 0, 0, 0 ],
 				rot: [ q.x, q.y, q.z, q.w ],
 				scl: [ 1, 1, 1 ]

@@ -1,7 +1,6 @@
-VSTOOLS.ZUD = function ( reader, logger ) {
+VSTOOLS.ZUD = function ( reader ) {
 
 	reader.extend( this );
-	logger.extend( this );
 
 };
 
@@ -14,8 +13,7 @@ VSTOOLS.ZUD.prototype.read = function () {
 
 VSTOOLS.ZUD.prototype.header = function () {
 
-	var u8 = this.u8, u32 = this.u32,
-		skip = this.skip, log = this.log, hex = VSTOOLS.hex;
+	var u8 = this.u8, u32 = this.u32, skip = this.skip;
 
 	this.idCharacter = u8();
 	this.idWeapon = u8();
@@ -36,31 +34,24 @@ VSTOOLS.ZUD.prototype.header = function () {
 	this.ptrBattleSEQ = u32();
 	this.lenBattleSEQ = u32();
 
-	log( 'ptrWeaponWEP: ' + hex( this.ptrWeaponWEP ) );
-	log( 'ptrShieldWEP: ' + hex( this.ptrShieldWEP ) );
-	log( 'ptrCommonSEQ: ' + hex( this.ptrCommonSEQ ) );
-	log( 'ptrBattleSEQ: ' + hex( this.ptrBattleSEQ ) );
-
 };
 
 VSTOOLS.ZUD.prototype.data = function () {
 
-	var reader = this.reader, logger = this.logger, seek = this.seek, log = this.log;
+	var reader = this.reader, seek = this.seek;
 
-	this.shp = new VSTOOLS.SHP( reader, logger );
+	this.shp = new VSTOOLS.SHP( reader );
 	this.shp.read();
 
 	seek( this.ptrWeaponWEP );
 
 	try {
 
-		this.weapon = new VSTOOLS.WEP( reader, logger );
+		this.weapon = new VSTOOLS.WEP( reader );
 		this.weapon.read();
 
 	} catch ( ex ) {
 
-		log( 'weapon failed' );
-		log( ex.stack );
 		this.weapon = null;
 
 	}
@@ -69,13 +60,11 @@ VSTOOLS.ZUD.prototype.data = function () {
 
 	try {
 
-		this.shield = new VSTOOLS.WEP( reader, logger );
+		this.shield = new VSTOOLS.WEP( reader );
 		this.shield.read();
 
 	} catch ( ex ) {
 
-		log( 'shield failed' );
-		log( ex.stack );
 		this.shield = null;
 
 	}
@@ -84,13 +73,11 @@ VSTOOLS.ZUD.prototype.data = function () {
 
 	try {
 
-		this.com = new VSTOOLS.SEQ( reader, logger, this.shp );
+		this.com = new VSTOOLS.SEQ( reader, this.shp );
 		this.com.read();
 
 	} catch ( ex ) {
 
-		log( 'common seq failed' );
-		log( ex.stack );
 		this.com = null;
 
 	}
@@ -99,13 +86,11 @@ VSTOOLS.ZUD.prototype.data = function () {
 
 	try {
 
-		this.bt = new VSTOOLS.SEQ( reader, logger, this.shp );
+		this.bt = new VSTOOLS.SEQ( reader, this.shp );
 		this.bt.read();
 
 	} catch ( ex ) {
 
-		log( 'battle seq failed' );
-		log( ex.tack );
 		this.bt = null;
 
 	}
