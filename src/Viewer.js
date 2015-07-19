@@ -2,7 +2,7 @@ VSTOOLS.Viewer = function () {
 
 	//
 
-	var scene = new THREE.Scene();
+	var scene = this.scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 10000 );
 
 	var renderer = new THREE.WebGLRenderer();
@@ -98,6 +98,8 @@ VSTOOLS.Viewer = function () {
 
 	var $exportOBJ = $( '#exportOBJ' );
 	$exportOBJ.on( 'click', exportOBJ );
+	var $exportJSON = $( '#exportJSON' );
+	$exportJSON.on( 'click', exportJSON );
 
 	//
 
@@ -407,43 +409,108 @@ VSTOOLS.Viewer = function () {
 
 		exportString( exporter.parse( snapshot ) );
 
-		//var mesh = new THREE.Mesh( snapshot, new THREE.MeshNormalMaterial() );
-		//scene.remove( obj.mesh );
-		//mesh.position.y = 20;
-		//scene.add( mesh );
-
 	}
 
-	// TODO
 	function exportJSON() {
 
-		var x = obj.shp || obj;
-		var bad = x.toJSON();
+		var t = obj.shp || obj;
+		var toExport = t.mesh.geometry;
+		var anim = t.seq || seq;
+
+		toExport.computeFaceNormals();
+
 		var output = {
 			metadata: {
-				"formatVersion": 3.1,
-				"type": "Geometry",
-				"generator": "GeometryExporter"
+				formatVersion: 3.1,
+				type: 'Geometry',
+				generatedBy: 'vstools',
+				vertices: toExport.vertices.length,
+				faces: toExport.faces.length,
+				normals: toExport.faces.length,
+				colors: 0,
+				uvs: [ toExport.faces.length ],
+				materials: 0,
+				morphTargets: 0,
+				bones: toExport.bones.length
 			},
+			"materials": [ {
+				"DbgColor" : 15658734, // => 0xeeeeee
+				"DbgIndex" : 0,
+				"DbgName" : "dummy",
+				"colorDiffuse" : [ 1, 0, 0 ],
+			} ],
+
 			scale: 1.0,
 			vertices: flatten3( toExport.vertices ),
+			morphTargets: [],
+			normals: normals(),
+			colors: [],
+			uvs: [ uvs() ],
 			faces: faces( toExport.faces ),
-			//uvs: uvs( toExport.faceVertexUvs ),
-			skinIndices: flatten4( toExport.skinIndices ),
-			skinWeights: flatten4( toExport.skinWeights ),
-			bones: toExport.bones
-
+			bones: bones( toExport.bones ),
+			influencesPerVertex: 2,
+			skinIndices: skin( toExport.skinIndices ),
+			skinWeights: skin( toExport.skinWeights ),
+			animations: animations( anim.animations )
 		};
 
 		output = JSON.stringify( output, null, '\t' );
 		output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
 		exportString( output );
 
+		function normals() {
+
+			var flat = [];
+			toExport.faces.forEach( function ( f ) {
+
+				flat.push( f.vertexNormals[ 0 ].x, f.vertexNormals[ 0 ].y, f.vertexNormals[ 0 ].z );
+				flat.push( f.vertexNormals[ 1 ].x, f.vertexNormals[ 1 ].y, f.vertexNormals[ 1 ].z );
+				flat.push( f.vertexNormals[ 2 ].x, f.vertexNormals[ 2 ].y, f.vertexNormals[ 2 ].z );
+
+			} );
+			return flat;
+
+		}
+
+		function uvs() {
+
+			var flat = [];
+			toExport.faceVertexUvs[ 0 ].forEach( function ( f ) {
+
+				flat.push(
+					f[ 2 ].x, f[ 2 ].y,
+					f[ 1 ].x, f[ 1 ].y,
+					f[ 0 ].x, f[ 0 ].y
+				);
+
+			} );
+			return flat;
+
+		}
+
 		function faces( arr ) {
 
 			var flat = [];
-			arr.forEach( function ( f ) { flat.push( 0, f.a, f.b, f.c ); } );
+			var i = 0;
+			arr.forEach( function ( f ) {
+
+				flat.push(
+					2 + 8 + 32,
+					f.a, f.b, f.c,
+					0,
+					f.a, f.b, f.c,
+					f.a, f.b, f.c
+				);
+				++i;
+
+			} );
 			return flat;
+
+		}
+
+		function bones( arr ) {
+
+			return arr;
 
 		}
 
@@ -463,11 +530,50 @@ VSTOOLS.Viewer = function () {
 
 		}
 
-		function flatten4( arr ) {
+		function skin( arr ) {
 
 			var flat = [];
-			arr.forEach( function ( v ) { flat.push( v.x, v.y, v.z, v.w ); } );
+			arr.forEach( function ( v ) { flat.push( v.x, v.y ); } );
 			return flat;
+
+		}
+
+		function animations( arr ) {
+
+			return arr.map( function ( a ) {
+
+				delete a.animationData.initialized;
+				return quat2arr( a.animationData );
+
+			} );
+
+		}
+
+		function quat2arr( q ) {
+
+			if ( q instanceof THREE.Quaternion ) {
+
+				return [ q.x, q.y, q.z, q.w ];
+
+			} else if ( q.forEach ) {
+
+				for ( var i = 0; i < q.length; ++i ) {
+
+					q[ i ] = quat2arr( q[ i ] );
+
+				}
+
+			} else if ( q !== null && typeof q === 'object' ) {
+
+				for ( var p in q ) {
+
+					if ( q.hasOwnProperty( p ) ) q[ p ] = quat2arr( q[ p ] );
+
+				}
+
+			}
+
+			return q;
 
 		}
 

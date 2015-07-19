@@ -35,7 +35,9 @@ var files = [
 	'MPDMesh.js',
 
 	'Text.js',
-	'TIM.js'
+	'TIM.js',
+	
+	'Collada.js'
 ];
 
 for ( var i = 0; i < files.length; ++i ) {

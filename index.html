@@ -15,23 +15,27 @@
 	<div class="panel">
 
 		<h2>Import</h2>
+
 		<p>
 			<label>
 				Select SHP / WEP / ZUD / ZND<br>
 				<input type="file" id="file1">
 			</label>
 		</p>
+
 		<p>
 			<label>
 				Select SEQ / MPD<br>
 				<input type="file" id="file2">
 			</label>
 		</p>
+
 		<p>
 			<label>
 				<input type="checkbox" id="skeleton"> Show skeleton
 			</label>
 		</p>
+
 		<p>
 			<button id="load">Load</button>
 		</p>
@@ -41,6 +45,7 @@
 	<div class="panel">
 
 		<h2>Animation</h2>
+
 		<p>
 			<button id="prev">&lt;</button>
 			<input id="animation" size="3">
@@ -59,15 +64,20 @@
 
 	<div class="panel">
 
-		<h2>OBJ Export</h2>
-		<p><button id="exportOBJ">Export</button></p>
+		<h2>Export</h2>
+
+		<p><button id="exportOBJ">Export OBJ</button></p>
 		<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
+
+		<p><button id="exportJSON">Export JSON </button></p>
+		<p><small>Exports SHPs/WEPs as JSON asset for three.js (with animations)</small></p>
 
 	</div>
 
 	<div class="panel">
 
 		<h2 class="collapsed">Log Filter</h2>
+
 		<p><textarea id="logFilter" rows="6" cols="40">return false;</textarea></p>
 		<p><small>JavaScript function body that returns whether an object should emit log messages. <em>obj</em> is the only argument.</small></p>
 
@@ -113,12 +123,8 @@
 <script src="src/Viewer.js"></script>
 
 <script>
-( function () {
-
-	var viewer = new VSTOOLS.Viewer();
-	viewer.run();
-
-} )();
+var viewer = new VSTOOLS.Viewer();
+viewer.run();
 </script>
 
 </body>

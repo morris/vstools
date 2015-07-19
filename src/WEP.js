@@ -332,8 +332,10 @@ VSTOOLS.WEP.prototype.buildBones = function () {
 		var parent = bones[ i ].parentBoneId;
 
 		var bone = {
+			name: 'bone' + i,
 			pos: [ 0, 0, 0 ],
-			rotq: [ 0, 0, 0, 0 ],
+			rotq: [ 0, 0, 0, 1 ],
+			scl: [ 1, 1, 1 ],
 			parent: parent < numBones ? parent + numBones : -1
 		};
 
@@ -345,8 +347,10 @@ VSTOOLS.WEP.prototype.buildBones = function () {
 	for ( var i = numBones; i < numBones * 2; ++i ) {
 
 		var bone = {
+			name: 'bone' + i,
 			pos: [ 0, 0, 0 ],
-			rotq: [ 0, 0, 0, 0 ],
+			rotq: [ 0, 0, 0, 1 ],
+			scl: [ 1, 1, 1 ],
 			parent: i - numBones
 		};
 
