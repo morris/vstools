@@ -241,7 +241,7 @@ VSTOOLS.Viewer = function () {
 		root = mpd.mesh;
 		scene.add( root );
 
-		if ( activeZND ) updateTextures( znd.textures );
+		if ( activeZND ) updateTextures( activeZND.textures );
 
 	};
 
