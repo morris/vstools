@@ -70,33 +70,19 @@ VSTOOLS.Viewer = function () {
 	var $file2 = $( '#file2' );
 	var $load = $( '#load' );
 	var $skeleton = $( '#skeleton' );
-
-	$load.on( 'click', load );
-
-	//
-
-	var $next = $( '#next' );
-	var $prev = $( '#prev' );
-
-	$next.on( 'click', nextAnim );
-	$prev.on( 'click', prevAnim );
-
-	//
-
+	var $textures = $( '#textures' );
 	var $animation = $( '#animation' );
 	var $animationCount = $( '#animationCount' );
-	$animation.on( 'change', updateAnim );
 
-	//
+	$sidebar.on( 'click', '#load', load );
 
-	var $textures = $( '#textures' );
+	$sidebar.on( 'click', '#next', nextAnim );
+	$sidebar.on( 'click', '#prev', prevAnim );
 
-	//
+	$sidebar.on( 'change', '#animation', updateAnim );
 
-	var $exportOBJ = $( '#exportOBJ' );
-	$exportOBJ.on( 'click', exportOBJ );
-	var $exportJSON = $( '#exportJSON' );
-	$exportJSON.on( 'click', exportJSON );
+	$sidebar.on( 'click', '#exportOBJ', exportOBJ );
+	$sidebar.on( 'click', '#exportJSON', exportJSON );
 
 	//
 
@@ -133,6 +119,10 @@ VSTOOLS.Viewer = function () {
 			} else if ( ext === 'arm' ) {
 
 				loadARM( data );
+
+			} else if ( ext === 'gim' ) {
+
+				loadGIM( data );
 
 			} else {
 
@@ -294,6 +284,16 @@ VSTOOLS.Viewer = function () {
 		scene.add( obj.object );
 
 		updateTextures( [] );
+
+	}
+
+	function loadGIM( data ) {
+
+		var gim = new VSTOOLS.GIM( new VSTOOLS.Reader( data ) );
+		gim.read();
+		gim.build();
+
+		updateTextures( gim.textures );
 
 	}
 

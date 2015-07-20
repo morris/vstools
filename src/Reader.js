@@ -91,6 +91,8 @@ VSTOOLS.Reader = function ( data ) {
 
 	};
 
+	this.length = data.length;
+
 	this.extend( this );
 
 };

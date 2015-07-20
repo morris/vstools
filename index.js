@@ -8,7 +8,6 @@ var THREE = require( './lib/three.js' );
 
 var files = [
 	'VSTOOLS.js',
-
 	'Reader.js',
 
 	'WEP.js',
@@ -27,13 +26,18 @@ var files = [
 	'ZUD.js',
 
 	'ZND.js',
+	'TIM.js',
 
 	'MPD.js',
 	'MPDFace.js',
 	'MPDGroup.js',
 	'MPDMesh.js',
 
-	'TIM.js',
+	'ARM.js',
+	'ARMRoom.js',
+
+	'GIM.js',
+
 	'FrameBuffer.js',
 	'Text.js',
 
