@@ -57,3 +57,11 @@ body {
 	width: 150px;
 	margin: 0 10px 10px 0;
 }
+
+#image {
+	margin-right: 360px;
+}
+#imaage img:only-child {
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
+}

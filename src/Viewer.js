@@ -97,7 +97,7 @@ VSTOOLS.Viewer = function () {
 			var ext = VSTOOLS.ext( f1.name );
 			load2( ext, reader1 );
 
-			if ( ( ext === 'znd' || ext === 'shp' ) && f2 ) {
+			if ( ( ext === 'znd' || ext === 'shp' || ext === 'fbc' ) && f2 ) {
 
 				reader2.readAsArrayBuffer( f2 );
 
@@ -267,6 +267,34 @@ VSTOOLS.Viewer = function () {
 		gim.build();
 
 		updateTextures( gim.textures );
+
+	};
+
+	loaders.p = function ( reader ) {
+
+		var p = new VSTOOLS.P( reader );
+		p.read();
+		p.build();
+
+		updateTextures( p.textures );
+
+	};
+
+	var activeFBC;
+
+	loaders.fbc = function ( reader ) {
+
+		var fbc = activeFBC = new VSTOOLS.FBC( reader );
+		fbc.read();
+
+	};
+
+	loaders.fbt = function ( reader ) {
+
+		var fbt = new VSTOOLS.FBT( reader, activeFBC );
+		fbt.read();
+
+		updateTextures( fbt.textures );
 
 	};
 

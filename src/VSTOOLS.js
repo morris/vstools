@@ -32,9 +32,15 @@ var VSTOOLS = {
 		var ctx = canvas.getContext( '2d' );
 
 		var imageData = ctx.createImageData( width, height );
-		for ( var i = 0, l = data.length; i < l; ++i ) {
+		var i = 0, l;
+		for ( l = data.length; i < l; ++i ) {
 
 			imageData.data[ i ] = data[ i ];
+
+		}
+		for ( l = imageData.length; i < l; ++i ) {
+
+			imageData.data[ i ] = 0;
 
 		}
 
@@ -97,6 +103,16 @@ var VSTOOLS = {
 		while ( x.length < pad ) x = '0' + x;
 
 		return '0x' + x;
+
+	},
+
+	bin: function ( i, pad ) {
+
+		var x = i.toString( 2 );
+
+		while ( x.length < pad ) x = '0' + x;
+
+		return '0b' + x;
 
 	},
 

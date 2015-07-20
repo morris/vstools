@@ -85,7 +85,7 @@
 		var size = width * height;
 
 		var data = new Uint8Array( raw, offset );
-		var gray = new Uint8Array( size );
+		var gray = new Uint8Array( size * 4 );
 
 		var j = 0;
 		for ( var i = 0; i < size; ++i ) {
