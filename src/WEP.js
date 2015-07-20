@@ -62,8 +62,9 @@ VSTOOLS.WEP.prototype.boneSection = function () {
 
 	var bones = this.bones = [];
 	var numBones = this.numBones;
+	var i;
 
-	for ( var i = 0; i < numBones; ++i ) {
+	for ( i = 0; i < numBones; ++i ) {
 
 		var bone = new VSTOOLS.WEPBone( this.reader );
 		bone.read();
@@ -333,20 +334,5 @@ VSTOOLS.WEP.prototype.buildMesh = function () {
 		mesh.skeleton.bones[ i ].position.x = bones[ i - numBones ].length;
 
 	}
-
-};
-
-VSTOOLS.WEP.prototype.geometrySnapshot = function () {
-
-	var snapshot = this.geometry.clone();
-
-	for ( var i = 0, l = snapshot.vertices.length; i < l; ++i ) {
-
-		var bone = this.mesh.skeleton.bones[ this.geometry.skinIndices[ i ].x ];
-		snapshot.vertices[ i ].applyMatrix4( bone.matrixWorld );
-
-	}
-
-	return snapshot;
 
 };

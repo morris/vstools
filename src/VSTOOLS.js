@@ -98,6 +98,21 @@ var VSTOOLS = {
 
 		return '0x' + x;
 
+	},
+
+	geometrySnapshot: function ( mesh ) {
+
+		var snapshot = mesh.geometry.clone();
+
+		for ( var i = 0, l = snapshot.vertices.length; i < l; ++i ) {
+
+			var bone = mesh.skeleton.bones[ mesh.geometry.skinIndices[ i ].x ];
+			snapshot.vertices[ i ].applyMatrix4( bone.matrixWorld );
+
+		}
+
+		return snapshot;
+
 	}
 
 };

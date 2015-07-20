@@ -9,41 +9,41 @@ VSTOOLS.Text = {
 
 		while ( j < len ) {
 
-			if ( i[j] === 0xFA ) { // control code 0xFA
+			if ( i[ j ] === 0xFA ) { // control code 0xFA
 
-				if ( i[j + 1] === 0x06 ) { // space
+				if ( i[ j + 1 ] === 0x06 ) { // space
 
 					s += ' ';
 					j += 2;
 
 				} else { // TODO unknown
 
-					// s += '{0xfa' + hex(i[j + 1]) + '}';
+					// s += '{0xfa' + hex(i[ j + 1 ]) + '}';
 					j += 2;
 
 				}
-			} else if ( i[j] === 0xF8 ) { // control code 0xF8
+			} else if ( i[ j ] === 0xF8 ) { // control code 0xF8
 
 				// unknown, skip
 				j += 2;
 
-			} else if ( i[j] === 0xFC ) { // control code 0xFC
+			} else if ( i[ j ] === 0xFC ) { // control code 0xFC
 
 				// unknown, skip
 				j += 2;
 
-			} else if ( i[j] === 0xFB ) { // control code 0xFB
+			} else if ( i[ j ] === 0xFB ) { // control code 0xFB
 
 				// unknown, skip
 				j += 2;
 
-			} else if ( i[j] === 0xE7 && end ) { // end of string
+			} else if ( i[ j ] === 0xE7 && end ) { // end of string
 
 				return s;
 
 			} else {
 
-				s += VSTOOLS.Text.chr( i[j] );
+				s += VSTOOLS.Text.chr( i[ j ] );
 				++j;
 
 			}
@@ -56,7 +56,7 @@ VSTOOLS.Text = {
 
 	chr: function ( i ) {
 
-		var c = VSTOOLS.Text.map[ i ];
+		var c = VSTOOLS.Text.Map[ i ];
 
 		if ( c ) {
 
@@ -74,7 +74,7 @@ VSTOOLS.Text = {
 
 ( function () {
 
-	var map = VSTOOLS.Text.map = new Array( 0xE9 );
+	var map = VSTOOLS.Text.Map = new Array( 0xE9 );
 
 	// 0 - 9
 	for ( var i = 0; i <= 0x09; ++i ) {
@@ -176,7 +176,7 @@ VSTOOLS.Text = {
 
 	function put( i, c ) {
 
-		map[i] = c;
+		map[ i ] = c;
 
 	}
 

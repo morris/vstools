@@ -10,10 +10,9 @@ VSTOOLS.ARM.prototype.read = function () {
 
 	var numRooms = this.numRooms = u32();
 	var rooms = this.rooms = [];
-	var i;
 
 	// headers
-	for ( i = 0; i < numRooms; ++i ) {
+	for ( var i = 0; i < numRooms; ++i ) {
 
 		var room = new VSTOOLS.ARMRoom( this.reader );
 		room.header();
@@ -22,14 +21,14 @@ VSTOOLS.ARM.prototype.read = function () {
 	}
 
 	// graphics
-	for ( i = 0; i < numRooms; ++i ) {
+	for ( var i = 0; i < numRooms; ++i ) {
 
 		rooms[ i ].graphics();
 
 	}
 
 	// names
-	for ( i = 0; i < numRooms; ++i ) {
+	for ( var i = 0; i < numRooms; ++i ) {
 
 		rooms[ i ].name();
 
@@ -39,7 +38,7 @@ VSTOOLS.ARM.prototype.read = function () {
 
 VSTOOLS.ARM.prototype.build = function () {
 
-	var object = this.object = new THREE.Object3D;
+	var object = this.object = new THREE.Object3D();
 	var numRooms = this.numRooms;
 
 	for ( var i = 0; i < numRooms; ++i ) {

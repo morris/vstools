@@ -52,9 +52,9 @@ VSTOOLS.Viewer = function () {
 
 	var self = this;
 
-	var obj, seq, znd, skeletonHelper;
+	var root, activeSHP, activeSEQ, activeZND, skeletonHelper;
 
-	//
+	// ui
 
 	var $sidebar = $( '#sidebar' );
 
@@ -63,8 +63,6 @@ VSTOOLS.Viewer = function () {
 		$( this ).toggleClass( 'collapsed' );
 
 	} );
-
-	//
 
 	var $file1 = $( '#file1' );
 	var $file2 = $( '#file2' );
@@ -84,128 +82,99 @@ VSTOOLS.Viewer = function () {
 	$sidebar.on( 'click', '#exportOBJ', exportOBJ );
 	$sidebar.on( 'click', '#exportJSON', exportJSON );
 
-	//
-
 	// loading
+
+	var loaders = {};
 
 	function load() {
 
 		var f1 = $file1[ 0 ].files[ 0 ];
 		var f2 = $file2[ 0 ].files[ 0 ];
 
-		var reader = new FileReader();
-		reader.onload = function () {
+		var reader1 = new FileReader();
+		reader1.onload = function () {
 
-			var filename = f1.name;
-			var ext = VSTOOLS.ext( filename );
-			var data = new Uint8Array( reader.result );
+			var ext = VSTOOLS.ext( f1.name );
+			load2( ext, reader1 );
 
-			if ( ext === 'wep' ) {
+			if ( ( ext === 'znd' || ext === 'shp' ) && f2 ) {
 
-				loadWEP( data );
-
-			} else if ( ext === 'shp' ) {
-
-				loadSHP( data );
-
-			} else if ( ext === 'zud' ) {
-
-				loadZUD( data );
-
-			} else if ( ext === 'znd' ) {
-
-				loadZND( data );
-
-			} else if ( ext === 'arm' ) {
-
-				loadARM( data );
-
-			} else if ( ext === 'gim' ) {
-
-				loadGIM( data );
-
-			} else {
-
-				throw new Error( 'Unknown file extension ' + ext );
+				reader2.readAsArrayBuffer( f2 );
 
 			}
-
-			if ( f2 ) reader2.readAsArrayBuffer( f2 );
 
 		};
 
 		var reader2 = new FileReader();
 		reader2.onload = function () {
 
-			var filename = f2.name;
-			var ext = VSTOOLS.ext( filename );
-			var data = new Uint8Array( reader2.result );
-
-			if ( ext === 'seq' ) {
-
-				loadSEQ( data );
-
-			} else if ( ext === 'mpd' ) {
-
-				loadMPD( data );
-
-			} else {
-
-				throw new Error( 'Unknown file extension ' + ext );
-
-			}
+			var ext = VSTOOLS.ext( f2.name );
+			load2( ext, reader2 );
 
 		};
 
-		reader.readAsArrayBuffer( f1 );
+		reader1.readAsArrayBuffer( f1 );
 
 	}
 
-	function loadWEP( data ) {
+	function load2( ext, reader ) {
+
+		var data = new Uint8Array( reader.result );
+
+		var loader = loaders[ ext ];
+		if ( !loader ) throw new Error( 'Unknown file extension ' + ext );
+
+		loader( new VSTOOLS.Reader( data ) );
+
+	}
+
+	loaders.wep = function ( reader ) {
 
 		clean();
 
-		obj = new VSTOOLS.WEP( new VSTOOLS.Reader( data ) );
-		obj.read();
-		obj.build();
+		var wep = new VSTOOLS.WEP( reader );
+		wep.read();
+		wep.build();
 
-		scene.add( obj.mesh );
+		root = wep.mesh;
+		scene.add( root );
 
-		updateTextures( obj.textureMap.textures );
+		updateTextures( wep.textureMap.textures );
 		updateAnim();
 
-	}
+	};
 
-	function loadSHP( data ) {
+	loaders.shp = function ( reader ) {
 
 		clean();
 
-		obj = new VSTOOLS.SHP( new VSTOOLS.Reader( data ) );
-		obj.read();
-		obj.build();
+		var shp = activeSHP = new VSTOOLS.SHP( reader );
+		shp.read();
+		shp.build();
 
-		scene.add( obj.mesh );
+		root = shp.mesh;
+		scene.add( root );
 
 		if ( $skeleton.is( ':checked' ) ) {
 
-			skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
-			scene.add( skeletonHelper );
+			skeletonHelper = new THREE.SkeletonHelper( shp.mesh );
 			skeletonHelper.material.linewidth = 3;
+			scene.add( skeletonHelper );
 
 		}
 
-		updateTextures( obj.textureMap.textures );
+		updateTextures( shp.textureMap.textures );
 		updateAnim();
 
-	}
+	};
 
-	function loadSEQ( data ) {
+	loaders.seq = function ( reader ) {
 
-		if ( obj instanceof VSTOOLS.SHP ) {
+		if ( activeSHP ) {
 
 			stopAnim();
 
-			seq = new VSTOOLS.SEQ( new VSTOOLS.Reader( data ), obj );
+			var seq = activeSEQ = new VSTOOLS.SEQ( reader, activeSHP );
 			seq.read();
 			seq.build();
 
@@ -217,91 +186,98 @@ VSTOOLS.Viewer = function () {
 
 		}
 
-	}
+	};
 
-	function loadZUD( data ) {
+	loaders.zud = function ( reader ) {
 
 		clean();
 
-		obj = new VSTOOLS.ZUD( new VSTOOLS.Reader( data ) );
-		obj.read();
-		obj.build();
+		var zud = new VSTOOLS.ZUD( reader );
+		zud.read();
+		zud.build();
 
-		seq = obj.bt || obj.com;
+		activeSHP = zud.shp;
+		activeSEQ = zud.bt || zud.com;
 
-		if ( seq ) seq.animations[0].animation.play();
+		updateAnim();
 
-		scene.add( obj.mesh );
+		root = zud.shp.mesh;
+		scene.add( root );
 
 		if ( $skeleton.is( ':checked' ) ) {
 
-			skeletonHelper = new THREE.SkeletonHelper( obj.mesh );
-			scene.add( skeletonHelper );
+			skeletonHelper = new THREE.SkeletonHelper( root );
 			skeletonHelper.material.linewidth = 3;
+			scene.add( skeletonHelper );
 
 		}
 
-		updateTextures( obj.shp.textureMap.textures );
+		updateTextures( zud.shp.textureMap.textures );
 		updateAnim();
 
-	}
+	};
 
-	function loadZND( data ) {
+	loaders.znd = function ( reader ) {
 
 		clean();
 
-		znd = new VSTOOLS.ZND( new VSTOOLS.Reader( data ) );
+		var znd = activeZND = new VSTOOLS.ZND( reader );
 		znd.read();
 
 		znd.frameBuffer.build();
 
 		updateTextures( znd.textures );
 
-	}
+	};
 
-	function loadMPD( data ) {
-
-		clean();
-
-		obj = new VSTOOLS.MPD( new VSTOOLS.Reader( data ), znd );
-		obj.read();
-		obj.build();
-
-		scene.add( obj.mesh );
-
-		if ( znd ) updateTextures( znd.textures );
-
-	}
-
-	function loadARM( data ) {
+	loaders.mpd = function ( reader ) {
 
 		clean();
 
-		obj = new VSTOOLS.ARM( new VSTOOLS.Reader( data ) );
-		obj.read();
-		obj.build();
+		var mpd = new VSTOOLS.MPD( reader, activeZND );
+		mpd.read();
+		mpd.build();
 
-		scene.add( obj.object );
+		root = mpd.mesh;
+		scene.add( root );
+
+		if ( activeZND ) updateTextures( znd.textures );
+
+	};
+
+	loaders.arm = function ( reader ) {
+
+		clean();
+
+		var arm = new VSTOOLS.ARM( reader );
+		arm.read();
+		arm.build();
+
+		root = arm.object;
+		scene.add( root );
 
 		updateTextures( [] );
 
-	}
+	};
 
-	function loadGIM( data ) {
+	loaders.gim = function ( reader ) {
 
-		var gim = new VSTOOLS.GIM( new VSTOOLS.Reader( data ) );
+		var gim = new VSTOOLS.GIM( reader );
 		gim.read();
 		gim.build();
 
 		updateTextures( gim.textures );
 
-	}
+	};
 
 	function clean() {
 
+		activeSHP = null;
+		activeSEQ = null;
+
 		stopAnim();
 
-		if ( obj ) scene.remove( obj.mesh );
+		if ( root ) scene.remove( root );
 		if ( skeletonHelper ) scene.remove( skeletonHelper );
 
 	}
@@ -326,7 +302,7 @@ VSTOOLS.Viewer = function () {
 
 	function updateAnim() {
 
-		if ( !seq ) {
+		if ( !activeSEQ ) {
 
 			return;
 
@@ -336,22 +312,22 @@ VSTOOLS.Viewer = function () {
 
 		var id = parseAnim();
 
-		seq.animations[ id ].animation.play();
+		activeSEQ.animations[ id ].animation.play();
 
 		$animation.val( id );
-		$animationCount.html( '0&ndash;' + ( seq.animations.length - 1 ) );
+		$animationCount.html( '0&ndash;' + ( activeSEQ.animations.length - 1 ) );
 
 	}
 
 	function parseAnim() {
 
-		if ( !seq ) return 0;
+		if ( !activeSEQ ) return 0;
 
 		var id = parseInt( $animation.val() );
 
 		if ( !id ) id = 0;
 
-		id = Math.min( seq.animations.length - 1,  Math.max( 0, id ) );
+		id = Math.min( activeSEQ.animations.length - 1,  Math.max( 0, id ) );
 
 		return id;
 
@@ -359,11 +335,11 @@ VSTOOLS.Viewer = function () {
 
 	function stopAnim() {
 
-		if ( !seq ) return;
+		if ( !activeSEQ ) return;
 
-		for ( var i = 0, l = seq.animations.length; i < l; ++i ) {
+		for ( var i = 0, l = activeSEQ.animations.length; i < l; ++i ) {
 
-			seq.animations[ i ].animation.stop();
+			activeSEQ.animations[ i ].animation.stop();
 
 		}
 
@@ -373,13 +349,13 @@ VSTOOLS.Viewer = function () {
 
 	function updateTextures( textures ) {
 
-		$( '#textures' ).empty();
+		$textures.empty();
 
 		if ( !textures ) return;
 
 		textures.forEach( function ( texture ) {
 
-			$( '#textures' ).append( '<img src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
+			$textures.append( '<img src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
 
 		} );
 
@@ -389,12 +365,13 @@ VSTOOLS.Viewer = function () {
 
 	function exportOBJ() {
 
-		var x = obj.shp || obj;
-		var snapshot = obj.geometrySnapshot();
+		if ( root instanceof THREE.SkinnedMesh ) {
 
-		var exporter = new THREE.OBJExporter();
+			var snapshot = VSTOOLS.geometrySnapshot( root );
+			var exporter = new THREE.OBJExporter();
+			exportString( exporter.parse( snapshot ) );
 
-		exportString( exporter.parse( snapshot ) );
+		}
 
 	}
 

@@ -117,10 +117,9 @@ VSTOOLS.ARMRoom.prototype.buildMesh = function () {
 	var vertices = geometry.vertices;
 	var faces = geometry.faces;
 
-	var i;
 	var iv = 0;
 
-	for ( i = 0; i < numTriangles; ++i ) {
+	for ( var i = 0; i < numTriangles; ++i ) {
 
 		var p = triangles[ i];
 
@@ -131,8 +130,8 @@ VSTOOLS.ARMRoom.prototype.buildMesh = function () {
 		vertices.push( v1, v2, v3 );
 
 		// compute normal
-		var n = ( new THREE.Vector3 ).subVectors( v2, v1 );
-		n.cross( ( new THREE.Vector3 ).subVectors( v3, v1 ) );
+		var n = ( new THREE.Vector3() ).subVectors( v2, v1 );
+		n.cross( ( new THREE.Vector3() ).subVectors( v3, v1 ) );
 		n.normalize();
 		n.negate();
 
@@ -142,7 +141,7 @@ VSTOOLS.ARMRoom.prototype.buildMesh = function () {
 
 	}
 
-	for ( i = 0; i < numQuads; ++i ) {
+	for ( var i = 0; i < numQuads; ++i ) {
 
 		var p = quads[ i ];
 
@@ -154,8 +153,8 @@ VSTOOLS.ARMRoom.prototype.buildMesh = function () {
 		vertices.push( v1, v2, v3, v4 );
 
 		// compute normal
-		var n = ( new THREE.Vector3 ).subVectors( v2, v1 );
-		n.cross( ( new THREE.Vector3 ).subVectors( v3, v1 ) );
+		var n = ( new THREE.Vector3() ).subVectors( v2, v1 );
+		n.cross( ( new THREE.Vector3() ).subVectors( v3, v1 ) );
 		n.normalize();
 		n.negate();
 
@@ -182,9 +181,8 @@ VSTOOLS.ARMRoom.prototype.buildLines = function () {
 	var numWallLines = this.numWallLines;
 	var floorLines = this.floorLines;
 	var wallLines = this.wallLines;
-	var i;
 
-	for ( i = 0; i < numFloorLines; ++i ) {
+	for ( var i = 0; i < numFloorLines; ++i ) {
 
 		var p = floorLines[ i ];
 
@@ -194,7 +192,7 @@ VSTOOLS.ARMRoom.prototype.buildLines = function () {
 
 	}
 
-	for ( i = 0; i < numWallLines; ++i ) {
+	for ( var i = 0; i < numWallLines; ++i ) {
 
 		var p = wallLines[ i ];
 
