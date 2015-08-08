@@ -26,7 +26,7 @@ VSTOOLS.ZND.prototype.header = function () {
 	this.timPtr = u32();
 	this.timLen = u32();
 	this.wave = u8();
-	skip( 7 );
+	skip( 7 ); // unknown
 
 };
 
@@ -66,7 +66,7 @@ VSTOOLS.ZND.prototype.timSection = function () {
 	var u32 = this.u32, skip = this.skip;
 
 	this.timLen2 = u32();
-	skip( 12 ); // TODO whats this?
+	skip( 12 ); // TODO confirm this is 0 for all ZNDs
 	var timNum = this.timNum = u32();
 
 	var frameBuffer = this.frameBuffer = new VSTOOLS.FrameBuffer();
@@ -80,6 +80,8 @@ VSTOOLS.ZND.prototype.timSection = function () {
 		var tim = new VSTOOLS.TIM( this.reader );
 		tim.read();
 		tim.id = i;
+
+		//console.log( 'tim', i, ':', tim.width, 'x', tim.height, 'at', tim.fx, tim.fy );
 
 		if ( tim.height < 5 ) {
 
@@ -95,17 +97,31 @@ VSTOOLS.ZND.prototype.timSection = function () {
 
 };
 
-VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
+VSTOOLS.ZND.prototype.getTIM = function ( id ) {
 
-	//this.frameBuffer.markCLUT( clutId );
 	var tims = this.tims;
-	var id = textureId + '-' + clutId;
 
-	if ( textureId - 5 >= tims.length ) {
+	var x = ( id * 64 ) % 1024;
+	var y = Math.floor( ( id * 64 ) / 1024 );
 
-		return new THREE.MeshNormalMaterial();
+	for ( var i = 0, l = tims.length; i < l; ++i ) {
+
+		var tim = tims[ i ];
+
+		if ( tim.fx === x ) {
+
+			return tim;
+
+		}
 
 	}
+
+};
+
+VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
+
+	var tims = this.tims;
+	var id = textureId + '-' + clutId;
 
 	var materials = this.materials;
 	var material = materials[ id ];
@@ -117,11 +133,15 @@ VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
 	} else {
 
 		// find texture
-		var textureTIM = tims[ textureId - 5 ];
+		var textureTIM = this.getTIM( textureId );
+
+		this.frameBuffer.markCLUT( clutId );
 
 		// find CLUT
 		var x = ( clutId * 16 ) % 1024;
 		var y = Math.floor( ( clutId * 16 ) / 1024 );
+
+		//console.log( x, y );
 
 		var clut = null;
 
@@ -140,6 +160,7 @@ VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
 		}
 
 		var texture = textureTIM.build( clut );
+		texture.title = id;
 
 		this.textures.push( texture );
 
@@ -151,7 +172,7 @@ VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
 			vertexColors: THREE.VertexColors
 		} );
 
-		// store
+		// cache
 		materials[ id ] = material;
 
 		return material;

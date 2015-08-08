@@ -60,7 +60,7 @@ var VSTOOLS = {
 		var g = ( c & 0x03E0 ) >> 5;
 		var r = ( c & 0x001F );
 
-		if ( c === 0 || t === 1 ) {
+		if ( c === 0 ) {
 
 			return [ 0, 0, 0, 0 ];
 

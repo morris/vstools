@@ -29,7 +29,7 @@ VSTOOLS.FrameBuffer = function () {
 
 			map: this.texture,
 			shading: THREE.FlatShading,
-			transparent: true
+			transparent: false
 
 		} );
 
@@ -48,7 +48,7 @@ VSTOOLS.FrameBuffer = function () {
 		var ilo = id * 64;
 		var ihi = ilo + 64;
 
-		for ( var i = ilo; i < ihi; i += 4 ) {
+		for ( var i = ilo; i < ilo+4; i += 4 ) {
 
 			buffer[ i + 0 ] = 255;
 			buffer[ i + 1 ] = 0;

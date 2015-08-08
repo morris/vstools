@@ -61,11 +61,6 @@ VSTOOLS.MPDMesh = function ( reader, group, textureId, clutId ) {
 
 				geometry.faceVertexUvs[ 0 ].push( uv1, uv2 );
 
-				//uv[ iv + 0 ] = f.uv2;
-				//uv[ iv + 1 ] = f.uv3;
-				//uv[ iv + 2 ] = f.uv1;
-				//uv[ iv + 3 ] = f.uv4;
-
 				iv += 4;
 
 			} else {

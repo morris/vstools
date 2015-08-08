@@ -56,12 +56,15 @@ body {
 #textures img {
 	width: 150px;
 	margin: 0 10px 10px 0;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: crisp-edges;
 }
 
 #image {
 	margin-right: 360px;
 }
-#imaage img:only-child {
+
+#image img:only-child {
 	image-rendering: -moz-crisp-edges;
 	image-rendering: crisp-edges;
 }

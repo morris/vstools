@@ -6,6 +6,7 @@ VSTOOLS.Viewer = function () {
 	var camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 10000 );
 
 	var renderer = new THREE.WebGLRenderer();
+	renderer.setClearColor( 0x333333, 1);
 
 	resize();
 
@@ -226,6 +227,8 @@ VSTOOLS.Viewer = function () {
 
 		znd.frameBuffer.build();
 
+		//scene.add( znd.frameBuffer.mesh );
+
 		updateTextures( znd.textures );
 
 	};
@@ -383,7 +386,7 @@ VSTOOLS.Viewer = function () {
 
 		textures.forEach( function ( texture ) {
 
-			$textures.append( '<img src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
+			$textures.append( '<img title="' + texture.title + '" src="' + VSTOOLS.png( texture.image.data, texture.image.width, texture.image.height ) + '">' );
 
 		} );
 

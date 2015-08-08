@@ -13,7 +13,7 @@ VSTOOLS.TIM.prototype.read = function () {
 	// magic 10 00 00 00
 	this.magic = buf( 4 );
 
-	this.bpp = u32();
+	this.bpp = u32(); // always 2
 	this.imgLen = u32();
 
 	this.dataLen = this.imgLen - 12;
@@ -96,7 +96,7 @@ VSTOOLS.TIM.prototype.buildCLUT = function ( x, y ) {
 
 VSTOOLS.TIM.prototype.build = function ( clut ) {
 
-	var s8 = this.s8, seek = this.seek;
+	var u8 = this.u8, seek = this.seek;
 
 	var width = this.width, height = this.height;
 
@@ -107,7 +107,7 @@ VSTOOLS.TIM.prototype.build = function ( clut ) {
 
 	for ( var i = 0; i < size; i += 8 ) {
 
-		var c = s8();
+		var c = u8();
 
 		var l = ( ( c & 0xF0 ) >> 4 ) * 4;
 		var r = ( c & 0x0F ) * 4;
@@ -127,6 +127,8 @@ VSTOOLS.TIM.prototype.build = function ( clut ) {
 	var texture = new THREE.DataTexture( buffer, width * 4, height, THREE.RGBAFormat );
 	texture.magFilter = THREE.NearestFilter;
 	texture.minFilter = THREE.NearestFilter;
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
 	texture.needsUpdate = true;
 
 	return texture;

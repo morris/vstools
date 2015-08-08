@@ -55,6 +55,8 @@ VSTOOLS.MPDFace = function ( reader, group ) {
 
 		this.textureId = s16();
 
+		//console.log( VSTOOLS.bin( this.clutId, 4 ), this.textureId );
+
 		if ( this.quad ) {
 
 			this.p4x = s8();
@@ -68,6 +70,15 @@ VSTOOLS.MPDFace = function ( reader, group ) {
 			this.b4 = u8();
 
 			this.v4 = u8();
+
+		} else {
+
+			var u1 = this.u1;
+			var v1 = this.v1;
+			this.u1 = this.u2;
+			this.v1 = this.v2;
+			this.u2 = u1;
+			this.v2 = v1;
 
 		}
 
