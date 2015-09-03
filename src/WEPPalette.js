@@ -1,15 +1,20 @@
 VSTOOLS.WEPPalette = function ( reader ) {
 
-	this.read = function ( size ) {
+	this.colors = [];
 
-		this.size = size;
-		this.colors = [];
+	this.read = function ( num ) {
 
-		for ( var i = 0; i < size; ++i ) {
+		for ( var i = 0; i < num; ++i ) {
 
 			this.colors.push( VSTOOLS.color( reader.u16() ) );
 
 		}
+
+	};
+
+	this.push = function ( colors ) {
+
+		this.colors.push.apply( this.colors, colors );
 
 	};
 

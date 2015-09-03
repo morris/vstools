@@ -54,7 +54,7 @@ VSTOOLS.WEP.prototype.data = function () {
 	this.groupSection();
 	this.vertexSection();
 	this.faceSection();
-	this.textureSection( 5 ); // 5 palettes
+	this.textureSection( 7, true ); // 7 palettes with WEP handle palette
 
 };
 
@@ -148,10 +148,10 @@ VSTOOLS.WEP.prototype.faceSection = function () {
 
 };
 
-VSTOOLS.WEP.prototype.textureSection = function ( numPalettes ) {
+VSTOOLS.WEP.prototype.textureSection = function ( numPalettes, wep ) {
 
 	this.textureMap = new VSTOOLS.WEPTextureMap( this.reader );
-	this.textureMap.read( numPalettes );
+	this.textureMap.read( numPalettes, wep );
 
 };
 

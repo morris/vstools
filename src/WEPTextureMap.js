@@ -1,8 +1,13 @@
+/**
+ * WEP textures fixed by
+ * Oliver Barraza - https://github.com/MercurialForge
+ * Thanks!
+ */
 VSTOOLS.WEPTextureMap = function ( reader ) {
 
 	reader.extend( this );
 
-	this.read = function ( numberOfPalettes ) {
+	this.read = function ( numberOfPalettes, wep ) {
 
 		var u8 = this.u8, s8 = this.s8, u32 = this.u32, skip = this.skip;
 
@@ -14,10 +19,27 @@ VSTOOLS.WEPTextureMap = function ( reader ) {
 
 		var palettes = this.palettes = [];
 
+		if ( wep ) {
+
+			var handle = new VSTOOLS.WEPPalette( this.reader );
+			handle.read( colorsPerPalette / 3 );
+
+		}
+
 		for ( var i = 0; i < numberOfPalettes; ++i ) {
 
 			var palette = new VSTOOLS.WEPPalette( this.reader );
-			palette.read( this.colorsPerPalette );
+
+			if ( wep ) {
+
+				palette.push( handle.colors );
+				palette.read( colorsPerPalette / 3 * 2 );
+
+			} else {
+
+				palette.read( colorsPerPalette );
+
+			}
 
 			palettes.push( palette );
 
