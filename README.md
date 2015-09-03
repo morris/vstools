@@ -1,17 +1,14 @@
 # Vagrant Story Tools
 
-This is an incomplete toolset for Vagrant Story (2000, Square),
-written in JavaScript with Three.js.
-It contains a partially working model viewer.
-Everything is work in progress.
+This is a toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js.
+It contains a mostly working model viewer.
+[Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
-<img src="https://rawgit.com/morris/vstools/master/dragon.png">
+<img src="https://rawgit.com/morris/vstools/master/img/screenshot2.png">
 
 (A prior version was written in Java, which can be found [here](https://github.com/morris/vstools-java).)
 
-## Usage
-
-[Run in browser](https://rawgit.com/morris/vstools/master/index.html)
+## [Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
 Runs in browsers that supports WebGL, like Chrome or Firefox.
 The viewer opens individual files obtained from a CD image
@@ -22,8 +19,8 @@ This code is developed for the US Version of Vagrant Story but should work with 
 ## Supported file types
 
 - WEP (weapons)
-- SHP (characters, partially)
-- SEQ (animations, 90%)
+- SHP (characters)
+- SEQ (animations)
 - ZUD (basically SHP + SEQ + WEP)
 - ZND (zone data)
 - MPD (map)
@@ -42,7 +39,9 @@ Making sense of undocumented file formats is great, kind of archeological fun.
 Vagrant Story itself is a unique piece of art,
 featuring an outstanding character and level design that has no equal.
 
-## Acknowledgments
+## Contributions and acknowledgments
+
+- WEP textures fixed by [Oliver Barraza](https://github.com/MercurialForge)
 
 Many thanks to Valendian and other people's tremendous work on analyzing Vagrant Story.
 
