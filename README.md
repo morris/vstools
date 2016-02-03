@@ -1,7 +1,7 @@
 # Vagrant Story Tools
 
-This is a toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js.
-It contains a mostly working model viewer.
+A toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js.
+Contains a mostly working model viewer.
 [Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
 <img src="https://rawgit.com/morris/vstools/master/img/screenshot2.png">
@@ -10,7 +10,7 @@ It contains a mostly working model viewer.
 
 ## [Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
-Runs in browsers that supports WebGL, like Chrome or Firefox.
+Runs in browsers supporting WebGL, like Chrome or Firefox.
 The viewer opens individual files obtained from a CD image
 which have to be extracted first from your copy of Vagrant Story.
 
