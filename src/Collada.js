@@ -10,6 +10,7 @@ VSTOOLS.Collada = {
 			'<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">',
 				this.asset(),
 				this.library_geometries( root ),
+				this.library_controllers( root ),
 				this.library_animations( root ),
 				this.library_images( root ),
 				this.library_effects( root ),
@@ -50,22 +51,22 @@ VSTOOLS.Collada = {
 		return [
 			'<geometry id="' + id + '" name="' + id + '">',
 				'<mesh>',
-					'<source id="' + id + '-positions">',
-						'<float_array id="' + id + '-positions-array" count="' + ( geometry.vertices.length * 3 ) + '">',
+					'<source id="' + id + '_positions">',
+						'<float_array id="' + id + '_positions_array" count="' + ( geometry.vertices.length * 3 ) + '">',
 							geometry.vertices.map( function ( v ) {
 								return [ v.x, v.y, v.z ].join( ' ' );
 							} ).join( ' ' ),
 						'</float_array>',
 						'<technique_common>',
-							'<accessor source="#' + id + '-positions-array" count="' + geometry.vertices.length + '" stride="3">',
+							'<accessor source="#' + id + '_positions_array" count="' + geometry.vertices.length + '" stride="3">',
 								'<param name="X" type="float"/>',
 								'<param name="Y" type="float"/>',
 								'<param name="Z" type="float"/>',
 							'</accessor>',
 						'</technique_common>',
 					'</source>',
-					'<source id="' + id + '-normals">',
-						'<float_array id="' + id + '-normals-array" count="' + ( geometry.faces.length * 9 ) + '">',
+					'<source id="' + id + '_normals">',
+						'<float_array id="' + id + '_normals_array" count="' + ( geometry.faces.length * 9 ) + '">',
 							geometry.faces.map( function ( f ) {
 								return [
 									f.vertexNormals[ 0 ].x,
@@ -81,15 +82,15 @@ VSTOOLS.Collada = {
 							} ).join( ' ' ),
 						'</float_array>',
 						'<technique_common>',
-							'<accessor source="#' + id + '-normals-array" count="' + ( geometry.faces.length * 3 ) + '" stride="3">',
+							'<accessor source="#' + id + '_normals_array" count="' + ( geometry.faces.length * 3 ) + '" stride="3">',
 								'<param name="X" type="float"/>',
 								'<param name="Y" type="float"/>',
 								'<param name="Z" type="float"/>',
 							'</accessor>',
 						'</technique_common>',
 					'</source>',
-					'<source id="' + id + '-uv">',
-						'<float_array id="' + id + '-uv-array" count="' + ( geometry.faceVertexUvs[ 0 ].length * 2 ) + '">',
+					'<source id="' + id + '_uv">',
+						'<float_array id="' + id + '_uv_array" count="' + ( geometry.faceVertexUvs[ 0 ].length * 2 ) + '">',
 							geometry.faceVertexUvs[ 0 ].map( function ( uv ) {
 								return [
 									uv[ 0 ].x, uv[ 0 ].y,
@@ -99,19 +100,19 @@ VSTOOLS.Collada = {
 							} ).join( ' ' ),
 						'</float_array>',
 						'<technique_common>',
-							'<accessor source="#' + id + '-uv-array" count="' + geometry.faceVertexUvs[ 0 ].length +'" stride="2">',
+							'<accessor source="#' + id + '_uv_array" count="' + geometry.faceVertexUvs[ 0 ].length +'" stride="2">',
 								'<param name="S" type="float"/>',
 								'<param name="T" type="float"/>',
 							'</accessor>',
 						'</technique_common>',
 					'</source>',
-					'<vertices id="' + id + '-vertices">',
-						'<input semantic="POSITION" source="#' + id + '-positions"/>',
+					'<vertices id="' + id + '_vertices">',
+						'<input semantic="POSITION" source="#' + id + '_positions"/>',
 					'</vertices>',
 					'<triangles count="' + geometry.faces.length + '">',
-						'<input semantic="VERTEX" source="#' + id + '-vertices" offset="0"/>',
-						'<input semantic="NORMAL" source="#' + id + '-normals" offset="1"/>',
-						'<input semantic="TEXCOORD" source="#' + id + '-uv" offset="2"/>',
+						'<input semantic="VERTEX" source="#' + id + '_vertices" offset="0"/>',
+						'<input semantic="NORMAL" source="#' + id + '_normals" offset="1"/>',
+						'<input semantic="TEXCOORD" source="#' + id + '_uv" offset="2"/>',
 						'<p>',
 							geometry.faces.map( function ( f ) {
 								return [
@@ -124,6 +125,121 @@ VSTOOLS.Collada = {
 					'</triangles>',
 				'</mesh>',
 			'</geometry>'
+		].join( '\n' );
+	},
+
+	//
+
+	library_controllers: function ( root ) {
+		var self = this;
+		var controllers = '';
+		root.traverse( function ( node ) {
+			if ( node instanceof THREE.SkinnedMesh ) controllers += self.controller_skin( node ) + '\n';
+		} );
+
+		return [
+			'<library_controllers>',
+				controllers,
+			'</library_controllers>'
+		].join( '\n' );
+	},
+
+	controller_skin: function ( node ) {
+		var id = 'skin' + node.id;
+		return [
+			'<controller id="' + id + '">',
+				this.skin( node ),
+			'</controller>'
+		].join( '\n' );
+	},
+
+	skin: function ( node ) {
+		var geometry = node.geometry;
+		var bones = node.skeleton.bones;
+		var id = 'skin' + node.id;
+		return [
+			'<skin source="#geometry' + geometry.id + '">',
+
+				'<source id="' + id + '_joints">',
+					'<Name_array id="' + id + '_joints_array" count="' + bones.length + '">',
+						bones.map( function ( bone ) {
+							return 'bone' + bone.id
+						} ).join( ' ' ),
+					'</Name_array>',
+					'<technique_common>',
+						'<accessor source="#' + id + '_joints_array" count="' + bones.length + '" stride="1">',
+							'<param name="JOINT" type="Name"/>',
+						'</accessor>',
+					'</technique_common>',
+				'</source>',
+
+				'<source id="' + id + '_weights">',
+					'<float_array id="' + id + '_weights_array" count="' + ( geometry.vertices.length * 4 ) + '">',
+						geometry.skinWeights.map( function ( weight ) {
+							return [ weight.x, weight.y, weight.z, weight.w ].join( ' ' );
+						} ).join( '  ' ),
+					'</float_array>',
+					'<technique_common>',
+						'<accessor source="#' + id + '_weights_array" count="' + ( geometry.vertices.length * 4 ) + '" stride="1">',
+							'<param name="WEIGHT" type="float"/>',
+						'</accessor>',
+					'</technique_common>',
+				'</source>',
+
+				'<source id="' + id + '_inv_bind_matrices">',
+					'<float_array id="' + id + '_inv_bind_matrices_array" count="' + ( bones.length * 16 ) + '">',
+						bones.map( function ( bone ) {
+							var m = bone.matrix.elements;
+							return [
+								m[ 0 ], m[ 1 ], m[ 2 ], m[ 3 ],
+								m[ 4 ], m[ 5 ], m[ 6 ], m[ 7 ],
+								m[ 8 ], m[ 9 ], m[ 10 ], m [ 11 ],
+								m[ 12 ], m[ 13 ], m[ 14 ], m[ 15 ]
+							].join( ' ' );
+						} ).join( '  ' ),
+					'</float_array>',
+					'<technique_common>',
+						'<accessor source="#' + id + '_inv_bind_matrices_array" count="' + bones.length + '" stride="16">',
+							'<param name="TRANSFORM" type="float4x4"/>',
+						'</accessor>',
+					'</technique_common>',
+				'</source>',
+
+				'<joints>',
+					'<input semantic="JOINT" source="#' + id + '_joints"/>',
+					'<input semantic="INV_BIND_MATRIX" source="#' + id + '_inv_bind_matrices"/>',
+				'</joints>',
+
+				'<vertex_weights count="' + geometry.vertices.length + '">',
+					'<input semantic="JOINT" source="#' + id + '_joints" offset="0"/>',
+					'<input semantic="WEIGHTS" source="#' + id + '_weights" offset="1"/>',
+					'<vcount>',
+						geometry.vertices.map( function () {
+							return 4;
+						} ).join( ' ' ),
+					'</vcount>',
+					this.v( geometry ),
+				'</vertex_weights>',
+
+			'</skin>'
+		].join( '\n' );
+	},
+
+	v: function ( geometry ) {
+		var list = [];
+		var weightIndex = 0;
+		for ( var i = 0; i < geometry.vertices.length; ++i ) {
+			list.push( [
+				geometry.skinIndices[ i ].x, weightIndex++,
+				geometry.skinIndices[ i ].y, weightIndex++,
+				geometry.skinIndices[ i ].z, weightIndex++,
+				geometry.skinIndices[ i ].w, weightIndex++
+			].join( ' ' ) );
+		}
+		return [
+			'<v>',
+				list.join( '  ' ),
+			'</v>',
 		].join( '\n' );
 	},
 
@@ -153,6 +269,7 @@ VSTOOLS.Collada = {
 		].join( '\n' );
 	},
 
+	// stubbed
 	effect: function () {
 		return [
 			'<effect id="defaultEffect">',
@@ -161,6 +278,7 @@ VSTOOLS.Collada = {
 		].join( '\n' );
 	},
 
+	// stubbed
 	profile_COMMON: function () {
 		return [
 			'<profile_COMMON>',
@@ -215,6 +333,7 @@ VSTOOLS.Collada = {
 		].join( '\n' );
 	},
 
+	// stubbed
 	material: function ( material ) {
 		return [
 			'<material id="material' + material.id + '">',
@@ -223,6 +342,7 @@ VSTOOLS.Collada = {
 		].join( '\n' );
 	},
 
+	// stubbed
 	instance_effect: function () {
 		return [
 			'<instance_effect url="#defaultEffect">',
