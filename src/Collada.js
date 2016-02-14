@@ -115,9 +115,9 @@ VSTOOLS.Collada = {
 						'<p>',
 							geometry.faces.map( function ( f ) {
 								return [
-									f.a, faceIndex++, faceIndex,
-									f.b, faceIndex++, faceIndex,
-									f.c, faceIndex++, faceIndex,
+									f.a, faceIndex, faceIndex++,
+									f.b, faceIndex, faceIndex++,
+									f.c, faceIndex, faceIndex++,
 								].join( ' ' );
 							} ).join( ' ' ),
 						'</p>',
