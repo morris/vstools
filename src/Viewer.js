@@ -15,6 +15,9 @@ VSTOOLS.Viewer = function () {
 	camera.position.z = 500;
 	var orbitControls = new THREE.OrbitControls( camera, renderer.domElement );
 
+	var mixer = new THREE.AnimationMixer( scene );
+	var mixerAction;
+
 	function render() {
 
 		requestAnimationFrame( render );
@@ -23,7 +26,7 @@ VSTOOLS.Viewer = function () {
 
 		if ( skeletonHelper ) skeletonHelper.update();
 
-		THREE.AnimationHandler.update( 0.01 );
+		mixer.update( 0.01 );
 
 		renderer.render( scene, camera );
 
@@ -343,7 +346,9 @@ VSTOOLS.Viewer = function () {
 
 		var id = parseAnim();
 
-		activeSEQ.animations[ id ].animation.play();
+		mixer.uncacheClip( activeSEQ.animations[ id ].animationClip );
+		mixerAction = mixer.clipAction( activeSEQ.animations[ id ].animationClip, activeSHP.mesh );
+		mixerAction.play();
 
 		$animation.val( id );
 		$animationCount.html( '0&ndash;' + ( activeSEQ.animations.length - 1 ) );
@@ -366,13 +371,7 @@ VSTOOLS.Viewer = function () {
 
 	function stopAnim() {
 
-		if ( !activeSEQ ) return;
-
-		for ( var i = 0, l = activeSEQ.animations.length; i < l; ++i ) {
-
-			activeSEQ.animations[ i ].animation.stop();
-
-		}
+		if ( mixerAction ) mixerAction.stop();
 
 	}
 
@@ -400,7 +399,8 @@ VSTOOLS.Viewer = function () {
 
 			var snapshot = VSTOOLS.geometrySnapshot( root );
 			var exporter = new THREE.OBJExporter();
-			exportString( exporter.parse( snapshot ) );
+			var mesh = new THREE.Mesh( snapshot, new THREE.MeshNormalMaterial() );
+			exportString( exporter.parse( mesh ) );
 
 		}
 

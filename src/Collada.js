@@ -251,6 +251,10 @@ VSTOOLS.Collada = {
 		].join( '\n' );
 	},
 
+	animation: function ( anim ) {
+		
+	},
+
 	//
 
 	library_images: function ( root ) {

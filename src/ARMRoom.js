@@ -203,6 +203,6 @@ VSTOOLS.ARMRoom.prototype.buildLines = function () {
 	}
 
 	var material = this.lineMaterial = new THREE.LineBasicMaterial( { color: 0x333333 } );
-	this.lines = new THREE.Line( geometry, material, THREE.LinePieces );
+	this.lines = new THREE.LineSegments( geometry, material );
 
 };

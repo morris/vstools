@@ -341,6 +341,6 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
 		hierarchy: hierarchy
 	};
 
-	this.animation = new THREE.Animation( shp.mesh, data );
+	this.animationClip = new THREE.AnimationClip.parseAnimation( data, shp.mesh.skeleton.bones );
 
 };

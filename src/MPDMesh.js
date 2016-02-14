@@ -48,15 +48,15 @@ VSTOOLS.MPDMesh = function ( reader, group, textureId, clutId ) {
 				geometry.faces.push( new THREE.Face3( iv + 1, iv + 2, iv + 3, f.n, c2 ) );
 
 				var uv1 = [
-					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th ),
-					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
-					new THREE.Vector2( f.u2 / tw, 1 - f.v2 / th )
+					new THREE.Vector2( f.u1 / tw, f.v1 / th ),
+					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
+					new THREE.Vector2( f.u2 / tw, f.v2 / th )
 				];
 
 				var uv2 = [
-					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
-					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th ),
-					new THREE.Vector2( f.u4 / tw, 1 - f.v4 / th )
+					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
+					new THREE.Vector2( f.u1 / tw, f.v1 / th ),
+					new THREE.Vector2( f.u4 / tw, f.v4 / th )
 				];
 
 				geometry.faceVertexUvs[ 0 ].push( uv1, uv2 );
@@ -76,9 +76,9 @@ VSTOOLS.MPDMesh = function ( reader, group, textureId, clutId ) {
 				geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0, f.n, c ) );
 
 				var uv = [
-					new THREE.Vector2( f.u2 / tw, 1 - f.v2 / th ),
-					new THREE.Vector2( f.u3 / tw, 1 - f.v3 / th ),
-					new THREE.Vector2( f.u1 / tw, 1 - f.v1 / th )
+					new THREE.Vector2( f.u2 / tw, f.v2 / th ),
+					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
+					new THREE.Vector2( f.u1 / tw, f.v1 / th )
 				];
 
 				geometry.faceVertexUvs[ 0 ].push( uv );
