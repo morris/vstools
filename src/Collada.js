@@ -46,7 +46,7 @@ VSTOOLS.Collada = {
 
 	geometry: function ( geometry ) {
 		var id = 'geometry' + geometry.id;
-		var vertexNormals = false;
+		var faceIndex = 0;
 		return [
 			'<geometry id="' + id + '" name="' + id + '">',
 				'<mesh>',
@@ -65,32 +65,23 @@ VSTOOLS.Collada = {
 						'</technique_common>',
 					'</source>',
 					'<source id="' + id + '-normals">',
-						'<float_array id="' + id + '-normals-array" count="' + ( geometry.vertices.length * 3 ) + '">',
+						'<float_array id="' + id + '-normals-array" count="' + ( geometry.faces.length * 9 ) + '">',
 							geometry.faces.map( function ( f ) {
-								if ( f.vertexNormals ) {
-									vertexNormals = true;
-									return [
-										f.vertexNormals[ 0 ].x,
-										f.vertexNormals[ 0 ].y,
-										f.vertexNormals[ 0 ].z,
-										f.vertexNormals[ 1 ].x,
-										f.vertexNormals[ 1 ].y,
-										f.vertexNormals[ 1 ].z,
-										f.vertexNormals[ 2 ].x,
-										f.vertexNormals[ 2 ].y,
-										f.vertexNormals[ 2 ].z
-									].join( ' ' );
-								} else {
-									return [
-										f.normal.x,
-										f.normal.y,
-										f.normal.z,
-									].join( ' ' );
-								}
+								return [
+									f.vertexNormals[ 0 ].x,
+									f.vertexNormals[ 0 ].y,
+									f.vertexNormals[ 0 ].z,
+									f.vertexNormals[ 1 ].x,
+									f.vertexNormals[ 1 ].y,
+									f.vertexNormals[ 1 ].z,
+									f.vertexNormals[ 2 ].x,
+									f.vertexNormals[ 2 ].y,
+									f.vertexNormals[ 2 ].z
+								].join( ' ' );
 							} ).join( ' ' ),
 						'</float_array>',
 						'<technique_common>',
-							'<accessor source="#' + id + '-normals-array" count="' + ( geometry.faces.length * ( vertexNormals ? 3 : 1 ) ) + '" stride="3">',
+							'<accessor source="#' + id + '-normals-array" count="' + ( geometry.faces.length * 3 ) + '" stride="3">',
 								'<param name="X" type="float"/>',
 								'<param name="Y" type="float"/>',
 								'<param name="Z" type="float"/>',
@@ -119,10 +110,15 @@ VSTOOLS.Collada = {
 					'</vertices>',
 					'<triangles count="' + geometry.faces.length + '">',
 						'<input semantic="VERTEX" source="#' + id + '-vertices" offset="0"/>',
-						//'<input semantic="TEXCOORD" source="#' + id + '-uv" offset="1"/>',
+						'<input semantic="NORMAL" source="#' + id + '-normals" offset="1"/>',
+						'<input semantic="TEXCOORD" source="#' + id + '-uv" offset="2"/>',
 						'<p>',
 							geometry.faces.map( function ( f ) {
-								return [ f.a, f.b, f.c ].join( ' ' );
+								return [
+									f.a, faceIndex++, faceIndex,
+									f.b, faceIndex++, faceIndex,
+									f.c, faceIndex++, faceIndex,
+								].join( ' ' );
 							} ).join( ' ' ),
 						'</p>',
 					'</triangles>',
@@ -254,7 +250,7 @@ VSTOOLS.Collada = {
 
 	node: function ( node ) {
 		return [
-			'<node id="node' + node.id + '">',
+			'<node id="node' + node.id + '" name="node' + node.id + '">',
 				'<translate>',
 					node.position.x,
 					node.position.y,
