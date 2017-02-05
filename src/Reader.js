@@ -88,6 +88,7 @@ VSTOOLS.Reader = function ( data ) {
 		obj.u32 = u32;
 		obj.buffer = buffer;
 		obj.pos = function () { return pos; };
+		obj.length = data.length;
 
 	};
 

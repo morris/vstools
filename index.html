@@ -1,128 +1,127 @@
 <!DOCTYPE html>
 <html>
-<head>
+	<head>
+		<meta charset="utf-8">
+		<title>VSTOOLS</title>
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/main.css">
+	</head>
+	<body>
 
-	<meta charset="utf-8">
-	<title>VSTOOLS</title>
-	<link rel="stylesheet" href="css/normalize.css">
-	<link rel="stylesheet" href="css/main.css">
+		<div id="sidebar">
 
-</head>
-<body>
+			<div class="panel">
 
-<div id="sidebar">
+				<h2>Import</h2>
 
-	<div class="panel">
+				<p>
+					<label>
+						Select SHP, WEP, ZUD, ZND, or ARM<br>
+						<input type="file" id="file1">
+					</label>
+				</p>
 
-		<h2>Import</h2>
+				<p>
+					<label>
+						Select SEQ or MPD<br>
+						<input type="file" id="file2">
+					</label>
+				</p>
 
-		<p>
-			<label>
-				Select SHP, WEP, ZUD, ZND, or ARM<br>
-				<input type="file" id="file1">
-			</label>
-		</p>
+				<p>
+					<label>
+						<input type="checkbox" id="skeleton"> Show skeleton
+					</label>
+				</p>
 
-		<p>
-			<label>
-				Select SEQ or MPD<br>
-				<input type="file" id="file2">
-			</label>
-		</p>
+				<p>
+					<button id="load">Load</button>
+				</p>
 
-		<p>
-			<label>
-				<input type="checkbox" id="skeleton"> Show skeleton
-			</label>
-		</p>
+			</div>
 
-		<p>
-			<button id="load">Load</button>
-		</p>
+			<div class="panel">
 
-	</div>
+				<h2>Animation</h2>
 
-	<div class="panel">
+				<p>
+					<button id="prev">&lt;</button>
+					<input id="animation" size="3">
+					<button id="next">&gt;</button>
+					<span id="animationCount"></span>
+				</p>
 
-		<h2>Animation</h2>
+			</div>
 
-		<p>
-			<button id="prev">&lt;</button>
-			<input id="animation" size="3">
-			<button id="next">&gt;</button>
-			<span id="animationCount"></span>
-		</p>
+			<div class="panel">
 
-	</div>
+				<h2>Textures</h2>
+				<div id="textures"></div>
 
-	<div class="panel">
+			</div>
 
-		<h2>Textures</h2>
-		<div id="textures"></div>
+			<div class="panel">
 
-	</div>
+				<h2>Export</h2>
 
-	<div class="panel">
+				<p><button id="exportOBJ">Export OBJ</button></p>
+				<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
 
-		<h2>Export</h2>
+			</div>
 
-		<p><button id="exportOBJ">Export OBJ</button></p>
-		<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
+		</div>
 
-	</div>
+		<script
+		  src="https://code.jquery.com/jquery-3.1.1.min.js"
+		  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+		  crossorigin="anonymous"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/build/three.min.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/examples/js/controls/OrbitControls.js"></script>
+		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/examples/js/exporters/OBJExporter.js"></script>
 
-</div>
+		<script src="src/VSTOOLS.js"></script>
+		<script src="src/Reader.js"></script>
 
-<script src="lib/jquery-2.2.0.min.js"></script>
-<script src="lib/three.r74.min.js"></script>
-<script src="lib/OrbitControls.js"></script>
-<script src="lib/OBJExporter.js"></script>
+		<script src="src/WEP.js"></script>
+		<script src="src/WEPBone.js"></script>
+		<script src="src/WEPGroup.js"></script>
+		<script src="src/WEPVertex.js"></script>
+		<script src="src/WEPFace.js"></script>
+		<script src="src/WEPTextureMap.js"></script>
+		<script src="src/WEPPalette.js"></script>
 
-<script src="src/VSTOOLS.js"></script>
-<script src="src/Reader.js"></script>
+		<script src="src/SHP.js"></script>
 
-<script src="src/WEP.js"></script>
-<script src="src/WEPBone.js"></script>
-<script src="src/WEPGroup.js"></script>
-<script src="src/WEPVertex.js"></script>
-<script src="src/WEPFace.js"></script>
-<script src="src/WEPTextureMap.js"></script>
-<script src="src/WEPPalette.js"></script>
+		<script src="src/SEQ.js"></script>
+		<script src="src/SEQAnimation.js"></script>
 
-<script src="src/SHP.js"></script>
+		<script src="src/ZUD.js"></script>
 
-<script src="src/SEQ.js"></script>
-<script src="src/SEQAnimation.js"></script>
+		<script src="src/ZND.js"></script>
+		<script src="src/TIM.js"></script>
 
-<script src="src/ZUD.js"></script>
+		<script src="src/MPD.js"></script>
+		<script src="src/MPDGroup.js"></script>
+		<script src="src/MPDFace.js"></script>
+		<script src="src/MPDMesh.js"></script>
 
-<script src="src/ZND.js"></script>
-<script src="src/TIM.js"></script>
+		<script src="src/ARM.js"></script>
+		<script src="src/ARMRoom.js"></script>
 
-<script src="src/MPD.js"></script>
-<script src="src/MPDGroup.js"></script>
-<script src="src/MPDFace.js"></script>
-<script src="src/MPDMesh.js"></script>
+		<script src="src/GIM.js"></script>
+		<script src="src/P.js"></script>
+		<script src="src/FBC.js"></script>
+		<script src="src/FBT.js"></script>
 
-<script src="src/ARM.js"></script>
-<script src="src/ARMRoom.js"></script>
+		<script src="src/FrameBuffer.js"></script>
+		<script src="src/Text.js"></script>
 
-<script src="src/GIM.js"></script>
-<script src="src/P.js"></script>
-<script src="src/FBC.js"></script>
-<script src="src/FBT.js"></script>
+		<script src="src/Viewer.js"></script>
 
-<script src="src/FrameBuffer.js"></script>
-<script src="src/Text.js"></script>
+		<script>
+		var viewer = new VSTOOLS.Viewer();
+		viewer.run();
+		</script>
 
-<script src="src/Viewer.js"></script>
-
-<script>
-
-	var viewer = new VSTOOLS.Viewer();
-	viewer.run();
-
-</script>
-
-</body>
+	</body>
 </html>

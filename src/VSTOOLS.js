@@ -129,6 +129,19 @@ var VSTOOLS = {
 
 		return snapshot;
 
+	},
+
+	assert: function ( expr, expected ) {
+		var err;
+		if ( arguments.length === 2 ) {
+			if ( expr !== expected ) {
+				throw new Error( 'Assertion failed: ' + expr + ' !== ' + expected );
+			}
+		} else {
+			if ( !expr ) {
+				throw new Error( 'Assertion failed' );
+			}
+		}
 	}
 
 };

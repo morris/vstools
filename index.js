@@ -4,7 +4,7 @@ var Fs = require( 'fs' );
 var Path = require( 'path' );
 
 global.self = {}; // come on...
-var THREE = require( './lib/three.js' );
+var THREE = require( 'three' );
 
 var files = [
 	'VSTOOLS.js',
@@ -41,13 +41,15 @@ var files = [
 	'FrameBuffer.js',
 	'Text.js',
 
-	'Collada.js'
+	'Collada.js',
+
+	'SOUND.js'
 ];
 
 for ( var i = 0; i < files.length; ++i ) {
 
 	eval( Fs.readFileSync( Path.resolve( __dirname, 'src', files[ i ] ) ).toString() );
 
-};
+}
 
 module.exports = VSTOOLS;

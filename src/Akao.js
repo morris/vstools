@@ -51,6 +51,7 @@ VSTOOLS.Akao.prototype.read = function () {
 			case 0xc8:
 			case 0xca:
 				done = true;
+				break;
 			case 0xcd:
 			case 0xd1:
 			case 0xc2:
@@ -76,6 +77,9 @@ VSTOOLS.Akao.prototype.read = function () {
 				break;
 
 			case 0xa0:
+				done = true;
+				break;
+				
 			default:
 				done = true;
 

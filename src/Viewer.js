@@ -336,11 +336,7 @@ VSTOOLS.Viewer = function () {
 
 	function updateAnim() {
 
-		if ( !activeSEQ ) {
-
-			return;
-
-		}
+		if ( !activeSEQ ) return;
 
 		stopAnim();
 

@@ -1,22 +1,30 @@
 VSTOOLS.Collada = {
 
 	export: function ( root ) {
-		return this.COLLADA( root );
+		return '<?xml version="1.0" encoding="utf-8"?>\n' + this.COLLADA( root );
 	},
 
 	COLLADA: function ( root ) {
 		return [
-			'<?xml version="1.0" encoding="utf-8"?>',
 			'<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">',
 				this.asset(),
-				this.library_geometries( root ),
-				this.library_controllers( root ),
 				this.library_animations( root ),
-				this.library_images( root ),
+				this.library_animation_clips( root ),
+				this.library_cameras( root ),
+				this.library_controllers( root ),
 				this.library_effects( root ),
+				this.library_force_fields( root ),
+				this.library_geometries( root ),
+				this.library_images( root ),
+				this.library_lights( root ),
 				this.library_materials( root ),
+				this.library_nodes( root ),
+				this.library_physics_materials( root ),
+				this.library_physics_models( root ),
+				this.library_physics_scenes( root ),
 				this.library_visual_scenes( root ),
-				this.scene(),
+				this.scene( root ),
+				this.extra( root ),
 			'</COLLADA>'
 		].join( '\n' );
 	},
@@ -24,8 +32,8 @@ VSTOOLS.Collada = {
 	asset: function () {
 		return [
 			'<asset>',
-				'<created>' + (new Date).toISOString() + '</created>',
-				'<modified>' + (new Date).toISOString() + '</modified>',
+				'<created>' + (new Date()).toISOString() + '</created>',
+				'<modified>' + (new Date()).toISOString() + '</modified>',
 				'<up_axis>Y_UP</up_axis>',
 			'</asset>'
 		].join( '\n' );
@@ -163,7 +171,7 @@ VSTOOLS.Collada = {
 				'<source id="' + id + '_joints">',
 					'<Name_array id="' + id + '_joints_array" count="' + bones.length + '">',
 						bones.map( function ( bone ) {
-							return 'bone' + bone.id
+							return 'bone' + bone.id;
 						} ).join( ' ' ),
 					'</Name_array>',
 					'<technique_common>',
@@ -252,7 +260,7 @@ VSTOOLS.Collada = {
 	},
 
 	animation: function ( anim ) {
-		
+
 	},
 
 	//

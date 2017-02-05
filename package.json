@@ -1,0 +1,24 @@
+{
+  "name": "vstools",
+  "version": "0.1.0",
+  "description": "A toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js. Contains a mostly working model viewer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/morris/vstools.git"
+  },
+  "author": "Morris Brodersen <mb@morrisbrodersen.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/morris/vstools/issues"
+  },
+  "homepage": "https://github.com/morris/vstools",
+  "dependencies": {
+    "lame": "^1.2.3",
+    "speaker": "^0.3.0",
+    "three": "https://github.com/mrdoob/three.js/tarball/r84"
+  }
+}
