@@ -43,7 +43,10 @@ var files = [
 
 	'Collada.js',
 
-	'SOUND.js'
+	'SOUND.js',
+	'P.js',
+	'FBC.js',
+	'FBT.js'
 ];
 
 for ( var i = 0; i < files.length; ++i ) {

@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/morris/vstools",
   "dependencies": {
-    "lame": "^1.2.3",
+    "lame": "^1.2.4",
     "speaker": "^0.3.0",
-    "three": "https://github.com/mrdoob/three.js/tarball/r84"
+    "three": "^0.85.2"
   }
 }

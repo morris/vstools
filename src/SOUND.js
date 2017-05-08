@@ -14,8 +14,7 @@ VSTOOLS.SOUND.prototype.read = function () {
 	this.articulationSection();
 	this.sampleSection();
 
-	//console.log( this.length - this.pos() );
-	//VSTOOLS.assert( this.pos() === this.length );
+	VSTOOLS.assert( this.pos() === this.length );
 
 };
 
@@ -28,9 +27,7 @@ VSTOOLS.SOUND.prototype.header = function () {
 	this.id = u16();
 	assert( this.id <= 200 );
 
-	assert( u8(), 0 );
-	assert( u8(), 0 );
-
+	assert( u16(), 0 );
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 
@@ -53,6 +50,8 @@ VSTOOLS.SOUND.prototype.header = function () {
 	this.articulationFirstId = u32();
 	this.articulationCount = u32();
 
+	console.log( this.articulationCount );
+
 	assert( this.articulationFirstId === 0 || this.articulationFirstId === 32 || this.articulationFirstId === 64 );
 	assert( this.articulationCount === 32 || this.articulationCount === 48 || this.articulationCount === 64 );
 
@@ -67,8 +66,6 @@ VSTOOLS.SOUND.prototype.header = function () {
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 	assert( u32(), 0 );
-
-	this.chunkCount = this.dataLength / 16;
 
 };
 
@@ -88,27 +85,27 @@ VSTOOLS.SOUND.prototype.articulationSection = function () {
 			adsr2: s16()
 		};
 
+		//console.log( entry.adsr1, entry.adsr2 );
+
+		console.log( VSTOOLS.hex( entry.sampleOffset + 576 ) );
+
 		assert( entry.sampleOffset <= entry.loopPoint );
 
 		this.articulation.push( entry );
 	}
 
-	console.log( this.articulation[0] );
-	console.log( this.articulation[1] );
-	console.log( this.articulation[2] );
-	console.log( this.articulation[3] );
-
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 
-	this.skip( 16 );
+	this.chunkCount = ( this.length - this.pos() ) / 16;
+
 };
 
 VSTOOLS.SOUND.prototype.sampleSection = function () {
 	this.chunks = [];
-	for ( var i = 0; i < this.chunkCount - 5; ++i ) {
+	for ( var i = 0; i < this.chunkCount; ++i ) {
 		this.chunks.push( this.chunk() );
 	}
 };
@@ -125,11 +122,12 @@ VSTOOLS.SOUND.prototype.chunk = function () {
 		filter: ( a & 0xF0 ) >> 4,
 		end: b & 0x1,
 		looping: b & 0x2,
-		loop: b & 0x4
+		loop: b & 0x4,
+		data: []
 	};
 
 	for ( var i = 0; i < 14; ++i ) {
-		chunk.c.push( s8() );
+		chunk.data.push( s8() );
 	}
 
 	return chunk;
@@ -143,8 +141,18 @@ VSTOOLS.AdpcmCoeff = [
   [ 122.0 / 64.0, 60.0 / 64.0 ]
 ];
 
+VSTOOLS.SOUND.prototype.sampleToWave = function ( sample ) {
+	var i;
+	var prev = { prev1: 0, prev2: 0 };
+	var wave = [];
+	for ( i = 0; i < sample.chunks.length; i++ ) {
+		prev = decompressChunk( sample.chunks, prev.prev1, prev.prev2 );
+	}
+	return wave;
+};
+
 // from https://github.com/vgmtrans/vgmtrans/blob/fe5b065ad7ebd2880b2428bd8a4fb485f63adf84/src/main/formats/PSXSPU.cpp
-VSTOOLS.SOUND.prototype.decompress = function( sample, block, chunk, prev1, prev2 ) {
+VSTOOLS.SOUND.prototype.decompressChunk = function ( chunk, prev1, prev2 ) {
   var i;
   var t; // Temporary sample
   var f1, f2;
@@ -153,13 +161,15 @@ VSTOOLS.SOUND.prototype.decompress = function( sample, block, chunk, prev1, prev
 
   var shift = chunk.range + 16; // Shift amount for compressed samples
 
+	var wave = chunk.wave = [];
+
   for ( i = 0; i < 14; i++ ) {
-    pSmp[ i * 2 ] = ( pVBlk.brr[ i ] << 28 ) >> shift;
-    pSmp[ i * 2 + 1 ] = ( ( pVBlk.brr[ i ] & 0xF0 ) << 24 ) >> shift;
+    wave[ i * 2 ] = ( chunk.data[ i ] << 28 ) >> shift;
+    wave[ i * 2 + 1 ] = ( ( chunk.data[ i ] & 0xF0 ) << 24 ) >> shift;
   }
 
   // Apply ADPCM decompression
-  i = pVBlk.filter;
+  i = chunk.filter;
 
   if ( i ) {
     f1 = coeff[ i ][ 0 ];
@@ -168,17 +178,21 @@ VSTOOLS.SOUND.prototype.decompress = function( sample, block, chunk, prev1, prev
     p2 = prev2;
 
     for ( i = 0; i < 28; i++ ) {
-      t = pSmp[i] + (p1 * f1) - (p2 * f2);
-      pSmp[i] = t;
+      t = wave[ i ] + ( p1 * f1 ) - ( p2 * f2 );
+      wave[ i ] = t;
       p2 = p1;
       p1 = t;
     }
 
     prev1 = p1;
     prev2 = p2;
+  } else {
+    prev1 = wave[ 26 ];
+		prev2 = wave[ 27 ];
   }
-  else {
-    prev2 = pSmp[ 26 ];
-    prev1 = pSmp[ 27 ];
-  }
+
+	return {
+		prev1: prev1,
+		prev2: prev2
+	};
 };

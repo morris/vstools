@@ -1,0 +1,40 @@
+//------------------------------------------------
+//--- 010 Editor v8.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct P {
+    unsigned short ptr1;
+    char u1;
+    char u2;
+    char u3;
+    char u4;
+    unsigned short ptr2 <bgcolor=cGreen>;
+    char u5;
+    char u6;
+    char u7;
+    char u8;
+    struct LINE {
+        char a;
+        char b;
+        char c;
+        char d;
+    } lines[ ptr2 / 4 - 2 ] <bgcolor=cGreen>;
+    struct SOME {
+        char u[ 8 ] <bgcolor=cRed>;
+        //Assert( u[ 1 ] == -68 || u[ 1 ] == 60, "u1 not in -68, 60" );
+        //Assert( u[ 3 ] == 0, "u3 != 0" );
+        char v[ 16 ] <bgcolor=cBlue>;
+        //short f[ 8 ] <bgcolor=cYellow>;
+    } somes[ ptr2 / 4 - 2 ] <optimize=true>;
+    struct SOME2 {
+        char u[4] <bgcolor=cRed>;
+    } some2s[ 100 ] <optimize=true>;
+} file;

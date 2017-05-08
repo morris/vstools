@@ -32,107 +32,69 @@ VSTOOLS.Collada = {
 	asset: function () {
 		return [
 			'<asset>',
-				'<created>' + (new Date()).toISOString() + '</created>',
-				'<modified>' + (new Date()).toISOString() + '</modified>',
+				'<created>' + ( new Date() ).toISOString() + '</created>',
+				'<modified>' + ( new Date() ).toISOString() + '</modified>',
 				'<up_axis>Y_UP</up_axis>',
 			'</asset>'
 		].join( '\n' );
 	},
 
-	library_geometries: function ( root ) {
+	//
+
+	library_animations: function ( root ) {
 		var self = this;
-		var geometries = '';
+		var animations = '';
 		root.traverse( function ( node ) {
-			if ( node.geometry ) geometries += self.geometry( node.geometry ) + '\n';
+			if ( node.geometry ) animations += self.animation( node.geometry ) + '\n';
 		} );
 
 		return [
-			'<library_geometries>',
-				geometries,
-			'</library_geometries>'
+			'<library_animations>',
+				animations,
+			'</library_animations>'
 		].join( '\n' );
 	},
 
-	geometry: function ( geometry ) {
-		var id = 'geometry' + geometry.id;
-		var faceIndex = 0;
+	animation: function ( anim ) {
 		return [
-			'<geometry id="' + id + '" name="' + id + '">',
-				'<mesh>',
-					'<source id="' + id + '_positions">',
-						'<float_array id="' + id + '_positions_array" count="' + ( geometry.vertices.length * 3 ) + '">',
-							geometry.vertices.map( function ( v ) {
-								return [ v.x, v.y, v.z ].join( ' ' );
-							} ).join( ' ' ),
-						'</float_array>',
-						'<technique_common>',
-							'<accessor source="#' + id + '_positions_array" count="' + geometry.vertices.length + '" stride="3">',
-								'<param name="X" type="float"/>',
-								'<param name="Y" type="float"/>',
-								'<param name="Z" type="float"/>',
-							'</accessor>',
-						'</technique_common>',
-					'</source>',
-					'<source id="' + id + '_normals">',
-						'<float_array id="' + id + '_normals_array" count="' + ( geometry.faces.length * 9 ) + '">',
-							geometry.faces.map( function ( f ) {
-								return [
-									f.vertexNormals[ 0 ].x,
-									f.vertexNormals[ 0 ].y,
-									f.vertexNormals[ 0 ].z,
-									f.vertexNormals[ 1 ].x,
-									f.vertexNormals[ 1 ].y,
-									f.vertexNormals[ 1 ].z,
-									f.vertexNormals[ 2 ].x,
-									f.vertexNormals[ 2 ].y,
-									f.vertexNormals[ 2 ].z
-								].join( ' ' );
-							} ).join( ' ' ),
-						'</float_array>',
-						'<technique_common>',
-							'<accessor source="#' + id + '_normals_array" count="' + ( geometry.faces.length * 3 ) + '" stride="3">',
-								'<param name="X" type="float"/>',
-								'<param name="Y" type="float"/>',
-								'<param name="Z" type="float"/>',
-							'</accessor>',
-						'</technique_common>',
-					'</source>',
-					'<source id="' + id + '_uv">',
-						'<float_array id="' + id + '_uv_array" count="' + ( geometry.faceVertexUvs[ 0 ].length * 2 ) + '">',
-							geometry.faceVertexUvs[ 0 ].map( function ( uv ) {
-								return [
-									uv[ 0 ].x, uv[ 0 ].y,
-									uv[ 1 ].x, uv[ 1 ].y,
-									uv[ 2 ].x, uv[ 2 ].y
-								].join( ' ' );
-							} ).join( ' ' ),
-						'</float_array>',
-						'<technique_common>',
-							'<accessor source="#' + id + '_uv_array" count="' + geometry.faceVertexUvs[ 0 ].length +'" stride="2">',
-								'<param name="S" type="float"/>',
-								'<param name="T" type="float"/>',
-							'</accessor>',
-						'</technique_common>',
-					'</source>',
-					'<vertices id="' + id + '_vertices">',
-						'<input semantic="POSITION" source="#' + id + '_positions"/>',
-					'</vertices>',
-					'<triangles count="' + geometry.faces.length + '">',
-						'<input semantic="VERTEX" source="#' + id + '_vertices" offset="0"/>',
-						'<input semantic="NORMAL" source="#' + id + '_normals" offset="1"/>',
-						'<input semantic="TEXCOORD" source="#' + id + '_uv" offset="2"/>',
-						'<p>',
-							geometry.faces.map( function ( f ) {
-								return [
-									f.a, faceIndex, faceIndex++,
-									f.b, faceIndex, faceIndex++,
-									f.c, faceIndex, faceIndex++,
-								].join( ' ' );
-							} ).join( ' ' ),
-						'</p>',
-					'</triangles>',
-				'</mesh>',
-			'</geometry>'
+			'<animation name="" id="">',
+				animations,
+			'</animation>'
+		].join( '\n' );
+	},
+
+	//
+
+	library_animation_clips: function ( root ) {
+		var self = this;
+		var animation_clips = '';
+		root.traverse( function ( node ) {
+			if ( node.geometry ) animation_clips += self.animation_clip( node.geometry ) + '\n';
+		} );
+
+		return [
+			'<library_animation_clips>',
+				animation_clips,
+			'</library_animation_clips>'
+		].join( '\n' );
+	},
+
+	animation_clip: function ( anim ) {
+		return [
+			'<animation_clip id="" start="" end="">',
+				'<instance_animation url=""/>',
+			'</animation_clip>'
+		].join( '\n' );
+	},
+
+	//
+
+	library_cameras: function ( root ) {
+		var cameras = '';
+		return [
+			'<library_cameras>',
+				cameras,
+			'</library_cameras>'
 		].join( '\n' );
 	},
 
@@ -253,26 +215,6 @@ VSTOOLS.Collada = {
 
 	//
 
-	library_animations: function ( root ) {
-		return [
-
-		].join( '\n' );
-	},
-
-	animation: function ( anim ) {
-
-	},
-
-	//
-
-	library_images: function ( root ) {
-		return [
-
-		].join( '\n' );
-	},
-
-	//
-
 	library_effects: function ( root ) {
 		return [
 			'<library_effects>',
@@ -326,6 +268,113 @@ VSTOOLS.Collada = {
 					'</phong>',
 				'</technique>',
 			'</profile_COMMON>'
+		].join( '\n' );
+	},
+
+	//
+
+	library_geometries: function ( root ) {
+		var self = this;
+		var geometries = '';
+		root.traverse( function ( node ) {
+			if ( node.geometry ) geometries += self.geometry( node.geometry ) + '\n';
+		} );
+
+		return [
+			'<library_geometries>',
+				geometries,
+			'</library_geometries>'
+		].join( '\n' );
+	},
+
+	geometry: function ( geometry ) {
+		var id = 'geometry' + geometry.id;
+		var faceIndex = 0;
+		return [
+			'<geometry id="' + id + '" name="' + id + '">',
+				'<mesh>',
+					'<source id="' + id + '_positions">',
+						'<float_array id="' + id + '_positions_array" count="' + ( geometry.vertices.length * 3 ) + '">',
+							geometry.vertices.map( function ( v ) {
+								return [ v.x, v.y, v.z ].join( ' ' );
+							} ).join( ' ' ),
+						'</float_array>',
+						'<technique_common>',
+							'<accessor source="#' + id + '_positions_array" count="' + geometry.vertices.length + '" stride="3">',
+								'<param name="X" type="float"/>',
+								'<param name="Y" type="float"/>',
+								'<param name="Z" type="float"/>',
+							'</accessor>',
+						'</technique_common>',
+					'</source>',
+					'<source id="' + id + '_normals">',
+						'<float_array id="' + id + '_normals_array" count="' + ( geometry.faces.length * 9 ) + '">',
+							geometry.faces.map( function ( f ) {
+								return [
+									f.vertexNormals[ 0 ].x,
+									f.vertexNormals[ 0 ].y,
+									f.vertexNormals[ 0 ].z,
+									f.vertexNormals[ 1 ].x,
+									f.vertexNormals[ 1 ].y,
+									f.vertexNormals[ 1 ].z,
+									f.vertexNormals[ 2 ].x,
+									f.vertexNormals[ 2 ].y,
+									f.vertexNormals[ 2 ].z
+								].join( ' ' );
+							} ).join( ' ' ),
+						'</float_array>',
+						'<technique_common>',
+							'<accessor source="#' + id + '_normals_array" count="' + ( geometry.faces.length * 3 ) + '" stride="3">',
+								'<param name="X" type="float"/>',
+								'<param name="Y" type="float"/>',
+								'<param name="Z" type="float"/>',
+							'</accessor>',
+						'</technique_common>',
+					'</source>',
+					'<source id="' + id + '_uv">',
+						'<float_array id="' + id + '_uv_array" count="' + ( geometry.faceVertexUvs[ 0 ].length * 2 ) + '">',
+							geometry.faceVertexUvs[ 0 ].map( function ( uv ) {
+								return [
+									uv[ 0 ].x, uv[ 0 ].y,
+									uv[ 1 ].x, uv[ 1 ].y,
+									uv[ 2 ].x, uv[ 2 ].y
+								].join( ' ' );
+							} ).join( ' ' ),
+						'</float_array>',
+						'<technique_common>',
+							'<accessor source="#' + id + '_uv_array" count="' + geometry.faceVertexUvs[ 0 ].length +'" stride="2">',
+								'<param name="S" type="float"/>',
+								'<param name="T" type="float"/>',
+							'</accessor>',
+						'</technique_common>',
+					'</source>',
+					'<vertices id="' + id + '_vertices">',
+						'<input semantic="POSITION" source="#' + id + '_positions"/>',
+					'</vertices>',
+					'<triangles count="' + geometry.faces.length + '">',
+						'<input semantic="VERTEX" source="#' + id + '_vertices" offset="0"/>',
+						'<input semantic="NORMAL" source="#' + id + '_normals" offset="1"/>',
+						'<input semantic="TEXCOORD" source="#' + id + '_uv" offset="2"/>',
+						'<p>',
+							geometry.faces.map( function ( f ) {
+								return [
+									f.a, faceIndex, faceIndex++,
+									f.b, faceIndex, faceIndex++,
+									f.c, faceIndex, faceIndex++,
+								].join( ' ' );
+							} ).join( ' ' ),
+						'</p>',
+					'</triangles>',
+				'</mesh>',
+			'</geometry>'
+		].join( '\n' );
+	},
+
+	//
+
+	library_images: function ( root ) {
+		return [
+
 		].join( '\n' );
 	},
 

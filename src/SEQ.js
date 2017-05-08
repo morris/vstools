@@ -59,7 +59,6 @@ VSTOOLS.SEQ.prototype.data = function () {
 	// read 'slots'
 	// these are animation ids, can be used as in this.animations[ id ].
 	// purpose unknown
-	var numSlots = this.numSlots;
 	var slots = this.slots = [];
 
 	for ( var i = 0; i < numSlots; ++i ) {
