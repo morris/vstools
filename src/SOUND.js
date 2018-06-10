@@ -14,7 +14,7 @@ VSTOOLS.SOUND.prototype.read = function () {
 	this.articulationSection();
 	this.sampleSection();
 
-	VSTOOLS.assert( this.pos() === this.length );
+	VSTOOLS.assert( this.pos(), this.length );
 
 };
 
@@ -67,6 +67,8 @@ VSTOOLS.SOUND.prototype.header = function () {
 	assert( u32(), 0 );
 	assert( u32(), 0 );
 
+	assert( this.pos(), 0x40 );
+
 };
 
 VSTOOLS.SOUND.prototype.articulationSection = function () {
@@ -74,50 +76,75 @@ VSTOOLS.SOUND.prototype.articulationSection = function () {
 	var u8 = this.u8, s16 = this.s16, u16 = this.u16, u32 = this.u32;
 	var assert = VSTOOLS.assert, hex = VSTOOLS.hex;
 
-	this.articulation = [];
+	this.articulations = [];
 	for ( var i = 0; i < this.articulationCount; ++i ) {
-		var entry = {
-			sampleOffset: u32(),
-			loopPoint: u32(),
-			fineTune: s16(),
-			unityKey: u16(),
-			adsr1: s16(),
-			adsr2: s16()
-		};
-
-		//console.log( entry.adsr1, entry.adsr2 );
-
-		console.log( VSTOOLS.hex( entry.sampleOffset + 576 ) );
-
-		assert( entry.sampleOffset <= entry.loopPoint );
-
-		this.articulation.push( entry );
+		this.articulations.push( this.articulation( i ) );
 	}
 
-	assert( u32(), 0 );
-	assert( u32(), 0 );
-	assert( u32(), 0 );
-	assert( u32(), 0 );
+};
 
-	this.chunkCount = ( this.length - this.pos() ) / 16;
+VSTOOLS.SOUND.prototype.articulation = function ( i ) {
+
+	var u8 = this.u8, s16 = this.s16, u16 = this.u16, u32 = this.u32;
+	var assert = VSTOOLS.assert, hex = VSTOOLS.hex;
+
+	var articulation = {
+		id: this.articulationFirstId + i,
+		sampleOffset: u32(),
+		loopPoint: u32(),
+		fineTune: s16(),
+		unityKey: u16(),
+		adsr1: s16(),
+		adsr2: s16()
+	};
+
+	assert( articulation.sampleOffset <= articulation.loopPoint );
+
+	return articulation;
 
 };
 
 VSTOOLS.SOUND.prototype.sampleSection = function () {
-	this.chunks = [];
-	for ( var i = 0; i < this.chunkCount; ++i ) {
-		this.chunks.push( this.chunk() );
+	var u8 = this.u8;
+	this.seek( 0x40 + this.articulationCount * 0x10 );
+
+	this.sampleOffsets = [];
+
+	var j = 0;
+	for ( var i = this.pos(); i < this.length; ++i ) {
+		j = u8() === 0 ? j + 1 : 0;
+		if ( j >= 0x10 ) {
+			this.sampleOffsets.push( this.pos() - j );
+			j = 0;
+		}
+	}
+
+	console.log( this.sampleOffsets );
+
+	this.samples = [];
+
+	for ( var i = 0; i < this.sampleOffsets.length - 1; ++i ) {
+		this.seek( this.sampleOffsets[ i ] );
+		this.samples.push( this.sample(
+			( this.sampleOffsets[ i + 1 ] || this.length ) - this.sampleOffsets[ i ]
+		) );
 	}
 };
 
-VSTOOLS.SOUND.prototype.chunk = function () {
-	var u8 = this.u8, s8 = this.s8;
+VSTOOLS.SOUND.prototype.sample = function ( size ) {
+	console.log( size );
+	var u8 = this.u8, s8 = this.s8, u32 = this.u32;
 	var assert = VSTOOLS.assert;
+
+	assert( u32(), 0 );
+	assert( u32(), 0 );
+	assert( u32(), 0 );
+	assert( u32(), 0 );
 
 	var a = u8();
 	var b = u8();
 
-	var chunk = {
+	var sample = {
 		range: a & 0xF,
 		filter: ( a & 0xF0 ) >> 4,
 		end: b & 0x1,
@@ -126,11 +153,11 @@ VSTOOLS.SOUND.prototype.chunk = function () {
 		data: []
 	};
 
-	for ( var i = 0; i < 14; ++i ) {
-		chunk.data.push( s8() );
+	for ( var i = 0; i < size - 18; ++i ) {
+		sample.data.push( s8() );
 	}
 
-	return chunk;
+	return sample;
 };
 
 VSTOOLS.AdpcmCoeff = [
@@ -145,31 +172,31 @@ VSTOOLS.SOUND.prototype.sampleToWave = function ( sample ) {
 	var i;
 	var prev = { prev1: 0, prev2: 0 };
 	var wave = [];
-	for ( i = 0; i < sample.chunks.length; i++ ) {
-		prev = decompressChunk( sample.chunks, prev.prev1, prev.prev2 );
+	for ( i = 0; i < sample.samples.length; i++ ) {
+		prev = decompressSample( sample.samples, prev.prev1, prev.prev2 );
 	}
 	return wave;
 };
 
 // from https://github.com/vgmtrans/vgmtrans/blob/fe5b065ad7ebd2880b2428bd8a4fb485f63adf84/src/main/formats/PSXSPU.cpp
-VSTOOLS.SOUND.prototype.decompressChunk = function ( chunk, prev1, prev2 ) {
+VSTOOLS.SOUND.prototype.decompressSample = function ( sample, prev1, prev2 ) {
   var i;
   var t; // Temporary sample
   var f1, f2;
   var p1, p2;
   var coeff = VSTOOLS.AdpcmCoeff;
 
-  var shift = chunk.range + 16; // Shift amount for compressed samples
+  var shift = sample.range + 16; // Shift amount for compressed samples
 
-	var wave = chunk.wave = [];
+	var wave = sample.wave = [];
 
   for ( i = 0; i < 14; i++ ) {
-    wave[ i * 2 ] = ( chunk.data[ i ] << 28 ) >> shift;
-    wave[ i * 2 + 1 ] = ( ( chunk.data[ i ] & 0xF0 ) << 24 ) >> shift;
+    wave[ i * 2 ] = ( sample.data[ i ] << 28 ) >> shift;
+    wave[ i * 2 + 1 ] = ( ( sample.data[ i ] & 0xF0 ) << 24 ) >> shift;
   }
 
   // Apply ADPCM decompression
-  i = chunk.filter;
+  i = sample.filter;
 
   if ( i ) {
     f1 = coeff[ i ][ 0 ];
