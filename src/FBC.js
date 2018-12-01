@@ -17,8 +17,6 @@ VSTOOLS.FBC.prototype.read = function () {
 
 	}
 
-	console.log( this.palette );
-
 };
 
 VSTOOLS.FBC.prototype.color = function ( c ) {

@@ -18,7 +18,8 @@
   "homepage": "https://github.com/morris/vstools",
   "dependencies": {
     "lame": "^1.2.4",
+    "pngjs": "^3.3.3",
     "speaker": "^0.3.0",
-    "three": "^0.85.2"
+    "three": "0.85.2"
   }
 }
