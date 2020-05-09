@@ -1,182 +1,154 @@
-VSTOOLS.ZND = function ( reader ) {
+VSTOOLS.ZND = function (reader) {
+  reader.extend(this);
 
-	reader.extend( this );
-
-	this.materials = {};
-	this.textures = [];
-
+  this.materials = {};
+  this.textures = [];
 };
 
 VSTOOLS.ZND.prototype.read = function () {
-
-	this.header();
-	this.data();
-
+  this.header();
+  this.data();
 };
 
 VSTOOLS.ZND.prototype.header = function () {
+  var u8 = this.u8,
+    u32 = this.u32,
+    skip = this.skip;
 
-	var u8 = this.u8, u32 = this.u32, skip = this.skip;
-
-	this.mpdPtr = u32();
-	this.mpdLen = u32();
-	this.mpdNum = this.mpdLen / 8;
-	this.enemyPtr = u32();
-	this.enemyLen = u32();
-	this.timPtr = u32();
-	this.timLen = u32();
-	this.wave = u8();
-	skip( 7 ); // unknown
-
+  this.mpdPtr = u32();
+  this.mpdLen = u32();
+  this.mpdNum = this.mpdLen / 8;
+  this.enemyPtr = u32();
+  this.enemyLen = u32();
+  this.timPtr = u32();
+  this.timLen = u32();
+  this.wave = u8();
+  skip(7); // unknown
 };
 
 VSTOOLS.ZND.prototype.data = function () {
-
-	this.mpdSection();
-	this.enemiesSection();
-	this.timSection();
-
+  this.mpdSection();
+  this.enemiesSection();
+  this.timSection();
 };
 
 VSTOOLS.ZND.prototype.mpdSection = function () {
+  var u32 = this.u32;
 
-	var u32 = this.u32;
+  var mpdNum = this.mpdNum;
+  var mpdLBAs = (this.mpdLBAs = []);
+  var mpdSizes = (this.mpdSizes = []);
 
-	var mpdNum = this.mpdNum;
-	var mpdLBAs = this.mpdLBAs = [];
-	var mpdSizes = this.mpdSizes = [];
-
-	for ( var i = 0; i < mpdNum; ++i ) {
-
-		mpdLBAs.push( u32() );
-		mpdSizes.push( u32() );
-
-	}
-
+  for (var i = 0; i < mpdNum; ++i) {
+    mpdLBAs.push(u32());
+    mpdSizes.push(u32());
+  }
 };
 
 VSTOOLS.ZND.prototype.enemiesSection = function () {
-
-	this.skip( this.enemyLen );
-
+  this.skip(this.enemyLen);
 };
 
 VSTOOLS.ZND.prototype.timSection = function () {
+  var u32 = this.u32,
+    skip = this.skip;
 
-	var u32 = this.u32, skip = this.skip;
+  this.timLen2 = u32();
+  skip(12); // TODO confirm this is 0 for all ZNDs
+  var timNum = (this.timNum = u32());
 
-	this.timLen2 = u32();
-	skip( 12 ); // TODO confirm this is 0 for all ZNDs
-	var timNum = this.timNum = u32();
+  var frameBuffer = (this.frameBuffer = new VSTOOLS.FrameBuffer());
+  var tims = (this.tims = []);
 
-	var frameBuffer = this.frameBuffer = new VSTOOLS.FrameBuffer();
-	var tims = this.tims = [];
+  for (var i = 0; i < timNum; ++i) {
+    // not technically part of tim, unused
+    var timlen = u32();
 
-	for ( var i = 0; i < timNum; ++i ) {
+    var tim = new VSTOOLS.TIM(this.reader);
+    tim.read();
+    tim.id = i;
 
-		// not technically part of tim, unused
-		var timlen = u32();
+    //console.log( 'tim', i, ':', tim.width, 'x', tim.height, 'at', tim.fx, tim.fy );
 
-		var tim = new VSTOOLS.TIM( this.reader );
-		tim.read();
-		tim.id = i;
+    if (tim.height < 5) {
+      tim.copyToFrameBuffer(frameBuffer);
+    }
 
-		//console.log( 'tim', i, ':', tim.width, 'x', tim.height, 'at', tim.fx, tim.fy );
+    tim.copyToFrameBuffer(frameBuffer);
 
-		if ( tim.height < 5 ) {
-
-			tim.copyToFrameBuffer( frameBuffer );
-
-		}
-
-		tim.copyToFrameBuffer( frameBuffer );
-
-		tims.push( tim );
-
-	}
-
+    tims.push(tim);
+  }
 };
 
-VSTOOLS.ZND.prototype.getTIM = function ( id ) {
+VSTOOLS.ZND.prototype.getTIM = function (id) {
+  var tims = this.tims;
 
-	var tims = this.tims;
+  var x = (id * 64) % 1024;
+  var y = Math.floor((id * 64) / 1024);
 
-	var x = ( id * 64 ) % 1024;
-	var y = Math.floor( ( id * 64 ) / 1024 );
+  for (var i = 0, l = tims.length; i < l; ++i) {
+    var tim = tims[i];
 
-	for ( var i = 0, l = tims.length; i < l; ++i ) {
-
-		var tim = tims[ i ];
-
-		if ( tim.fx === x ) {
-
-			return tim;
-
-		}
-
-	}
-
+    if (tim.fx === x) {
+      return tim;
+    }
+  }
 };
 
-VSTOOLS.ZND.prototype.getMaterial = function ( textureId, clutId ) {
+VSTOOLS.ZND.prototype.getMaterial = function (textureId, clutId) {
+  var tims = this.tims;
+  var id = textureId + "-" + clutId;
 
-	var tims = this.tims;
-	var id = textureId + '-' + clutId;
+  var materials = this.materials;
+  var material = materials[id];
 
-	var materials = this.materials;
-	var material = materials[ id ];
+  if (material) {
+    return material;
+  } else {
+    // find texture
+    var textureTIM = this.getTIM(textureId);
 
-	if ( material ) {
+    this.frameBuffer.markCLUT(clutId);
 
-		return material;
+    // find CLUT
+    var x = (clutId * 16) % 1024;
+    var y = Math.floor((clutId * 16) / 1024);
 
-	} else {
+    //console.log( x, y );
 
-		// find texture
-		var textureTIM = this.getTIM( textureId );
+    var clut = null;
 
-		this.frameBuffer.markCLUT( clutId );
+    for (var i = 0, l = tims.length; i < l; ++i) {
+      var tim = tims[i];
 
-		// find CLUT
-		var x = ( clutId * 16 ) % 1024;
-		var y = Math.floor( ( clutId * 16 ) / 1024 );
+      if (
+        tim.fx <= x &&
+        tim.fx + tim.width > x &&
+        tim.fy <= y &&
+        tim.fy + tim.height > y
+      ) {
+        // we found the CLUT
+        clut = tim.buildCLUT(x, y);
+        break;
+      }
+    }
 
-		//console.log( x, y );
+    var texture = textureTIM.build(clut);
+    texture.title = id;
 
-		var clut = null;
+    this.textures.push(texture);
 
-		for ( var i = 0, l = tims.length; i < l; ++i ) {
+    // build texture
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+      shading: THREE.FlatShading,
+      transparent: true,
+      vertexColors: THREE.VertexColors,
+    });
 
-			var tim = tims[ i ];
+    // cache
+    materials[id] = material;
 
-			if ( tim.fx <= x && tim.fx + tim.width > x && tim.fy <= y && tim.fy + tim.height > y ) {
-
-				// we found the CLUT
-				clut = tim.buildCLUT( x, y );
-				break;
-
-			}
-
-		}
-
-		var texture = textureTIM.build( clut );
-		texture.title = id;
-
-		this.textures.push( texture );
-
-		// build texture
-		material = new THREE.MeshBasicMaterial( {
-			map: texture,
-			shading: THREE.FlatShading,
-			transparent: true,
-			vertexColors: THREE.VertexColors
-		} );
-
-		// cache
-		materials[ id ] = material;
-
-		return material;
-
-	}
-
+    return material;
+  }
 };

@@ -1,105 +1,77 @@
-VSTOOLS.MPDGroup = function ( reader, mpd ) {
+VSTOOLS.MPDGroup = function (reader, mpd) {
+  reader.extend(this);
 
-	reader.extend( this );
+  this.mpd = mpd;
 
-	this.mpd = mpd;
+  this.read = function () {
+    this.header();
+    this.data();
+  };
 
-	this.read = function () {
+  this.header = function () {
+    var u8 = this.u8;
 
-		this.header();
-		this.data();
+    var head = (this.head = []);
 
-	};
+    for (var i = 0; i < 64; ++i) {
+      head[i] = u8();
+    }
 
-	this.header = function () {
+    // the header is not well understood
+    // it seems that the bits in the second byte are flag bits
 
-		var u8 = this.u8;
+    // the following fixes the scaling issues in maps 001 and 002
+    if ((head[1] & 0x08) > 0) {
+      this.scale = 1;
+    } else {
+      this.scale = 8; // TODO is this the default?
+    }
+  };
 
-		var head = this.head = [];
+  this.data = function () {
+    var u32 = this.u32;
 
-		for ( var i = 0; i < 64; ++i ) {
+    var triangleCount = (this.triangleCount = u32());
+    var quadCount = (this.quadCount = u32());
+    var faceCount = (this.faceCount = triangleCount + quadCount);
 
-			head[ i ] = u8();
+    var meshes = (this.meshes = {});
 
-		}
+    for (var i = 0; i < triangleCount; ++i) {
+      var face = new VSTOOLS.MPDFace(this.reader, this);
+      face.read(false);
 
-		// the header is not well understood
-		// it seems that the bits in the second byte are flag bits
+      var mesh = this.getMesh(face.textureId, face.clutId);
+      mesh.add(face);
+    }
 
-		// the following fixes the scaling issues in maps 001 and 002
-		if ( ( head[ 1 ] & 0x08 ) > 0 ) {
+    for (var i = triangleCount; i < faceCount; ++i) {
+      var face = new VSTOOLS.MPDFace(this.reader, this);
+      face.read(true); // quad
 
-			this.scale = 1;
+      var mesh = this.getMesh(face.textureId, face.clutId);
+      mesh.add(face);
+    }
+  };
 
-		} else {
+  this.build = function () {
+    for (var id in this.meshes) {
+      this.meshes[id].build();
+    }
+  };
 
-			this.scale = 8; // TODO is this the default?
+  this.getMesh = function (textureId, clutId) {
+    var meshes = this.meshes;
+    var id = textureId + "-" + clutId;
 
-		}
+    var mesh = meshes[id];
 
-	};
-
-	this.data = function () {
-
-		var u32 = this.u32;
-
-		var triangleCount = this.triangleCount = u32();
-		var quadCount = this.quadCount = u32();
-		var faceCount = this.faceCount = triangleCount + quadCount;
-
-		var meshes = this.meshes = {};
-
-		for ( var i = 0; i < triangleCount; ++i ) {
-
-			var face = new VSTOOLS.MPDFace( this.reader, this );
-			face.read( false );
-
-			var mesh = this.getMesh( face.textureId, face.clutId );
-			mesh.add( face );
-
-		}
-
-		for ( var i = triangleCount; i < faceCount; ++i ) {
-
-			var face = new VSTOOLS.MPDFace( this.reader, this );
-			face.read( true ); // quad
-
-			var mesh = this.getMesh( face.textureId, face.clutId );
-			mesh.add( face );
-
-		}
-
-	};
-
-	this.build = function () {
-
-		for ( var id in this.meshes ) {
-
-			this.meshes[ id ].build();
-
-		}
-
-	};
-
-	this.getMesh = function ( textureId, clutId ) {
-
-		var meshes = this.meshes;
-		var id = textureId + '-' + clutId;
-
-		var mesh = meshes[ id ];
-
-		if ( mesh ) {
-
-			return mesh;
-
-		} else {
-
-			mesh = new VSTOOLS.MPDMesh( this.reader, this, textureId, clutId );
-			meshes[ id ] = mesh;
-			return mesh;
-
-		}
-
-	};
-
+    if (mesh) {
+      return mesh;
+    } else {
+      mesh = new VSTOOLS.MPDMesh(this.reader, this, textureId, clutId);
+      meshes[id] = mesh;
+      return mesh;
+    }
+  };
 };

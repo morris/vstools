@@ -1,110 +1,95 @@
-VSTOOLS.MPDMesh = function ( reader, group, textureId, clutId ) {
+VSTOOLS.MPDMesh = function (reader, group, textureId, clutId) {
+  reader.extend(this);
 
-	reader.extend( this );
+  this.group = group;
+  this.textureId = textureId;
+  this.clutId = clutId;
+  this.faces = [];
 
-	this.group = group;
-	this.textureId = textureId;
-	this.clutId = clutId;
-	this.faces = [];
+  this.add = function (face) {
+    this.faces.push(face);
+  };
 
-	this.add = function ( face ) {
+  this.build = function () {
+    var geometry = (this.geometry = new THREE.Geometry());
 
-		this.faces.push( face );
+    var faces = this.faces;
+    var iv = 0;
 
-	};
+    var tw = 256,
+      th = 256;
 
-	this.build = function () {
+    for (var i = 0, l = faces.length; i < l; ++i) {
+      var f = faces[i];
 
-		var geometry = this.geometry = new THREE.Geometry();
+      f.build();
 
-		var faces = this.faces;
-		var iv = 0;
+      if (f.quad) {
+        geometry.vertices.push(f.p1, f.p2, f.p3, f.p4);
 
-		var tw = 256, th = 256;
+        var c1 = [
+          new THREE.Color(f.r3 / 255, f.g3 / 255, f.b3 / 255),
+          new THREE.Color(f.r2 / 255, f.g2 / 255, f.b2 / 255),
+          new THREE.Color(f.r1 / 255, f.g1 / 255, f.b1 / 255),
+        ];
 
-		for ( var i = 0, l = faces.length; i < l; ++i ) {
+        var c2 = [
+          new THREE.Color(f.r2 / 255, f.g2 / 255, f.b2 / 255),
+          new THREE.Color(f.r3 / 255, f.g3 / 255, f.b3 / 255),
+          new THREE.Color(f.r4 / 255, f.g4 / 255, f.b4 / 255),
+        ];
 
-			var f = faces[ i ];
+        geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0, f.n, c1));
+        geometry.faces.push(new THREE.Face3(iv + 1, iv + 2, iv + 3, f.n, c2));
 
-			f.build();
+        var uv1 = [
+          new THREE.Vector2(f.u1 / tw, f.v1 / th),
+          new THREE.Vector2(f.u3 / tw, f.v3 / th),
+          new THREE.Vector2(f.u2 / tw, f.v2 / th),
+        ];
 
-			if ( f.quad ) {
+        var uv2 = [
+          new THREE.Vector2(f.u3 / tw, f.v3 / th),
+          new THREE.Vector2(f.u1 / tw, f.v1 / th),
+          new THREE.Vector2(f.u4 / tw, f.v4 / th),
+        ];
 
-				geometry.vertices.push( f.p1, f.p2, f.p3, f.p4 );
+        geometry.faceVertexUvs[0].push(uv1, uv2);
 
-				var c1 = [
-					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
-					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
-					new THREE.Color( f.r1 / 255, f.g1 / 255, f.b1 / 255 )
-				];
+        iv += 4;
+      } else {
+        geometry.vertices.push(f.p1, f.p2, f.p3);
 
-				var c2 = [
-					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
-					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
-					new THREE.Color( f.r4 / 255, f.g4 / 255, f.b4 / 255 )
-				];
+        var c = [
+          new THREE.Color(f.r3 / 255, f.g3 / 255, f.b3 / 255),
+          new THREE.Color(f.r2 / 255, f.g2 / 255, f.b2 / 255),
+          new THREE.Color(f.r1 / 255, f.g1 / 255, f.b1 / 255),
+        ];
 
-				geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0, f.n, c1 ) );
-				geometry.faces.push( new THREE.Face3( iv + 1, iv + 2, iv + 3, f.n, c2 ) );
+        geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0, f.n, c));
 
-				var uv1 = [
-					new THREE.Vector2( f.u1 / tw, f.v1 / th ),
-					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-					new THREE.Vector2( f.u2 / tw, f.v2 / th )
-				];
+        var uv = [
+          new THREE.Vector2(f.u2 / tw, f.v2 / th),
+          new THREE.Vector2(f.u3 / tw, f.v3 / th),
+          new THREE.Vector2(f.u1 / tw, f.v1 / th),
+        ];
 
-				var uv2 = [
-					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-					new THREE.Vector2( f.u1 / tw, f.v1 / th ),
-					new THREE.Vector2( f.u4 / tw, f.v4 / th )
-				];
+        geometry.faceVertexUvs[0].push(uv);
 
-				geometry.faceVertexUvs[ 0 ].push( uv1, uv2 );
+        iv += 3;
+      }
+    }
 
-				iv += 4;
+    var group = this.group;
 
-			} else {
+    if (group && group.mpd && group.mpd.znd) {
+      this.material = group.mpd.znd.getMaterial(this.textureId, this.clutId);
+    } else {
+      this.material = new THREE.MeshNormalMaterial();
+    }
 
-				geometry.vertices.push( f.p1, f.p2, f.p3 );
-
-				var c = [
-					new THREE.Color( f.r3 / 255, f.g3 / 255, f.b3 / 255 ),
-					new THREE.Color( f.r2 / 255, f.g2 / 255, f.b2 / 255 ),
-					new THREE.Color( f.r1 / 255, f.g1 / 255, f.b1 / 255 )
-				];
-
-				geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0, f.n, c ) );
-
-				var uv = [
-					new THREE.Vector2( f.u2 / tw, f.v2 / th ),
-					new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-					new THREE.Vector2( f.u1 / tw, f.v1 / th )
-				];
-
-				geometry.faceVertexUvs[ 0 ].push( uv );
-
-				iv += 3;
-
-			}
-
-		}
-
-		var group = this.group;
-
-		if ( group && group.mpd && group.mpd.znd ) {
-
-			this.material = group.mpd.znd.getMaterial( this.textureId, this.clutId );
-
-		} else {
-
-			this.material = new THREE.MeshNormalMaterial();
-
-		}
-
-		this.mesh = new THREE.Mesh( geometry, this.material );
-		this.mesh.rotation.x = Math.PI;
-		this.mesh.scale.set( 0.1, 0.1, 0.1 );
-
-	};
-
+    this.mesh = new THREE.Mesh(geometry, this.material);
+    this.mesh.rotation.x = Math.PI;
+    this.mesh.scale.set(0.1, 0.1, 0.1);
+  };
 };

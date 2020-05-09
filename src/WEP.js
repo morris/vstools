@@ -1,338 +1,282 @@
-VSTOOLS.WEP = function ( reader ) {
-
-	reader.extend( this );
-
+VSTOOLS.WEP = function (reader) {
+  reader.extend(this);
 };
 
 VSTOOLS.WEP.prototype.read = function () {
-
-	this.header();
-	this.data();
-
+  this.header();
+  this.data();
 };
 
 VSTOOLS.WEP.prototype.header = function () {
+  var u32 = this.u32;
 
-	var u32 = this.u32;
+  this.header1();
 
-	this.header1();
+  this.texturePtr1 = u32() + 0x10;
 
-	this.texturePtr1 = u32() + 0x10;
+  this.skip(0x30); // TODO whats this?
 
-	this.skip( 0x30 ); // TODO whats this?
+  this.texturePtr = u32() + 0x10;
 
-	this.texturePtr = u32() + 0x10;
+  this.groupPtr = u32() + 0x10;
+  this.vertexPtr = u32() + 0x10;
+  this.facePtr = u32() + 0x10;
 
-	this.groupPtr = u32() + 0x10;
-	this.vertexPtr = u32() + 0x10;
-	this.facePtr = u32() + 0x10;
-
-	// unused
-	this.bonePtr = 0x4C + 0x04;
-
+  // unused
+  this.bonePtr = 0x4c + 0x04;
 };
 
 VSTOOLS.WEP.prototype.header1 = function () {
+  var u8 = this.u8,
+    u16 = this.u16,
+    buffer = this.buffer;
 
-	var u8 = this.u8, u16 = this.u16, buffer = this.buffer;
+  // magic 'H01' + 0x00
+  var magic = buffer(4);
 
-	// magic 'H01' + 0x00
-	var magic = buffer( 4 );
-
-	this.numBones = u8();
-	this.numGroups = u8();
-	this.numTriangles = u16();
-	this.numQuads = u16();
-	this.numPolygons = u16();
-	this.numAllPolygons = this.numTriangles + this.numQuads + this.numPolygons;
-
+  this.numBones = u8();
+  this.numGroups = u8();
+  this.numTriangles = u16();
+  this.numQuads = u16();
+  this.numPolygons = u16();
+  this.numAllPolygons = this.numTriangles + this.numQuads + this.numPolygons;
 };
 
 VSTOOLS.WEP.prototype.data = function () {
-
-	this.boneSection();
-	this.groupSection();
-	this.vertexSection();
-	this.faceSection();
-	this.textureSection( 7, true ); // 7 palettes with WEP handle palette
-
+  this.boneSection();
+  this.groupSection();
+  this.vertexSection();
+  this.faceSection();
+  this.textureSection(7, true); // 7 palettes with WEP handle palette
 };
 
 VSTOOLS.WEP.prototype.boneSection = function () {
+  var bones = (this.bones = []);
+  var numBones = this.numBones;
+  var i;
 
-	var bones = this.bones = [];
-	var numBones = this.numBones;
-	var i;
+  for (i = 0; i < numBones; ++i) {
+    var bone = new VSTOOLS.WEPBone(this.reader);
+    bone.read();
+    bones.push(bone);
+  }
 
-	for ( i = 0; i < numBones; ++i ) {
+  for (var i = 0; i < numBones; ++i) {
+    var bone = bones[i];
 
-		var bone = new VSTOOLS.WEPBone( this.reader );
-		bone.read();
-		bones.push( bone );
+    // set parent bone
 
-	}
-
-	for ( var i = 0; i < numBones; ++i) {
-
-		var bone = bones[ i ];
-
-		// set parent bone
-
-		if ( bone.parentBoneId < numBones ) {
-
-			bone.parentBone = bones[ bone.parentBoneId ];
-
-		}
-
-	}
-
+    if (bone.parentBoneId < numBones) {
+      bone.parentBone = bones[bone.parentBoneId];
+    }
+  }
 };
 
 VSTOOLS.WEP.prototype.groupSection = function () {
+  var bones = this.bones;
+  var groups = (this.groups = []);
+  var numGroups = this.numGroups;
 
-	var bones = this.bones;
-	var groups = this.groups = [];
-	var numGroups = this.numGroups;
+  for (var i = 0; i < numGroups; ++i) {
+    var group = new VSTOOLS.WEPGroup(this.reader);
+    group.read();
+    group.bone = bones[group.boneId];
 
-	for ( var i = 0; i < numGroups; ++i ) {
-
-		var group = new VSTOOLS.WEPGroup( this.reader );
-		group.read();
-		group.bone = bones[ group.boneId ];
-
-		groups.push( group );
-
-	}
-
+    groups.push(group);
+  }
 };
 
 VSTOOLS.WEP.prototype.vertexSection = function () {
+  var groups = this.groups;
+  var numGroups = this.numGroups;
+  var numVertices = (this.numVertices = groups[numGroups - 1].lastVertex);
 
-	var groups = this.groups;
-	var numGroups = this.numGroups;
-	var numVertices = this.numVertices = groups[ numGroups - 1 ].lastVertex;
+  var vertices = (this.vertices = []);
 
-	var vertices = this.vertices = [];
+  var g = 0;
 
-	var g = 0;
+  for (var i = 0; i < numVertices; ++i) {
+    if (i >= groups[g].lastVertex) ++g;
 
-	for ( var i = 0; i < numVertices; ++i ) {
+    var vertex = new VSTOOLS.WEPVertex(this.reader);
+    vertex.read();
+    vertex.groupId = g;
+    vertex.group = groups[g];
+    vertex.boneId = groups[g].boneId;
 
-		if ( i >= groups[ g ].lastVertex ) ++g;
-
-		var vertex = new VSTOOLS.WEPVertex( this.reader );
-		vertex.read();
-		vertex.groupId = g;
-		vertex.group = groups[ g ];
-		vertex.boneId = groups[ g ].boneId;
-
-		vertices.push( vertex );
-
-	}
-
+    vertices.push(vertex);
+  }
 };
 
 VSTOOLS.WEP.prototype.faceSection = function () {
+  var faces = (this.faces = []);
+  var numAllPolygons = this.numAllPolygons;
 
-	var faces = this.faces = [];
-	var numAllPolygons = this.numAllPolygons;
+  for (var i = 0; i < numAllPolygons; ++i) {
+    var face = new VSTOOLS.WEPFace(this.reader);
+    face.read();
 
-	for ( var i = 0; i < numAllPolygons; ++i ) {
-
-		var face = new VSTOOLS.WEPFace( this.reader );
-		face.read();
-
-		faces.push( face );
-
-	}
-
+    faces.push(face);
+  }
 };
 
-VSTOOLS.WEP.prototype.textureSection = function ( numPalettes, wep ) {
-
-	this.textureMap = new VSTOOLS.WEPTextureMap( this.reader );
-	this.textureMap.read( numPalettes, wep );
-
+VSTOOLS.WEP.prototype.textureSection = function (numPalettes, wep) {
+  this.textureMap = new VSTOOLS.WEPTextureMap(this.reader);
+  this.textureMap.read(numPalettes, wep);
 };
 
 VSTOOLS.WEP.prototype.build = function () {
-
-	this.buildGeometry();
-	this.buildMaterial();
-	this.buildBones();
-	this.buildMesh();
-
+  this.buildGeometry();
+  this.buildMaterial();
+  this.buildBones();
+  this.buildMesh();
 };
 
 VSTOOLS.WEP.prototype.buildGeometry = function () {
+  var tw = this.textureMap.width;
+  var th = this.textureMap.height;
 
-	var tw = this.textureMap.width;
-	var th = this.textureMap.height;
+  var geometry = (this.geometry = new THREE.Geometry());
+  geometry.influencesPerVertex = 4;
 
-	var geometry = this.geometry = new THREE.Geometry();
-	geometry.influencesPerVertex = 4;
+  for (var i = 0, l = this.faces.length; i < l; ++i) {
+    var f = this.faces[i];
 
-	for ( var i = 0, l = this.faces.length; i < l; ++i ) {
+    var v1 = this.vertices[f.vertex1];
+    var v2 = this.vertices[f.vertex2];
+    var v3 = this.vertices[f.vertex3];
 
-		var f = this.faces[ i ];
+    var iv = geometry.vertices.length;
 
-		var v1 = this.vertices[ f.vertex1 ];
-		var v2 = this.vertices[ f.vertex2 ];
-		var v3 = this.vertices[ f.vertex3 ];
+    geometry.vertices.push(v1.v, v2.v, v3.v);
 
-		var iv = geometry.vertices.length;
+    geometry.skinWeights.push(
+      new THREE.Vector4(1, 0, 0, 0),
+      new THREE.Vector4(1, 0, 0, 0),
+      new THREE.Vector4(1, 0, 0, 0)
+    );
 
-		geometry.vertices.push( v1.v, v2.v, v3.v );
+    geometry.skinIndices.push(
+      new THREE.Vector4(v1.boneId, 0, 0, 0),
+      new THREE.Vector4(v2.boneId, 0, 0, 0),
+      new THREE.Vector4(v3.boneId, 0, 0, 0)
+    );
 
-		geometry.skinWeights.push(
-			new THREE.Vector4( 1, 0, 0, 0 ),
-			new THREE.Vector4( 1, 0, 0, 0 ),
-			new THREE.Vector4( 1, 0, 0, 0 )
-		);
+    if (f.quad()) {
+      var v4 = this.vertices[f.vertex4];
 
-		geometry.skinIndices.push(
-			new THREE.Vector4( v1.boneId, 0, 0, 0 ),
-			new THREE.Vector4( v2.boneId, 0, 0, 0 ),
-			new THREE.Vector4( v3.boneId, 0, 0, 0 )
-		);
+      geometry.vertices.push(v4.v);
+      geometry.skinWeights.push(new THREE.Vector4(1, 0, 0, 0));
+      geometry.skinIndices.push(new THREE.Vector4(v4.boneId, 0, 0, 0));
 
-		if ( f.quad() ) {
+      var uv1 = [
+        new THREE.Vector2(f.u3 / tw, f.v3 / th),
+        new THREE.Vector2(f.u2 / tw, f.v2 / th),
+        new THREE.Vector2(f.u1 / tw, f.v1 / th),
+      ];
 
-			var v4 = this.vertices[ f.vertex4 ];
+      var uv2 = [
+        new THREE.Vector2(f.u2 / tw, f.v2 / th),
+        new THREE.Vector2(f.u3 / tw, f.v3 / th),
+        new THREE.Vector2(f.u4 / tw, f.v4 / th),
+      ];
 
-			geometry.vertices.push( v4.v );
-			geometry.skinWeights.push( new THREE.Vector4( 1, 0, 0, 0 ) );
-			geometry.skinIndices.push( new THREE.Vector4( v4.boneId, 0, 0, 0 ) );
+      geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0));
+      geometry.faces.push(new THREE.Face3(iv + 1, iv + 2, iv + 3));
 
-			var uv1 = [
-				new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-				new THREE.Vector2( f.u2 / tw, f.v2 / th ),
-				new THREE.Vector2( f.u1 / tw, f.v1 / th )
-			];
+      geometry.faceVertexUvs[0].push(uv1);
+      geometry.faceVertexUvs[0].push(uv2);
 
-			var uv2 = [
-				new THREE.Vector2( f.u2 / tw, f.v2 / th ),
-				new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-				new THREE.Vector2( f.u4 / tw, f.v4 / th )
-			];
+      if (f.double()) {
+        geometry.faces.push(new THREE.Face3(iv + 0, iv + 1, iv + 2));
+        geometry.faces.push(new THREE.Face3(iv + 3, iv + 2, iv + 1));
 
-			geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0 ) );
-			geometry.faces.push( new THREE.Face3( iv + 1, iv + 2, iv + 3 ) );
+        uv1 = [uv1[2], uv1[1], uv1[0]];
+        uv2 = [uv2[2], uv2[1], uv2[0]];
 
-			geometry.faceVertexUvs[ 0 ].push( uv1 );
-			geometry.faceVertexUvs[ 0 ].push( uv2 );
+        geometry.faceVertexUvs[0].push(uv1);
+        geometry.faceVertexUvs[0].push(uv2);
+      }
+    } else {
+      var uv = [
+        new THREE.Vector2(f.u1 / tw, f.v1 / th),
+        new THREE.Vector2(f.u3 / tw, f.v3 / th),
+        new THREE.Vector2(f.u2 / tw, f.v2 / th),
+      ];
 
-			if ( f.double() ) {
+      geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0));
+      geometry.faceVertexUvs[0].push(uv);
 
-				geometry.faces.push( new THREE.Face3( iv + 0, iv + 1, iv + 2 ) );
-				geometry.faces.push( new THREE.Face3( iv + 3, iv + 2, iv + 1 ) );
+      if (f.double()) {
+        geometry.faces.push(new THREE.Face3(iv + 0, iv + 1, iv + 2));
+        uv = [uv[2], uv[1], uv[0]];
+        geometry.faceVertexUvs[0].push(uv);
+      }
+    }
+  }
 
-				uv1 = [ uv1[ 2 ], uv1[ 1 ], uv1[ 0 ] ];
-				uv2 = [ uv2[ 2 ], uv2[ 1 ], uv2[ 0 ] ];
-
-				geometry.faceVertexUvs[ 0 ].push( uv1 );
-				geometry.faceVertexUvs[ 0 ].push( uv2 );
-
-			}
-
-		} else {
-
-			var uv = [
-				new THREE.Vector2( f.u1 / tw, f.v1 / th ),
-				new THREE.Vector2( f.u3 / tw, f.v3 / th ),
-				new THREE.Vector2( f.u2 / tw, f.v2 / th ),
-			];
-
-			geometry.faces.push( new THREE.Face3( iv + 2, iv + 1, iv + 0 ) );
-			geometry.faceVertexUvs[ 0 ].push( uv );
-
-			if ( f.double() ) {
-
-				geometry.faces.push( new THREE.Face3( iv + 0, iv + 1, iv + 2 ) );
-				uv = [ uv[ 2 ], uv[ 1 ], uv[ 0 ] ];
-				geometry.faceVertexUvs[ 0 ].push( uv );
-
-			}
-
-		}
-
-	}
-
-	geometry.computeFaceNormals();
-	geometry.computeVertexNormals();
-
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
 };
 
 VSTOOLS.WEP.prototype.buildMaterial = function () {
+  this.textureMap.build();
 
-	this.textureMap.build();
-
-	this.material = new THREE.MeshBasicMaterial( {
-
-		map: this.textureMap.textures[ 0 ],
-		shading: THREE.FlatShading,
-		skinning: true,
-		transparent: true
-
-	} );
-
+  this.material = new THREE.MeshBasicMaterial({
+    map: this.textureMap.textures[0],
+    shading: THREE.FlatShading,
+    skinning: true,
+    transparent: true,
+  });
 };
 
 VSTOOLS.WEP.prototype.buildBones = function () {
+  var bones = this.bones,
+    numBones = this.numBones;
+  this.geometry.bones = [];
 
-	var bones = this.bones, numBones = this.numBones;
-	this.geometry.bones = [];
+  // binding pose is identity
 
-	// binding pose is identity
+  // rotation bones
+  for (var i = 0; i < numBones; ++i) {
+    var parent = bones[i].parentBoneId;
 
-	// rotation bones
-	for ( var i = 0; i < numBones; ++i ) {
+    var bone = {
+      name: "bone" + i,
+      pos: [0, 0, 0],
+      rotq: [0, 0, 0, 1],
+      scl: [1, 1, 1],
+      parent: parent < numBones ? parent + numBones : -1,
+    };
 
-		var parent = bones[ i ].parentBoneId;
+    this.geometry.bones.push(bone);
+  }
 
-		var bone = {
-			name: 'bone' + i,
-			pos: [ 0, 0, 0 ],
-			rotq: [ 0, 0, 0, 1 ],
-			scl: [ 1, 1, 1 ],
-			parent: parent < numBones ? parent + numBones : -1
-		};
+  // translation bones
+  for (var i = numBones; i < numBones * 2; ++i) {
+    var bone = {
+      name: "bone" + i,
+      pos: [0, 0, 0],
+      rotq: [0, 0, 0, 1],
+      scl: [1, 1, 1],
+      parent: i - numBones,
+    };
 
-		this.geometry.bones.push( bone );
-
-	}
-
-	// translation bones
-	for ( var i = numBones; i < numBones * 2; ++i ) {
-
-		var bone = {
-			name: 'bone' + i,
-			pos: [ 0, 0, 0 ],
-			rotq: [ 0, 0, 0, 1 ],
-			scl: [ 1, 1, 1 ],
-			parent: i - numBones
-		};
-
-		this.geometry.bones.push( bone );
-
-	}
-
+    this.geometry.bones.push(bone);
+  }
 };
 
 VSTOOLS.WEP.prototype.buildMesh = function () {
+  var bones = this.bones,
+    numBones = this.numBones;
+  var mesh = (this.mesh = new THREE.SkinnedMesh(this.geometry, this.material));
 
-	var bones = this.bones, numBones = this.numBones;
-	var mesh = this.mesh = new THREE.SkinnedMesh( this.geometry, this.material );
+  mesh.rotation.x = Math.PI;
 
-	mesh.rotation.x = Math.PI;
+  // sets length of bones. just for WEP.
+  // SHP's animations will override this
 
-	// sets length of bones. just for WEP.
-	// SHP's animations will override this
-
-	for ( var i = numBones; i < numBones * 2; ++i ) {
-
-		mesh.skeleton.bones[ i ].position.x = bones[ i - numBones ].length;
-
-	}
-
+  for (var i = numBones; i < numBones * 2; ++i) {
+    mesh.skeleton.bones[i].position.x = bones[i - numBones].length;
+  }
 };
