@@ -62,7 +62,7 @@ VSTOOLS.MPDGroup = function (reader, mpd) {
 
   this.getMesh = function (textureId, clutId) {
     var meshes = this.meshes;
-    var id = textureId + "-" + clutId;
+    var id = textureId + '-' + clutId;
 
     var mesh = meshes[id];
 

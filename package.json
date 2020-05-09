@@ -4,7 +4,7 @@
   "description": "A toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js. Contains a mostly working model viewer.",
   "main": "index.js",
   "scripts": {
-    "format": "prettier --write src/*.js",
+    "format": "prettier --single-quote --write src/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

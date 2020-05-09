@@ -9,7 +9,7 @@ VSTOOLS.Viewer = function () {
 
   resize();
 
-  $("body").append(renderer.domElement);
+  $('body').append(renderer.domElement);
 
   camera.position.z = 500;
   var orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -37,7 +37,7 @@ VSTOOLS.Viewer = function () {
     }, 1);
   }
 
-  $(window).on("resize", resize);
+  $(window).on('resize', resize);
 
   this.run = function () {
     render();
@@ -51,29 +51,29 @@ VSTOOLS.Viewer = function () {
 
   // ui
 
-  var $sidebar = $("#sidebar");
+  var $sidebar = $('#sidebar');
 
-  $sidebar.on("click", "h2", function () {
-    $(this).toggleClass("collapsed");
+  $sidebar.on('click', 'h2', function () {
+    $(this).toggleClass('collapsed');
   });
 
-  var $file1 = $("#file1");
-  var $file2 = $("#file2");
-  var $load = $("#load");
-  var $skeleton = $("#skeleton");
-  var $textures = $("#textures");
-  var $animation = $("#animation");
-  var $animationCount = $("#animationCount");
+  var $file1 = $('#file1');
+  var $file2 = $('#file2');
+  var $load = $('#load');
+  var $skeleton = $('#skeleton');
+  var $textures = $('#textures');
+  var $animation = $('#animation');
+  var $animationCount = $('#animationCount');
 
-  $sidebar.on("click", "#load", load);
+  $sidebar.on('click', '#load', load);
 
-  $sidebar.on("click", "#next", nextAnim);
-  $sidebar.on("click", "#prev", prevAnim);
+  $sidebar.on('click', '#next', nextAnim);
+  $sidebar.on('click', '#prev', prevAnim);
 
-  $sidebar.on("change", "#animation", updateAnim);
+  $sidebar.on('change', '#animation', updateAnim);
 
-  $sidebar.on("click", "#exportOBJ", exportOBJ);
-  $sidebar.on("click", "#exportJSON", exportJSON);
+  $sidebar.on('click', '#exportOBJ', exportOBJ);
+  $sidebar.on('click', '#exportJSON', exportJSON);
 
   // loading
 
@@ -88,7 +88,7 @@ VSTOOLS.Viewer = function () {
       var ext = VSTOOLS.ext(f1.name);
       load2(ext, reader1);
 
-      if ((ext === "znd" || ext === "shp" || ext === "fbc") && f2) {
+      if ((ext === 'znd' || ext === 'shp' || ext === 'fbc') && f2) {
         reader2.readAsArrayBuffer(f2);
       }
     };
@@ -106,7 +106,7 @@ VSTOOLS.Viewer = function () {
     var data = new Uint8Array(reader.result);
 
     var loader = loaders[ext];
-    if (!loader) throw new Error("Unknown file extension " + ext);
+    if (!loader) throw new Error('Unknown file extension ' + ext);
 
     loader(new VSTOOLS.Reader(data));
   }
@@ -135,7 +135,7 @@ VSTOOLS.Viewer = function () {
     root = shp.mesh;
     scene.add(root);
 
-    if ($skeleton.is(":checked")) {
+    if ($skeleton.is(':checked')) {
       skeletonHelper = new THREE.SkeletonHelper(shp.mesh);
       skeletonHelper.material.linewidth = 3;
       scene.add(skeletonHelper);
@@ -155,7 +155,7 @@ VSTOOLS.Viewer = function () {
 
       updateAnim();
     } else {
-      throw new Error("Cannot load SEQ without SHP");
+      throw new Error('Cannot load SEQ without SHP');
     }
   };
 
@@ -174,7 +174,7 @@ VSTOOLS.Viewer = function () {
     root = zud.shp.mesh;
     scene.add(root);
 
-    if ($skeleton.is(":checked")) {
+    if ($skeleton.is(':checked')) {
       skeletonHelper = new THREE.SkeletonHelper(root);
       skeletonHelper.material.linewidth = 3;
       scene.add(skeletonHelper);
@@ -292,7 +292,7 @@ VSTOOLS.Viewer = function () {
     mixerAction.play();
 
     $animation.val(id);
-    $animationCount.html("0&ndash;" + (activeSEQ.animations.length - 1));
+    $animationCount.html('0&ndash;' + (activeSEQ.animations.length - 1));
   }
 
   function parseAnim() {
@@ -354,8 +354,8 @@ VSTOOLS.Viewer = function () {
     var output = {
       metadata: {
         formatVersion: 3.1,
-        type: "Geometry",
-        generatedBy: "vstools",
+        type: 'Geometry',
+        generatedBy: 'vstools',
         vertices: toExport.vertices.length,
         faces: toExport.faces.length,
         normals: toExport.faces.length,
@@ -369,7 +369,7 @@ VSTOOLS.Viewer = function () {
         {
           DbgColor: 15658734, // => 0xeeeeee
           DbgIndex: 0,
-          DbgName: "dummy",
+          DbgName: 'dummy',
           colorDiffuse: [1, 0, 0],
         },
       ],
@@ -388,8 +388,8 @@ VSTOOLS.Viewer = function () {
       animations: animations(anim.animations),
     };
 
-    output = JSON.stringify(output, null, "\t");
-    output = output.replace(/[\n\t]+([\d\.e\-\[\]]+)/g, "$1");
+    output = JSON.stringify(output, null, '\t');
+    output = output.replace(/[\n\t]+([\d\.e\-\[\]]+)/g, '$1');
     exportString(output);
 
     function normals() {
@@ -474,7 +474,7 @@ VSTOOLS.Viewer = function () {
         for (var i = 0; i < q.length; ++i) {
           q[i] = quat2arr(q[i]);
         }
-      } else if (q !== null && typeof q === "object") {
+      } else if (q !== null && typeof q === 'object') {
         for (var p in q) {
           if (q.hasOwnProperty(p)) q[p] = quat2arr(q[p]);
         }
@@ -485,10 +485,10 @@ VSTOOLS.Viewer = function () {
   }
 
   function exportString(output) {
-    var blob = new Blob([output], { type: "text/plain" });
+    var blob = new Blob([output], { type: 'text/plain' });
     var objectURL = URL.createObjectURL(blob);
 
-    window.open(objectURL, "_blank");
+    window.open(objectURL, '_blank');
     window.focus();
   }
 };

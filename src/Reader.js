@@ -10,7 +10,7 @@ VSTOOLS.Reader = function (data) {
   }
 
   function u8() {
-    if (pos >= data.length) throw new Error("Out of bounds");
+    if (pos >= data.length) throw new Error('Out of bounds');
 
     pos += 1;
     return data[pos - 1];

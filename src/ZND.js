@@ -97,7 +97,7 @@ VSTOOLS.ZND.prototype.getTIM = function (id) {
 
 VSTOOLS.ZND.prototype.getMaterial = function (textureId, clutId) {
   var tims = this.tims;
-  var id = textureId + "-" + clutId;
+  var id = textureId + '-' + clutId;
 
   var materials = this.materials;
   var material = materials[id];

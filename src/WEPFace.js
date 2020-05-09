@@ -12,7 +12,7 @@ VSTOOLS.WEPFace = function (reader) {
     } else if (type === 0x2c) {
       // quad
     } else {
-      throw new Error("Unknown face type: " + VSTOOLS.hex(type));
+      throw new Error('Unknown face type: ' + VSTOOLS.hex(type));
     }
 
     this.size = u8(); // 2

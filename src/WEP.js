@@ -242,7 +242,7 @@ VSTOOLS.WEP.prototype.buildBones = function () {
     var parent = bones[i].parentBoneId;
 
     var bone = {
-      name: "bone" + i,
+      name: 'bone' + i,
       pos: [0, 0, 0],
       rotq: [0, 0, 0, 1],
       scl: [1, 1, 1],
@@ -255,7 +255,7 @@ VSTOOLS.WEP.prototype.buildBones = function () {
   // translation bones
   for (var i = numBones; i < numBones * 2; ++i) {
     var bone = {
-      name: "bone" + i,
+      name: 'bone' + i,
       pos: [0, 0, 0],
       rotq: [0, 0, 0, 1],
       scl: [1, 1, 1],

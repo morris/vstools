@@ -12,20 +12,20 @@ var VSTOOLS = {
   // utility
 
   ext: function (path) {
-    var dot = path.lastIndexOf(".");
-    var slash = path.lastIndexOf("/");
+    var dot = path.lastIndexOf('.');
+    var slash = path.lastIndexOf('/');
 
     return dot > 0 && dot > slash ? path.substr(dot + 1).toLowerCase() : null;
   },
 
   // convert typed array to png data url
   png: function (data, width, height) {
-    var canvas = document.createElement("canvas");
+    var canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
 
     // Copy the image contents to the canvas
-    var ctx = canvas.getContext("2d");
+    var ctx = canvas.getContext('2d');
 
     var imageData = ctx.createImageData(width, height);
     var i = 0,
@@ -39,7 +39,7 @@ var VSTOOLS = {
 
     ctx.putImageData(imageData, 0, 0);
 
-    return canvas.toDataURL("image/png");
+    return canvas.toDataURL('image/png');
   },
 
   // get RGBA from 16 bit color value
@@ -83,17 +83,17 @@ var VSTOOLS = {
   hex: function (i, pad) {
     var x = i.toString(16);
 
-    while (x.length < pad) x = "0" + x;
+    while (x.length < pad) x = '0' + x;
 
-    return "0x" + x;
+    return '0x' + x;
   },
 
   bin: function (i, pad) {
     var x = i.toString(2);
 
-    while (x.length < pad) x = "0" + x;
+    while (x.length < pad) x = '0' + x;
 
-    return "0b" + x;
+    return '0b' + x;
   },
 
   geometrySnapshot: function (mesh) {
@@ -111,11 +111,11 @@ var VSTOOLS = {
     var err;
     if (arguments.length === 2) {
       if (expr !== expected) {
-        throw new Error("Assertion failed: " + expr + " !== " + expected);
+        throw new Error('Assertion failed: ' + expr + ' !== ' + expected);
       }
     } else {
       if (!expr) {
-        throw new Error("Assertion failed");
+        throw new Error('Assertion failed');
       }
     }
   },
