@@ -2,19 +2,22 @@
 
 A toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js.
 Contains a mostly working model viewer.
-[Run in browser](https://rawgit.com/morris/vstools/master/index.html)
 
-<img src="https://rawgit.com/morris/vstools/master/img/screenshot2.png">
+[Run in browser](https://morris.github.io/vstools)
+
+<img src="img/screenshot2.png">
+
+<img src="img/screenshot1.png">
 
 (A prior version was written in Java, which can be found [here](https://github.com/morris/vstools-java).)
 
-## [Run in browser](https://rawgit.com/morris/vstools/master/index.html)
+## [Run in browser](https://morris.github.io/vstools)
 
 Runs in browsers supporting WebGL, like Chrome or Firefox.
 The viewer opens individual files obtained from a CD image
 which have to be extracted first from your copy of Vagrant Story.
 
-This code is developed for the US Version of Vagrant Story but should work with any.
+The toolset is developed for the US Version of Vagrant Story but should work with any.
 
 ## Supported file types
 
