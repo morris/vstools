@@ -383,7 +383,9 @@ export function Viewer() {
         object.material.wireframeLinewidth = 2;
 
         if (!normals) {
-          object.material.vertexColors = !noVertexColors;
+          if (!(object instanceof SkinnedMesh)) {
+            object.material.vertexColors = !noVertexColors;
+          }
 
           if (noTexture && object.material.map) {
             object.material.originalMap = object.material.map;
