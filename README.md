@@ -5,9 +5,9 @@ Contains a mostly working model viewer.
 
 [Run in Browser](https://morris.github.io/vstools)
 
-<img src="img/screenshot2.jpg">
-
 <img src="img/screenshot1.jpg">
+
+<img src="img/screenshot2.jpg">
 
 ## [Run in Browser](https://morris.github.io/vstools)
 
@@ -42,9 +42,8 @@ featuring an outstanding character and level design.
 
 ## Contributions and Acknowledgments
 
+- Tremendous work in deciphering Vagrant Story by [Michael Collins](https://github.com/collinsmichael)
 - WEP textures fixed by [Oliver Barraza](https://github.com/MercurialForge)
-
-Many thanks to Valendian and other people's tremendous work on analyzing Vagrant Story.
 
 A lot of information on Vagrant Story hacking can be found here:
 http://datacrystal.romhacking.net/wiki/Vagrant_Story
