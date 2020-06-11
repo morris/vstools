@@ -1,127 +1,92 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>VSTOOLS</title>
-		<link rel="stylesheet" href="css/normalize.css">
-		<link rel="stylesheet" href="css/main.css">
-	</head>
-	<body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VSTOOLS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+    <div class="ui-sidebar">
+      <div class="ui-panel app-file">
+        <h2>File</h2>
 
-		<div id="sidebar">
+        <p>
+          <label>
+            Select SHP, WEP, ZUD, ZND, or ARM<br>
+            <input type="file" class="file1">
+          </label>
+        </p>
 
-			<div class="panel">
+        <p>
+          <label>
+            Select SEQ or MPD<br>
+            <input type="file" class="file2">
+          </label>
+        </p>
 
-				<h2>Import</h2>
 
-				<p>
-					<label>
-						Select SHP, WEP, ZUD, ZND, or ARM<br>
-						<input type="file" id="file1">
-					</label>
-				</p>
+        <p>
+          <button class="load">Open</button>
+        </p>
+      </div>
 
-				<p>
-					<label>
-						Select SEQ or MPD<br>
-						<input type="file" id="file2">
-					</label>
-				</p>
+      <div class="ui-panel app-animation">
+        <h2>Animation</h2>
 
-				<p>
-					<label>
-						<input type="checkbox" id="skeleton"> Show skeleton
-					</label>
-				</p>
+        <p>
+          <button class="prev">&lt;</button>
+          <input class="animation" size="3">
+          <button class="next">&gt;</button>
+          <span class="animation-count"></span>
+        </p>
+      </div>
 
-				<p>
-					<button id="load">Load</button>
-				</p>
+      <div class="ui-panel app-textures">
+        <h2>Textures</h2>
+        <div class="textures"></div>
+      </div>
 
-			</div>
+      <div class="ui-panel app-settings">
+        <h2>Settings</h2>
 
-			<div class="panel">
+        <p>
+          <label>
+            <input type="checkbox" class="wireframe"> Wireframe
+          </label>
+        </p>
 
-				<h2>Animation</h2>
+        <p>
+          <label>
+            <input type="checkbox" class="normals"> Use Normal Material
+          </label>
+        </p>
 
-				<p>
-					<button id="prev">&lt;</button>
-					<input id="animation" size="3">
-					<button id="next">&gt;</button>
-					<span id="animationCount"></span>
-				</p>
+        <p>
+          <label>
+            <input type="checkbox" class="skeleton"> Show Skeleton
+          </label>
+        </p>
+      </div>
 
-			</div>
+      <div class="ui-panel app-export">
+        <h2>Export</h2>
+        <!-- <p><button id="exportCollada">Export Collada</button></p> -->
+        <p><button class="export-obj">Export OBJ</button></p>
+        <p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
+      </div>
+    </div>
 
-			<div class="panel">
+    <script type="module" src="https://unpkg.com/three@0.116.1/build/three.module.js" crossorigin></script>
+    <script type="module" src="https://unpkg.com/three@0.116.1/examples/jsm/controls/OrbitControls.js" crossorigin></script>
+    <script type="module" src="https://unpkg.com/three@0.116.1/examples/jsm/exporters/OBJExporter.js" crossorigin></script>
 
-				<h2>Textures</h2>
-				<div id="textures"></div>
+    <script type="module" src="src/Viewer.js"></script>
 
-			</div>
-
-			<div class="panel">
-
-				<h2>Export</h2>
-
-				<p><button id="exportOBJ">Export OBJ</button></p>
-				<p><small>Exports the geometry <em>as is</em>, without skeleton and animations.</small></p>
-
-			</div>
-
-		</div>
-
-		<script
-		  src="https://code.jquery.com/jquery-3.1.1.min.js"
-		  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-		  crossorigin="anonymous"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/build/three.min.js"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/examples/js/controls/OrbitControls.js"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/examples/js/exporters/OBJExporter.js"></script>
-
-		<script src="src/VSTOOLS.js"></script>
-		<script src="src/Reader.js"></script>
-
-		<script src="src/WEP.js"></script>
-		<script src="src/WEPBone.js"></script>
-		<script src="src/WEPGroup.js"></script>
-		<script src="src/WEPVertex.js"></script>
-		<script src="src/WEPFace.js"></script>
-		<script src="src/WEPTextureMap.js"></script>
-		<script src="src/WEPPalette.js"></script>
-
-		<script src="src/SHP.js"></script>
-
-		<script src="src/SEQ.js"></script>
-		<script src="src/SEQAnimation.js"></script>
-
-		<script src="src/ZUD.js"></script>
-
-		<script src="src/ZND.js"></script>
-		<script src="src/TIM.js"></script>
-
-		<script src="src/MPD.js"></script>
-		<script src="src/MPDGroup.js"></script>
-		<script src="src/MPDFace.js"></script>
-		<script src="src/MPDMesh.js"></script>
-
-		<script src="src/ARM.js"></script>
-		<script src="src/ARMRoom.js"></script>
-
-		<script src="src/GIM.js"></script>
-		<script src="src/P.js"></script>
-		<script src="src/FBC.js"></script>
-		<script src="src/FBT.js"></script>
-
-		<script src="src/FrameBuffer.js"></script>
-		<script src="src/Text.js"></script>
-
-		<script src="src/Viewer.js"></script>
-
-		<script>
-		var viewer = new VSTOOLS.Viewer();
-		viewer.run();
-		</script>
-
-	</body>
+    <script type="module">
+      import { Viewer } from "./src/Viewer.js";
+      const viewer = new Viewer();
+      viewer.run();
+    </script>
+  </body>
 </html>

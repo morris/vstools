@@ -1,31 +1,58 @@
-VSTOOLS.Viewer = function () {
-  //
+import {
+  Scene,
+  PerspectiveCamera,
+  WebGLRenderer,
+  AnimationMixer,
+  SkeletonHelper,
+  Mesh,
+  MeshNormalMaterial,
+  OBJExporter,
+  SkinnedMesh,
+  OrbitControls,
+  Object3D,
+} from './three.js';
+import { SHP } from './SHP.js';
+import { WEP } from './WEP.js';
+import { SEQ } from './SEQ.js';
+import { ZND } from './ZND.js';
+import { ZUD } from './ZUD.js';
+import { Reader } from './Reader.js';
+import { MPD } from './MPD.js';
+import { ARM } from './ARM.js';
+import { GIM } from './GIM.js';
+import { P } from './P.js';
+import { FBC } from './FBC.js';
+import { FBT } from './FBT.js';
+import { cloneMeshWithPose, exportPng, ext } from './VSTOOLS.js';
+import { initUiPanel } from './ui/ui-panel.js';
 
-  var scene = (this.scene = new THREE.Scene());
-  var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 10000);
+export function Viewer() {
+  const scene = (this.scene = new Scene());
+  const camera = new PerspectiveCamera(75, 1, 0.1, 10000);
 
-  var renderer = new THREE.WebGLRenderer();
+  const renderer = new WebGLRenderer();
   renderer.setClearColor(0x333333, 1);
 
   resize();
 
-  $('body').append(renderer.domElement);
+  const root = new Object3D();
+  const helpers = new Object3D();
+
+  scene.add(root);
+  scene.add(helpers);
+
+  document.querySelector('body').appendChild(renderer.domElement);
 
   camera.position.z = 500;
-  var orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+  const orbitControls = new OrbitControls(camera, renderer.domElement);
 
-  var mixer = new THREE.AnimationMixer(scene);
-  var mixerAction;
+  const mixer = new AnimationMixer(scene);
+  let mixerAction;
 
   function render() {
     requestAnimationFrame(render);
-
     orbitControls.update();
-
-    if (skeletonHelper) skeletonHelper.update();
-
     mixer.update(0.01);
-
     renderer.render(scene, camera);
   }
 
@@ -37,7 +64,7 @@ VSTOOLS.Viewer = function () {
     }, 1);
   }
 
-  $(window).on('resize', resize);
+  window.addEventListener('resize', resize);
 
   this.run = function () {
     render();
@@ -45,101 +72,83 @@ VSTOOLS.Viewer = function () {
 
   //
 
-  var self = this;
-
-  var root, activeSHP, activeSEQ, activeZND, skeletonHelper;
+  let activeSHP, activeSEQ, activeZND;
 
   // ui
 
-  var $sidebar = $('#sidebar');
-
-  $sidebar.on('click', 'h2', function () {
-    $(this).toggleClass('collapsed');
-  });
-
-  var $file1 = $('#file1');
-  var $file2 = $('#file2');
-  var $load = $('#load');
-  var $skeleton = $('#skeleton');
-  var $textures = $('#textures');
-  var $animation = $('#animation');
-  var $animationCount = $('#animationCount');
-
-  $sidebar.on('click', '#load', load);
-
-  $sidebar.on('click', '#next', nextAnim);
-  $sidebar.on('click', '#prev', prevAnim);
-
-  $sidebar.on('change', '#animation', updateAnim);
-
-  $sidebar.on('click', '#exportOBJ', exportOBJ);
-  $sidebar.on('click', '#exportJSON', exportJSON);
+  document.querySelectorAll('.ui-panel').forEach(initUiPanel);
+  document.querySelector('.app-file .load').addEventListener('click', load);
+  document
+    .querySelector('.app-animation .next')
+    .addEventListener('click', nextAnim);
+  document
+    .querySelector('.app-animation .prev')
+    .addEventListener('click', prevAnim);
+  document
+    .querySelector('.app-export .export-obj')
+    .addEventListener('click', exportOBJ);
 
   // loading
 
-  var loaders = {};
+  const loaders = {};
 
   function load() {
-    var f1 = $file1[0].files[0];
-    var f2 = $file2[0].files[0];
+    const f1 = document.querySelector('.app-file .file1').files[0];
+    const f2 = document.querySelector('.app-file .file2').files[0];
 
-    var reader1 = new FileReader();
+    const reader1 = new FileReader();
     reader1.onload = function () {
-      var ext = VSTOOLS.ext(f1.name);
-      load2(ext, reader1);
+      const x = ext(f1.name);
+      load2(x, reader1);
 
-      if ((ext === 'znd' || ext === 'shp' || ext === 'fbc') && f2) {
+      if ((x === 'znd' || x === 'shp' || x === 'fbc') && f2) {
         reader2.readAsArrayBuffer(f2);
       }
     };
 
-    var reader2 = new FileReader();
+    const reader2 = new FileReader();
     reader2.onload = function () {
-      var ext = VSTOOLS.ext(f2.name);
-      load2(ext, reader2);
+      const x = ext(f2.name);
+      load2(x, reader2);
     };
 
     reader1.readAsArrayBuffer(f1);
   }
 
   function load2(ext, reader) {
-    var data = new Uint8Array(reader.result);
+    const data = new Uint8Array(reader.result);
 
-    var loader = loaders[ext];
+    const loader = loaders[ext];
     if (!loader) throw new Error('Unknown file extension ' + ext);
 
-    loader(new VSTOOLS.Reader(data));
+    loader(new Reader(data));
   }
 
   loaders.wep = function (reader) {
     clean();
 
-    var wep = new VSTOOLS.WEP(reader);
+    const wep = new WEP(reader);
     wep.read();
     wep.build();
 
-    root = wep.mesh;
-    scene.add(root);
+    root.remove(root.children[0]);
+    root.add(wep.mesh);
+    console.log(scene, root);
 
     updateTextures(wep.textureMap.textures);
     updateAnim();
+    updateSettings();
   };
 
   loaders.shp = function (reader) {
     clean();
 
-    var shp = (activeSHP = new VSTOOLS.SHP(reader));
+    const shp = (activeSHP = new SHP(reader));
     shp.read();
     shp.build();
 
-    root = shp.mesh;
-    scene.add(root);
-
-    if ($skeleton.is(':checked')) {
-      skeletonHelper = new THREE.SkeletonHelper(shp.mesh);
-      skeletonHelper.material.linewidth = 3;
-      scene.add(skeletonHelper);
-    }
+    root.remove(root.children[0]);
+    root.add(shp.mesh);
 
     updateTextures(shp.textureMap.textures);
     updateAnim();
@@ -149,11 +158,12 @@ VSTOOLS.Viewer = function () {
     if (activeSHP) {
       stopAnim();
 
-      var seq = (activeSEQ = new VSTOOLS.SEQ(reader, activeSHP));
+      const seq = (activeSEQ = new SEQ(reader, activeSHP));
       seq.read();
       seq.build();
 
       updateAnim();
+      updateSettings();
     } else {
       throw new Error('Cannot load SEQ without SHP');
     }
@@ -162,7 +172,7 @@ VSTOOLS.Viewer = function () {
   loaders.zud = function (reader) {
     clean();
 
-    var zud = new VSTOOLS.ZUD(reader);
+    const zud = new ZUD(reader);
     zud.read();
     zud.build();
 
@@ -171,23 +181,18 @@ VSTOOLS.Viewer = function () {
 
     updateAnim();
 
-    root = zud.shp.mesh;
-    scene.add(root);
-
-    if ($skeleton.is(':checked')) {
-      skeletonHelper = new THREE.SkeletonHelper(root);
-      skeletonHelper.material.linewidth = 3;
-      scene.add(skeletonHelper);
-    }
+    root.remove(root.children[0]);
+    root.add(zud.shp.mesh);
 
     updateTextures(zud.shp.textureMap.textures);
     updateAnim();
+    updateSettings();
   };
 
   loaders.znd = function (reader) {
     clean();
 
-    var znd = (activeZND = new VSTOOLS.ZND(reader));
+    const znd = (activeZND = new ZND(reader));
     znd.read();
 
     znd.frameBuffer.build();
@@ -195,62 +200,68 @@ VSTOOLS.Viewer = function () {
     //scene.add( znd.frameBuffer.mesh );
 
     updateTextures(znd.textures);
+    updateSettings();
   };
 
   loaders.mpd = function (reader) {
     clean();
 
-    var mpd = new VSTOOLS.MPD(reader, activeZND);
+    const mpd = new MPD(reader, activeZND);
     mpd.read();
     mpd.build();
 
-    root = mpd.mesh;
-    scene.add(root);
+    root.remove(root.children[0]);
+    root.add(mpd.mesh);
 
     if (activeZND) updateTextures(activeZND.textures);
+    updateSettings();
   };
 
   loaders.arm = function (reader) {
     clean();
 
-    var arm = new VSTOOLS.ARM(reader);
+    const arm = new ARM(reader);
     arm.read();
     arm.build();
 
-    root = arm.object;
-    scene.add(root);
+    root.remove(root.children[0]);
+    root.add(arm.object);
 
     updateTextures([]);
+    updateSettings();
   };
 
   loaders.gim = function (reader) {
-    var gim = new VSTOOLS.GIM(reader);
+    const gim = new GIM(reader);
     gim.read();
     gim.build();
 
     updateTextures(gim.textures);
+    updateSettings();
   };
 
   loaders.p = function (reader) {
-    var p = new VSTOOLS.P(reader);
+    const p = new P(reader);
     p.read();
     p.build();
 
     updateTextures(p.textures);
+    updateSettings();
   };
 
-  var activeFBC;
+  let activeFBC;
 
   loaders.fbc = function (reader) {
-    var fbc = (activeFBC = new VSTOOLS.FBC(reader));
+    const fbc = (activeFBC = new FBC(reader));
     fbc.read();
   };
 
   loaders.fbt = function (reader) {
-    var fbt = new VSTOOLS.FBT(reader, activeFBC);
+    const fbt = new FBT(reader, activeFBC);
     fbt.read();
 
     updateTextures(fbt.textures);
+    updateSettings();
   };
 
   function clean() {
@@ -258,21 +269,18 @@ VSTOOLS.Viewer = function () {
     activeSEQ = null;
 
     stopAnim();
-
-    if (root) scene.remove(root);
-    if (skeletonHelper) scene.remove(skeletonHelper);
   }
 
   // animation
 
   function nextAnim() {
-    $animation.val(parseAnim() + 1);
+    document.querySelector('.app-animation .animation').value = parseAnim() + 1;
 
     updateAnim();
   }
 
   function prevAnim() {
-    $animation.val(parseAnim() - 1);
+    document.querySelector('.app-animation .animation').value = parseAnim() - 1;
 
     updateAnim();
   }
@@ -282,7 +290,7 @@ VSTOOLS.Viewer = function () {
 
     stopAnim();
 
-    var id = parseAnim();
+    const id = parseAnim();
 
     mixer.uncacheClip(activeSEQ.animations[id].animationClip);
     mixerAction = mixer.clipAction(
@@ -291,14 +299,18 @@ VSTOOLS.Viewer = function () {
     );
     mixerAction.play();
 
-    $animation.val(id);
-    $animationCount.html('0&ndash;' + (activeSEQ.animations.length - 1));
+    document.querySelector('.app-animation .animation').value = id;
+    document.querySelector('.app-animation .animation-count').innerHTML =
+      '0&ndash;' + (activeSEQ.animations.length - 1);
   }
 
   function parseAnim() {
     if (!activeSEQ) return 0;
 
-    var id = parseInt($animation.val());
+    let id = parseInt(
+      document.querySelector('.app-animation .animation').value,
+      10
+    );
 
     if (!id) id = 0;
 
@@ -314,181 +326,84 @@ VSTOOLS.Viewer = function () {
   // textures
 
   function updateTextures(textures) {
-    $textures.empty();
+    document.querySelector('.app-textures .textures').innerHTML = '';
 
     if (!textures) return;
 
-    textures.forEach(function (texture) {
-      $textures.append(
-        '<img title="' +
-          texture.title +
-          '" src="' +
-          VSTOOLS.png(
-            texture.image.data,
-            texture.image.width,
-            texture.image.height
-          ) +
-          '">'
-      );
+    document.querySelector('.app-textures .textures').innerHTML = textures
+      .map((texture) => {
+        const src = exportPng(
+          texture.image.data,
+          texture.image.width,
+          texture.image.height
+        );
+        return `<img title="${texture.title}" src="${src}">`;
+      })
+      .join('\n');
+  }
+
+  // settings
+
+  document
+    .querySelector('.app-settings')
+    .addEventListener('click', updateSettings);
+
+  function updateSettings() {
+    const wireframe = document.querySelector('.app-settings .wireframe')
+      .checked;
+    const normals = document.querySelector('.app-settings .normals').checked;
+    const skeleton = document.querySelector('.app-settings .skeleton').checked;
+
+    helpers.traverse((object) => {
+      helpers.remove(object);
+    });
+
+    root.traverse((object) => {
+      if (object instanceof Mesh) {
+        if (normals && !(object.material instanceof MeshNormalMaterial)) {
+          object.originalMaterial = object.material;
+          object.material = new MeshNormalMaterial();
+          object.material.skinning = object.originalMaterial.skinning;
+        }
+        if (
+          !normals &&
+          object.material instanceof MeshNormalMaterial &&
+          object.originalMaterial
+        ) {
+          object.material = object.originalMaterial;
+        }
+
+        object.material.wireframe = wireframe;
+        object.material.wireframeLinewidth = 2;
+      }
+
+      if (skeleton && object instanceof SkinnedMesh) {
+        const skeletonHelper = new SkeletonHelper(object);
+        skeletonHelper.material.linewidth = 3;
+        helpers.add(skeletonHelper);
+      }
     });
   }
 
   // export
 
   function exportOBJ() {
-    if (root instanceof THREE.SkinnedMesh) {
-      var snapshot = VSTOOLS.geometrySnapshot(root);
-      var exporter = new THREE.OBJExporter();
-      var mesh = new THREE.Mesh(snapshot, new THREE.MeshNormalMaterial());
-      exportString(exporter.parse(mesh));
-    }
-  }
+    const exporter = new OBJExporter();
 
-  function exportJSON() {
-    var t = obj.shp || obj;
-    var toExport = t.mesh.geometry;
-    var anim = t.seq || seq;
+    if (root instanceof SkinnedMesh) {
+      const clone = cloneMeshWithPose(root);
 
-    toExport.computeFaceNormals();
-
-    var output = {
-      metadata: {
-        formatVersion: 3.1,
-        type: 'Geometry',
-        generatedBy: 'vstools',
-        vertices: toExport.vertices.length,
-        faces: toExport.faces.length,
-        normals: toExport.faces.length,
-        colors: 0,
-        uvs: [toExport.faces.length],
-        materials: 0,
-        morphTargets: 0,
-        bones: toExport.bones.length,
-      },
-      materials: [
-        {
-          DbgColor: 15658734, // => 0xeeeeee
-          DbgIndex: 0,
-          DbgName: 'dummy',
-          colorDiffuse: [1, 0, 0],
-        },
-      ],
-
-      scale: 1.0,
-      vertices: flatten3(toExport.vertices),
-      morphTargets: [],
-      normals: normals(),
-      colors: [],
-      uvs: [uvs()],
-      faces: faces(toExport.faces),
-      bones: bones(toExport.bones),
-      influencesPerVertex: 2,
-      skinIndices: skin(toExport.skinIndices),
-      skinWeights: skin(toExport.skinWeights),
-      animations: animations(anim.animations),
-    };
-
-    output = JSON.stringify(output, null, '\t');
-    output = output.replace(/[\n\t]+([\d\.e\-\[\]]+)/g, '$1');
-    exportString(output);
-
-    function normals() {
-      var flat = [];
-      toExport.faces.forEach(function (f) {
-        flat.push(
-          f.vertexNormals[0].x,
-          f.vertexNormals[0].y,
-          f.vertexNormals[0].z
-        );
-        flat.push(
-          f.vertexNormals[1].x,
-          f.vertexNormals[1].y,
-          f.vertexNormals[1].z
-        );
-        flat.push(
-          f.vertexNormals[2].x,
-          f.vertexNormals[2].y,
-          f.vertexNormals[2].z
-        );
-      });
-      return flat;
-    }
-
-    function uvs() {
-      var flat = [];
-      toExport.faceVertexUvs[0].forEach(function (f) {
-        flat.push(f[2].x, f[2].y, f[1].x, f[1].y, f[0].x, f[0].y);
-      });
-      return flat;
-    }
-
-    function faces(arr) {
-      var flat = [];
-      var i = 0;
-      arr.forEach(function (f) {
-        flat.push(2 + 8 + 32, f.a, f.b, f.c, 0, f.a, f.b, f.c, f.a, f.b, f.c);
-        ++i;
-      });
-      return flat;
-    }
-
-    function bones(arr) {
-      return arr;
-    }
-
-    function flatten2(arr) {
-      var flat = [];
-      arr.forEach(function (v) {
-        flat.push(v.x, v.y);
-      });
-      return flat;
-    }
-
-    function flatten3(arr) {
-      var flat = [];
-      arr.forEach(function (v) {
-        flat.push(v.x, v.y, v.z);
-      });
-      return flat;
-    }
-
-    function skin(arr) {
-      var flat = [];
-      arr.forEach(function (v) {
-        flat.push(v.x, v.y);
-      });
-      return flat;
-    }
-
-    function animations(arr) {
-      return arr.map(function (a) {
-        delete a.animationData.initialized;
-        return quat2arr(a.animationData);
-      });
-    }
-
-    function quat2arr(q) {
-      if (q instanceof THREE.Quaternion) {
-        return [q.x, q.y, q.z, q.w];
-      } else if (q.forEach) {
-        for (var i = 0; i < q.length; ++i) {
-          q[i] = quat2arr(q[i]);
-        }
-      } else if (q !== null && typeof q === 'object') {
-        for (var p in q) {
-          if (q.hasOwnProperty(p)) q[p] = quat2arr(q[p]);
-        }
-      }
-
-      return q;
+      exportString(exporter.parse(clone));
+    } else {
+      exportString(exporter.parse(root));
     }
   }
 
   function exportString(output) {
-    var blob = new Blob([output], { type: 'text/plain' });
-    var objectURL = URL.createObjectURL(blob);
+    const blob = new Blob([output], { type: 'text/plain' });
+    const objectURL = URL.createObjectURL(blob);
 
     window.open(objectURL, '_blank');
     window.focus();
   }
-};
+}

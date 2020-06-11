@@ -1,4 +1,6 @@
-VSTOOLS.Collada = {
+import { SkinnedMesh } from './three.js';
+
+export const Collada = {
   export: function (root) {
     return '<?xml version="1.0" encoding="utf-8"?>\n' + this.COLLADA(root);
   },
@@ -41,8 +43,8 @@ VSTOOLS.Collada = {
   //
 
   library_animations: function (root) {
-    var self = this;
-    var animations = '';
+    const self = this;
+    let animations = '';
     root.traverse(function (node) {
       if (node.geometry) animations += self.animation(node.geometry) + '\n';
     });
@@ -52,15 +54,15 @@ VSTOOLS.Collada = {
     );
   },
 
-  animation: function (anim) {
-    return ['<animation name="" id="">', animations, '</animation>'].join('\n');
+  animation: function () {
+    return ['<animation name="" id="">', '</animation>'].join('\n');
   },
 
   //
 
   library_animation_clips: function (root) {
-    var self = this;
-    var animation_clips = '';
+    const self = this;
+    let animation_clips = '';
     root.traverse(function (node) {
       if (node.geometry)
         animation_clips += self.animation_clip(node.geometry) + '\n';
@@ -73,7 +75,7 @@ VSTOOLS.Collada = {
     ].join('\n');
   },
 
-  animation_clip: function (anim) {
+  animation_clip: function () {
     return [
       '<animation_clip id="" start="" end="">',
       '<instance_animation url=""/>',
@@ -83,18 +85,18 @@ VSTOOLS.Collada = {
 
   //
 
-  library_cameras: function (root) {
-    var cameras = '';
+  library_cameras: function () {
+    const cameras = '';
     return ['<library_cameras>', cameras, '</library_cameras>'].join('\n');
   },
 
   //
 
   library_controllers: function (root) {
-    var self = this;
-    var controllers = '';
+    const self = this;
+    let controllers = '';
     root.traverse(function (node) {
-      if (node instanceof THREE.SkinnedMesh)
+      if (node instanceof SkinnedMesh)
         controllers += self.controller_skin(node) + '\n';
     });
 
@@ -106,7 +108,7 @@ VSTOOLS.Collada = {
   },
 
   controller_skin: function (node) {
-    var id = 'skin' + node.id;
+    const id = 'skin' + node.id;
     return [
       '<controller id="' + id + '">',
       this.skin(node),
@@ -115,9 +117,9 @@ VSTOOLS.Collada = {
   },
 
   skin: function (node) {
-    var geometry = node.geometry;
-    var bones = node.skeleton.bones;
-    var id = 'skin' + node.id;
+    const geometry = node.geometry;
+    const bones = node.skeleton.bones;
+    const id = 'skin' + node.id;
     return [
       '<skin source="#geometry' + geometry.id + '">',
 
@@ -171,7 +173,7 @@ VSTOOLS.Collada = {
         '">',
       bones
         .map(function (bone) {
-          var m = bone.matrix.elements;
+          const m = bone.matrix.elements;
           return [
             m[0],
             m[1],
@@ -229,9 +231,10 @@ VSTOOLS.Collada = {
   },
 
   v: function (geometry) {
-    var list = [];
-    var weightIndex = 0;
-    for (var i = 0; i < geometry.vertices.length; ++i) {
+    const list = [];
+    let weightIndex = 0;
+
+    for (let i = 0; i < geometry.vertices.length; ++i) {
       list.push(
         [
           geometry.skinIndices[i].x,
@@ -245,12 +248,13 @@ VSTOOLS.Collada = {
         ].join(' ')
       );
     }
+
     return ['<v>', list.join('  '), '</v>'].join('\n');
   },
 
   //
 
-  library_effects: function (root) {
+  library_effects: function () {
     return ['<library_effects>', this.effect(), '</library_effects>'].join(
       '\n'
     );
@@ -307,8 +311,9 @@ VSTOOLS.Collada = {
   //
 
   library_geometries: function (root) {
-    var self = this;
-    var geometries = '';
+    const self = this;
+    let geometries = '';
+
     root.traverse(function (node) {
       if (node.geometry) geometries += self.geometry(node.geometry) + '\n';
     });
@@ -319,8 +324,9 @@ VSTOOLS.Collada = {
   },
 
   geometry: function (geometry) {
-    var id = 'geometry' + geometry.id;
-    var faceIndex = 0;
+    const id = 'geometry' + geometry.id;
+    let faceIndex = 0;
+
     return [
       '<geometry id="' + id + '" name="' + id + '">',
       '<mesh>',
@@ -439,15 +445,16 @@ VSTOOLS.Collada = {
 
   //
 
-  library_images: function (root) {
+  library_images: function () {
     return [].join('\n');
   },
 
   //
 
   library_materials: function (root) {
-    var self = this;
-    var materials = '';
+    const self = this;
+    let materials = '';
+
     root.traverse(function (node) {
       if (node.material) materials += self.material(node.material) + '\n';
     });

@@ -1,11 +1,12 @@
 {
   "name": "vstools",
   "version": "0.1.0",
-  "description": "A toolset for Vagrant Story (2000, Square), written in JavaScript with Three.js. Contains a mostly working model viewer.",
-  "main": "index.js",
+  "description": "A browser-based toolset for Vagrant Story (2000, Square). Contains a mostly working model viewer.",
+  "type": "module",
   "scripts": {
-    "format": "prettier --single-quote --write src/*.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "format": "prettier --single-quote --write src/*.js test/*.js",
+    "test": "node --experimental-loader ./test/loader.js test/test.js"
   },
   "repository": {
     "type": "git",
@@ -18,12 +19,12 @@
   },
   "homepage": "https://github.com/morris/vstools",
   "dependencies": {
-    "lame": "^1.2.4",
     "pngjs": "^3.3.3",
-    "speaker": "^0.3.0",
-    "three": "0.85.2"
+    "three": "0.117.1"
   },
   "devDependencies": {
+    "eslint": "^7.2.0",
+    "mocha": "^7.2.0",
     "prettier": "^2.0.5"
   }
 }

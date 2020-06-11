@@ -1,5 +1,5 @@
-VSTOOLS.Reader = function (data) {
-  var pos = 0;
+export function Reader(data) {
+  let pos = 0;
 
   function seek(i) {
     pos = i;
@@ -42,9 +42,9 @@ VSTOOLS.Reader = function (data) {
   }
 
   function buffer(len) {
-    var arr = new Array(len);
+    const arr = new Array(len);
 
-    for (var i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
       arr[i] = u8();
     }
 
@@ -72,4 +72,4 @@ VSTOOLS.Reader = function (data) {
   this.length = data.length;
 
   this.extend(this);
-};
+}

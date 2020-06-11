@@ -1,10 +1,13 @@
-VSTOOLS.MPD = function (reader, znd) {
+import { Object3D } from './three.js';
+import { MPDGroup } from './MPDGroup.js';
+
+export function MPD(reader, znd) {
   reader.extend(this);
 
   this.znd = znd;
-};
+}
 
-VSTOOLS.MPD.prototype.read = function () {
+MPD.prototype.read = function () {
   this.header();
   this.roomHeader();
   this.roomSection();
@@ -12,8 +15,8 @@ VSTOOLS.MPD.prototype.read = function () {
   //this.scriptSection();
 };
 
-VSTOOLS.MPD.prototype.header = function () {
-  var u32 = this.u32;
+MPD.prototype.header = function () {
+  const u32 = this.u32;
 
   this.ptrRoomSection = u32();
   this.lenRoomSection = u32();
@@ -29,8 +32,8 @@ VSTOOLS.MPD.prototype.header = function () {
   this.lenTreasureSection = u32();
 };
 
-VSTOOLS.MPD.prototype.roomHeader = function () {
-  var u32 = this.u32;
+MPD.prototype.roomHeader = function () {
+  const u32 = this.u32;
 
   this.lenGeometrySection = u32();
   this.lenCollisionSection = u32();
@@ -63,7 +66,7 @@ VSTOOLS.MPD.prototype.roomHeader = function () {
   this.lenSubSection18 = u32();
 };
 
-VSTOOLS.MPD.prototype.roomSection = function () {
+MPD.prototype.roomSection = function () {
   this.geometrySection();
   this.collisionSection();
   this.SubSection03();
@@ -90,159 +93,158 @@ VSTOOLS.MPD.prototype.roomSection = function () {
   this.SubSection18();
 };
 
-VSTOOLS.MPD.prototype.geometrySection = function () {
-  var u32 = this.u32;
+MPD.prototype.geometrySection = function () {
+  const u32 = this.u32;
 
-  var numGroups = (this.numGroups = u32());
+  this.numGroups = u32();
+  this.groups = [];
 
-  var groups = (this.groups = []);
-
-  for (var i = 0; i < numGroups; ++i) {
-    groups[i] = new VSTOOLS.MPDGroup(this.reader, this);
-    groups[i].header();
+  for (let i = 0; i < this.numGroups; ++i) {
+    this.groups[i] = new MPDGroup(this.reader, this);
+    this.groups[i].header();
   }
 
-  for (var i = 0; i < numGroups; ++i) {
-    groups[i].data();
+  for (let i = 0; i < this.numGroups; ++i) {
+    this.groups[i].data();
   }
 };
 
-VSTOOLS.MPD.prototype.collisionSection = function () {
+MPD.prototype.collisionSection = function () {
   this.skip(this.lenCollisionSection);
 };
 
-VSTOOLS.MPD.prototype.SubSection03 = function () {
+MPD.prototype.SubSection03 = function () {
   this.skip(this.lenSubSection03);
 };
 
-VSTOOLS.MPD.prototype.doorSectionRoom = function () {
+MPD.prototype.doorSectionRoom = function () {
   this.skip(this.lenDoorSectionRoom);
 };
 
-VSTOOLS.MPD.prototype.lightingSection = function () {
+MPD.prototype.lightingSection = function () {
   this.skip(this.lenLightingSection);
 };
 
-VSTOOLS.MPD.prototype.SubSection06 = function () {
+MPD.prototype.SubSection06 = function () {
   this.skip(this.lenSubSection06);
 };
 
-VSTOOLS.MPD.prototype.SubSection07 = function () {
+MPD.prototype.SubSection07 = function () {
   this.skip(this.lenSubSection07);
 };
 
-VSTOOLS.MPD.prototype.SubSection08 = function () {
+MPD.prototype.SubSection08 = function () {
   this.skip(this.lenSubSection08);
 };
 
-VSTOOLS.MPD.prototype.SubSection09 = function () {
+MPD.prototype.SubSection09 = function () {
   this.skip(this.lenSubSection09);
 };
 
-VSTOOLS.MPD.prototype.SubSection0A = function () {
+MPD.prototype.SubSection0A = function () {
   this.skip(this.lenSubSection0A);
 };
 
-VSTOOLS.MPD.prototype.SubSection0B = function () {
+MPD.prototype.SubSection0B = function () {
   this.skip(this.lenSubSection0B);
 };
 
-VSTOOLS.MPD.prototype.textureEffectsSection = function () {
+MPD.prototype.textureEffectsSection = function () {
   this.skip(this.lenTextureEffectsSection);
 };
 
-VSTOOLS.MPD.prototype.SubSection0D = function () {
+MPD.prototype.SubSection0D = function () {
   this.skip(this.lenSubSection0D);
 };
 
-VSTOOLS.MPD.prototype.SubSection0E = function () {
+MPD.prototype.SubSection0E = function () {
   this.skip(this.lenSubSection0E);
 };
 
-VSTOOLS.MPD.prototype.SubSection0F = function () {
+MPD.prototype.SubSection0F = function () {
   this.skip(this.lenSubSection0F);
 };
 
-VSTOOLS.MPD.prototype.SubSection10 = function () {
+MPD.prototype.SubSection10 = function () {
   this.skip(this.lenSubSection10);
 };
 
-VSTOOLS.MPD.prototype.SubSection11 = function () {
+MPD.prototype.SubSection11 = function () {
   this.skip(this.lenSubSection11);
 };
 
-VSTOOLS.MPD.prototype.SubSection12 = function () {
+MPD.prototype.SubSection12 = function () {
   this.skip(this.lenSubSection12);
 };
 
-VSTOOLS.MPD.prototype.SubSection13 = function () {
+MPD.prototype.SubSection13 = function () {
   this.skip(this.lenSubSection13);
 };
 
-VSTOOLS.MPD.prototype.akaoSubSection = function () {
+MPD.prototype.akaoSubSection = function () {
   this.skip(this.lenAKAOSubSection);
 };
 
-VSTOOLS.MPD.prototype.SubSection15 = function () {
+MPD.prototype.SubSection15 = function () {
   this.skip(this.lenSubSection15);
 };
 
-VSTOOLS.MPD.prototype.SubSection16 = function () {
+MPD.prototype.SubSection16 = function () {
   this.skip(this.lenSubSection16);
 };
 
-VSTOOLS.MPD.prototype.SubSection17 = function () {
+MPD.prototype.SubSection17 = function () {
   this.skip(this.lenSubSection17);
 };
 
-VSTOOLS.MPD.prototype.SubSection18 = function () {
+MPD.prototype.SubSection18 = function () {
   this.skip(this.lenSubSection18);
 };
 
-VSTOOLS.MPD.prototype.clearedSection = function () {
+MPD.prototype.clearedSection = function () {
   this.skip(this.lenClearedSection);
 };
 
-VSTOOLS.MPD.prototype.scriptSection = function () {
-  var u16 = this.u16,
+MPD.prototype.scriptSection = function () {
+  const u16 = this.u16,
     buffer = this.buffer;
 
-  var len = u16();
+  u16(); // len
 
   this.ptrDialogText = u16();
 
   this.skip(this.ptrDialogText);
 
-  var s = buffer(700);
-  var text = Text.convert(s, 700);
+  const s = buffer(700);
+  Text.convert(s, 700); // text
 };
 
 //
 
-VSTOOLS.MPD.prototype.build = function () {
-  var groups = this.groups,
+MPD.prototype.build = function () {
+  const groups = this.groups,
     numGroups = this.numGroups;
 
-  this.mesh = new THREE.Object3D();
+  this.mesh = new Object3D();
 
-  for (var i = 0; i < numGroups; ++i) {
-    var group = groups[i];
+  for (let i = 0; i < numGroups; ++i) {
+    const group = groups[i];
     group.build();
 
-    for (var id in group.meshes) {
+    for (const id in group.meshes) {
       this.mesh.add(group.meshes[id].mesh);
     }
   }
 };
 
-VSTOOLS.MPD.prototype.setMaterial = function (mat) {
-  var groups = this.groups,
+MPD.prototype.setMaterial = function (mat) {
+  const groups = this.groups,
     numGroups = this.numGroups;
 
-  for (var i = 0; i < numGroups; ++i) {
-    var group = groups[i];
+  for (let i = 0; i < numGroups; ++i) {
+    const group = groups[i];
 
-    for (var id in group.meshes) {
+    for (const id in group.meshes) {
       group.meshes[id].mesh.material = mat;
     }
   }

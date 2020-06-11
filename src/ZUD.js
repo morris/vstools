@@ -1,14 +1,18 @@
-VSTOOLS.ZUD = function (reader) {
-  reader.extend(this);
-};
+import { SHP } from './SHP.js';
+import { WEP } from './WEP.js';
+import { SEQ } from './SEQ.js';
 
-VSTOOLS.ZUD.prototype.read = function () {
+export function ZUD(reader) {
+  reader.extend(this);
+}
+
+ZUD.prototype.read = function () {
   this.header();
   this.data();
 };
 
-VSTOOLS.ZUD.prototype.header = function () {
-  var u8 = this.u8,
+ZUD.prototype.header = function () {
+  const u8 = this.u8,
     u32 = this.u32,
     skip = this.skip;
 
@@ -32,17 +36,17 @@ VSTOOLS.ZUD.prototype.header = function () {
   this.lenBattleSEQ = u32();
 };
 
-VSTOOLS.ZUD.prototype.data = function () {
-  var reader = this.reader,
+ZUD.prototype.data = function () {
+  const reader = this.reader,
     seek = this.seek;
 
-  this.shp = new VSTOOLS.SHP(reader);
+  this.shp = new SHP(reader);
   this.shp.read();
 
   seek(this.ptrWeaponWEP);
 
   try {
-    this.weapon = new VSTOOLS.WEP(reader);
+    this.weapon = new WEP(reader);
     this.weapon.read();
   } catch (ex) {
     this.weapon = null;
@@ -51,7 +55,7 @@ VSTOOLS.ZUD.prototype.data = function () {
   seek(this.ptrShieldWEP);
 
   try {
-    this.shield = new VSTOOLS.WEP(reader);
+    this.shield = new WEP(reader);
     this.shield.read();
   } catch (ex) {
     this.shield = null;
@@ -60,7 +64,7 @@ VSTOOLS.ZUD.prototype.data = function () {
   seek(this.ptrCommonSEQ);
 
   try {
-    this.com = new VSTOOLS.SEQ(reader, this.shp);
+    this.com = new SEQ(reader, this.shp);
     this.com.read();
   } catch (ex) {
     this.com = null;
@@ -69,14 +73,14 @@ VSTOOLS.ZUD.prototype.data = function () {
   seek(this.ptrBattleSEQ);
 
   try {
-    this.bt = new VSTOOLS.SEQ(reader, this.shp);
+    this.bt = new SEQ(reader, this.shp);
     this.bt.read();
   } catch (ex) {
     this.bt = null;
   }
 };
 
-VSTOOLS.ZUD.prototype.build = function () {
+ZUD.prototype.build = function () {
   this.shp.build();
 
   if (this.weapon) this.weapon.build();
@@ -87,6 +91,6 @@ VSTOOLS.ZUD.prototype.build = function () {
   this.mesh = this.shp.mesh;
 };
 
-VSTOOLS.ZUD.prototype.geometrySnapshot = function () {
+ZUD.prototype.geometrySnapshot = function () {
   return this.shp.geometrySnapshot();
 };

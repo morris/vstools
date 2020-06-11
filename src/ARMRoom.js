@@ -1,14 +1,19 @@
-VSTOOLS.ARMRoom = function (reader) {
+import {
+  Vector3,
+  Float32BufferAttribute,
+  BufferGeometry,
+  Mesh,
+  MeshNormalMaterial,
+  LineBasicMaterial,
+  LineSegments,
+} from './three.js';
+
+export function ARMRoom(reader) {
   reader.extend(this);
-};
+}
 
-VSTOOLS.ARMRoom.prototype.read = function () {
-  this.header();
-  this.graphics();
-};
-
-VSTOOLS.ARMRoom.prototype.header = function () {
-  var u16 = this.u16,
+ARMRoom.prototype.header = function () {
+  const u16 = this.u16,
     u32 = this.u32;
 
   this.u1 = u32();
@@ -17,54 +22,53 @@ VSTOOLS.ARMRoom.prototype.header = function () {
   this.mapNumber = u16();
 };
 
-VSTOOLS.ARMRoom.prototype.graphics = function () {
-  var u8 = this.u8,
+ARMRoom.prototype.graphics = function () {
+  const u8 = this.u8,
     s16 = this.s16,
     u32 = this.u32,
     skip = this.skip;
-  var i;
 
-  var numVertices = (this.numVertices = u32());
-  var vertices = (this.vertices = []);
+  this.numVertices = u32();
+  this.vertices = [];
 
-  for (i = 0; i < numVertices; ++i) {
-    vertices.push(new THREE.Vector3(s16(), s16(), s16()));
+  for (let i = 0; i < this.numVertices; ++i) {
+    this.vertices.push(new Vector3(s16(), s16(), s16()));
     skip(2); // zero padding
   }
 
-  var numTriangles = (this.numTriangles = u32());
-  var triangles = (this.triangles = []);
+  this.numTriangles = u32();
+  this.triangles = [];
 
-  for (i = 0; i < numTriangles; ++i) {
-    triangles.push(readIndices());
+  for (let i = 0; i < this.numTriangles; ++i) {
+    this.triangles.push(readIndices());
   }
 
-  var numQuads = (this.numQuads = u32());
-  var quads = (this.quads = []);
+  this.numQuads = u32();
+  this.quads = [];
 
-  for (i = 0; i < numQuads; ++i) {
-    quads.push(readIndices());
+  for (let i = 0; i < this.numQuads; ++i) {
+    this.quads.push(readIndices());
   }
 
-  var numFloorLines = (this.numFloorLines = u32());
-  var floorLines = (this.floorLines = []);
+  this.numFloorLines = u32();
+  this.floorLines = [];
 
-  for (i = 0; i < numFloorLines; ++i) {
-    floorLines.push(readIndices());
+  for (let i = 0; i < this.numFloorLines; ++i) {
+    this.floorLines.push(readIndices());
   }
 
-  var numWallLines = (this.numWallLines = u32());
-  var wallLines = (this.wallLines = []);
+  this.numWallLines = u32();
+  this.wallLines = [];
 
-  for (i = 0; i < numWallLines; ++i) {
-    wallLines.push(readIndices());
+  for (let i = 0; i < this.numWallLines; ++i) {
+    this.wallLines.push(readIndices());
   }
 
-  var numDoors = (this.numDoors = u32());
-  var doors = (this.doors = []);
+  this.numDoors = u32();
+  this.doors = [];
 
-  for (i = 0; i < numDoors; ++i) {
-    doors.push(readIndices());
+  for (let i = 0; i < this.numDoors; ++i) {
+    this.doors.push(readIndices());
   }
 
   function readIndices() {
@@ -72,105 +76,134 @@ VSTOOLS.ARMRoom.prototype.graphics = function () {
   }
 };
 
-VSTOOLS.ARMRoom.prototype.name = function () {
+ARMRoom.prototype.name = function () {
   this.skip(0x24);
   //this.name = text( 0x24 );
 };
 
-VSTOOLS.ARMRoom.prototype.build = function () {
+ARMRoom.prototype.build = function () {
   this.buildMesh();
   this.buildLines();
 };
 
-VSTOOLS.ARMRoom.prototype.buildMesh = function () {
-  var numTriangles = this.numTriangles;
-  var numQuads = this.numQuads;
+ARMRoom.prototype.buildMesh = function () {
+  const position = [];
+  const normal = [];
+  const index = [];
 
-  var roomVertices = this.vertices;
-  var triangles = this.triangles;
-  var quads = this.quads;
+  let iv = 0;
 
-  var geometry = (this.geometry = new THREE.Geometry());
-  var vertices = geometry.vertices;
-  var faces = geometry.faces;
+  for (let i = 0; i < this.numTriangles; ++i) {
+    const p = this.triangles[i];
 
-  var iv = 0;
+    const v1 = this.vertices[p[0]];
+    const v2 = this.vertices[p[1]];
+    const v3 = this.vertices[p[2]];
 
-  for (var i = 0; i < numTriangles; ++i) {
-    var p = triangles[i];
+    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
 
-    var v1 = roomVertices[p[0]];
-    var v2 = roomVertices[p[1]];
-    var v3 = roomVertices[p[2]];
-
-    vertices.push(v1, v2, v3);
-
-    // compute normal
-    var n = new THREE.Vector3().subVectors(v2, v1);
-    n.cross(new THREE.Vector3().subVectors(v3, v1));
+    const n = new Vector3().subVectors(v2, v1);
+    n.cross(new Vector3().subVectors(v3, v1));
     n.normalize();
     n.negate();
 
-    faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0, n));
+    normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
+
+    index.push(iv + 2, iv + 1, iv + 0);
 
     iv += 3;
   }
 
-  for (var i = 0; i < numQuads; ++i) {
-    var p = quads[i];
+  for (let i = 0; i < this.numQuads; ++i) {
+    const p = this.quads[i];
 
-    var v1 = roomVertices[p[0]];
-    var v2 = roomVertices[p[1]];
-    var v3 = roomVertices[p[2]];
-    var v4 = roomVertices[p[3]];
+    const v1 = this.vertices[p[0]];
+    const v2 = this.vertices[p[1]];
+    const v3 = this.vertices[p[2]];
+    const v4 = this.vertices[p[3]];
 
-    vertices.push(v1, v2, v3, v4);
+    position.push(
+      v1.x,
+      v1.y,
+      v1.z,
+      v2.x,
+      v2.y,
+      v2.z,
+      v3.x,
+      v3.y,
+      v3.z,
+      v4.x,
+      v4.y,
+      v4.z
+    );
 
-    // compute normal
-    var n = new THREE.Vector3().subVectors(v2, v1);
-    n.cross(new THREE.Vector3().subVectors(v3, v1));
+    const n = new Vector3().subVectors(v2, v1);
+    n.cross(new Vector3().subVectors(v3, v1));
     n.normalize();
     n.negate();
 
-    // 321
-    faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0, n));
-    // 432
-    faces.push(new THREE.Face3(iv + 0, iv + 3, iv + 2, n));
+    normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
+
+    index.push(iv + 2, iv + 1, iv + 0);
+    index.push(iv + 0, iv + 3, iv + 2);
 
     iv += 4;
   }
 
-  var material = (this.material = new THREE.MeshNormalMaterial());
-  this.mesh = new THREE.Mesh(geometry, material);
+  this.geometry = new BufferGeometry();
+  this.geometry.setAttribute(
+    'position',
+    new Float32BufferAttribute(position, 3)
+  );
+  this.geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
+  this.geometry.setIndex(index);
+
+  this.material = new MeshNormalMaterial();
+  this.mesh = new Mesh(this.geometry, this.material);
 };
 
-VSTOOLS.ARMRoom.prototype.buildLines = function () {
-  var geometry = (this.lineGeometry = new THREE.Geometry());
-  var vertices = geometry.vertices;
+ARMRoom.prototype.buildLines = function () {
+  const position = [];
+  const index = [];
 
-  var numFloorLines = this.numFloorLines;
-  var numWallLines = this.numWallLines;
-  var floorLines = this.floorLines;
-  var wallLines = this.wallLines;
+  let iv = 0;
 
-  for (var i = 0; i < numFloorLines; ++i) {
-    var p = floorLines[i];
+  for (let i = 0; i < this.numFloorLines; ++i) {
+    const p = this.floorLines[i];
 
-    var v1 = this.vertices[p[0]];
-    var v2 = this.vertices[p[1]];
-    vertices.push(v1, v2);
+    const v1 = this.vertices[p[0]];
+    const v2 = this.vertices[p[1]];
+
+    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+
+    index.push(iv + 0, iv + 1);
+
+    iv += 2;
   }
 
-  for (var i = 0; i < numWallLines; ++i) {
-    var p = wallLines[i];
+  for (let i = 0; i < this.numWallLines; ++i) {
+    const p = this.wallLines[i];
 
-    var v1 = this.vertices[p[0]];
-    var v2 = this.vertices[p[1]];
-    vertices.push(v1, v2);
+    const v1 = this.vertices[p[0]];
+    const v2 = this.vertices[p[1]];
+
+    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+
+    index.push(iv + 0, iv + 1);
+
+    iv += 2;
   }
 
-  var material = (this.lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x333333,
-  }));
-  this.lines = new THREE.LineSegments(geometry, material);
+  this.lineGeometry = new BufferGeometry();
+  this.lineGeometry.setAttribute(
+    'position',
+    new Float32BufferAttribute(position, 3)
+  );
+  this.lineGeometry.setIndex(index);
+
+  this.lineMaterial = new LineBasicMaterial({
+    color: 0x000000,
+    linewidth: 2,
+  });
+  this.lines = new LineSegments(this.lineGeometry, this.lineMaterial);
 };

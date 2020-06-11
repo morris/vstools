@@ -1,15 +1,18 @@
-VSTOOLS.SEQAnimation = function (reader, seq) {
+import { AnimationClip } from './three.js';
+import { rot13toRad, rot2quat, TimeScale } from './VSTOOLS.js';
+
+export function SEQAnimation(reader, seq) {
   reader.extend(this);
 
   this.seq = seq;
-};
+}
 
-VSTOOLS.SEQAnimation.prototype.header = function (id) {
-  var u8 = this.u8,
+SEQAnimation.prototype.header = function (id) {
+  const u8 = this.u8,
     s8 = this.s8,
     u16 = this.u16,
     skip = this.skip;
-  var seq = this.seq;
+  const seq = this.seq;
 
   this.id = id;
   this.length = u16(); // 2
@@ -31,35 +34,33 @@ VSTOOLS.SEQAnimation.prototype.header = function (id) {
   // read pointers to pose and keyframes for individual bones
   this.ptrBones = [];
 
-  for (var i = 0; i < seq.numBones; ++i) {
-    var ptr = u16();
+  let i;
+
+  for (i = 0; i < seq.numBones; ++i) {
+    const ptr = u16();
     this.ptrBones.push(ptr);
   } // 10 + numBones * 2
 
-  for (var i = 0; i < seq.numBones; ++i) {
+  for (i = 0; i < seq.numBones; ++i) {
     // TODO is this 0 for all SEQ?
     skip(2);
   } // 10 + numBones * 4
 };
 
-VSTOOLS.SEQAnimation.prototype.data = function () {
-  var u8 = this.u8,
-    s8 = this.s8,
-    u16 = this.u16,
-    s16big = this.s16big,
-    skip = this.skip,
+SEQAnimation.prototype.data = function () {
+  const s16big = this.s16big,
     seek = this.seek;
 
-  var seq = this.seq;
-  var shp = seq.shp;
+  const seq = this.seq;
+  //const shp = seq.shp;
 
   // read translation
   // big endian
   seek(seq.ptrData(this.ptrTranslation));
 
-  var x = s16big();
-  var y = s16big();
-  var z = s16big();
+  s16big(); // x
+  s16big(); // y
+  s16big(); // z
 
   // TODO implement move
 
@@ -76,7 +77,7 @@ VSTOOLS.SEQAnimation.prototype.data = function () {
   this.keyframes = [];
 
   // read base pose and keyframes
-  for (var i = 0; i < seq.numBones; ++i) {
+  for (let i = 0; i < seq.numBones; ++i) {
     this.keyframes.push([[0, 0, 0, 0]]);
 
     seek(seq.ptrData(this.base.ptrBones[i]));
@@ -86,29 +87,23 @@ VSTOOLS.SEQAnimation.prototype.data = function () {
   }
 };
 
-VSTOOLS.SEQAnimation.prototype.readPose = function (i) {
-  var s16big = this.s16big;
+SEQAnimation.prototype.readPose = function (i) {
+  const s16big = this.s16big;
 
   // big endian! but... WHY?!
-  var rx = s16big(),
+  const rx = s16big(),
     ry = s16big(),
     rz = s16big();
 
   this.pose[i] = [rx, ry, rz];
 };
 
-VSTOOLS.SEQAnimation.prototype.readKeyframes = function (i) {
-  var u8 = this.u8,
-    s8 = this.s8,
-    s16big = this.s16big,
-    skip = this.skip,
-    seek = this.seek;
+SEQAnimation.prototype.readKeyframes = function (i) {
+  let f = 0;
 
-  var f = 0,
-    t;
-
+  // eslint-disable-next-line no-constant-condition
   while (true) {
-    var op = this.readOpcode();
+    const op = this.readOpcode();
 
     if (!op) break;
 
@@ -124,18 +119,17 @@ VSTOOLS.SEQAnimation.prototype.readKeyframes = function (i) {
 // this is basically 0xafe90 to 0xb0000
 // reads one opcode and its X, Y, Z, T values
 // this is actually used for rotations AND a few translations
-VSTOOLS.SEQAnimation.prototype.readOpcode = function () {
-  var u8 = this.u8,
+SEQAnimation.prototype.readOpcode = function () {
+  const u8 = this.u8,
     s8 = this.s8,
     s16big = this.s16big;
 
-  var op = u8();
-  var op0 = op;
+  let op = u8();
 
   if (op === 0) return null;
 
   // results
-  var x = null,
+  let x = null,
     y = null,
     z = null,
     f = null;
@@ -165,7 +159,7 @@ VSTOOLS.SEQAnimation.prototype.readOpcode = function () {
 
     op = op << 3;
 
-    var h = s16big();
+    const h = s16big();
 
     if ((h & 0x4) > 0) {
       x = h >> 3;
@@ -211,31 +205,31 @@ VSTOOLS.SEQAnimation.prototype.readOpcode = function () {
   return [x, y, z, f];
 };
 
-VSTOOLS.SEQAnimation.prototype.build = function () {
-  var seq = this.seq;
-  var shp = seq.shp;
-  var numBones = seq.numBones;
-  var hierarchy = [];
-  var rad = VSTOOLS.rot13toRad;
+SEQAnimation.prototype.build = function () {
+  const seq = this.seq;
+  const shp = seq.shp;
+  const numBones = seq.numBones;
+  const hierarchy = [];
+  let i;
 
   // rotation bones
 
-  for (var i = 0; i < numBones; ++i) {
-    var keyframes = this.keyframes[i];
-    var pose = this.pose[i];
+  for (i = 0; i < numBones; ++i) {
+    const keyframes = this.keyframes[i];
+    const pose = this.pose[i];
 
     // multiplication by two at 0xad25c, 0xad274, 0xad28c
-    var rx = pose[0] * 2;
-    var ry = pose[1] * 2;
-    var rz = pose[2] * 2;
+    let rx = pose[0] * 2;
+    let ry = pose[1] * 2;
+    let rz = pose[2] * 2;
 
-    var keys = [];
-    var t = 0;
+    const keys = [];
+    let t = 0;
 
-    for (var j = 0, l = keyframes.length; j < l; ++j) {
-      var keyframe = keyframes[j];
+    for (let j = 0, l = keyframes.length; j < l; ++j) {
+      const keyframe = keyframes[j];
 
-      var f = keyframe[3];
+      const f = keyframe[3];
 
       t += f;
 
@@ -247,10 +241,10 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
       ry += keyframe[1] * f;
       rz += keyframe[2] * f;
 
-      var q = VSTOOLS.rot2quat(rad(rx), rad(ry), rad(rz));
+      const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
 
       keys.push({
-        time: t * VSTOOLS.TimeScale,
+        time: t * TimeScale,
         pos: [0, 0, 0],
         rot: [q.x, q.y, q.z, q.w],
         scl: [1, 1, 1],
@@ -275,7 +269,7 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
 
   // translation bones
 
-  for (var i = 1; i < numBones; ++i) {
+  for (i = 1; i < numBones; ++i) {
     hierarchy.push({
       keys: [
         {
@@ -288,15 +282,15 @@ VSTOOLS.SEQAnimation.prototype.build = function () {
     });
   }
 
-  var data = (this.animationData = {
+  this.animationData = {
     name: 'Animation' + this.id,
     fps: 25,
-    length: this.length * VSTOOLS.TimeScale,
-    hierarchy: hierarchy,
-  });
+    length: this.length * TimeScale,
+    hierarchy,
+  };
 
-  this.animationClip = new THREE.AnimationClip.parseAnimation(
-    data,
+  this.animationClip = new AnimationClip.parseAnimation(
+    this.animationData,
     shp.mesh.skeleton.bones
   );
 };

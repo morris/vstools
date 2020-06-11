@@ -1,12 +1,12 @@
-VSTOOLS.Akao = function (reader) {
+export function Akao(reader) {
   reader.extend(this);
-};
+}
 
-VSTOOLS.Akao.prototype.read = function () {
-  var u8 = this.u8,
+Akao.prototype.read = function () {
+  const u8 = this.u8,
     u16 = this.u16,
     u32 = this.u32;
-  var skip = this.skip,
+  const skip = this.skip,
     seek = this.seek,
     pos = this.pos;
 
@@ -15,29 +15,31 @@ VSTOOLS.Akao.prototype.read = function () {
   this.length = u16(); // 8
   skip(8); // unknown, 16
 
-  var mask = (this.channelMask = u32());
-  var channels = (this.channels = []);
+  const mask = (this.channelMask = u32());
+  const channels = (this.channels = []);
 
-  for (var i = 0; i < 32; ++i) {
+  for (let i = 0; i < 32; ++i) {
     if ((mask >> i) & (1 === 1)) {
       channels.push({ c: i, ops: [] });
     }
   }
 
-  var offset = (this.offset = pos());
+  const offset = (this.offset = pos());
 
   channels.forEach(function (channel) {
     channel.offset = u16();
   });
 
   channels.forEach(function (channel) {
-    var ops = channel.ops;
+    const ops = channel.ops;
     seek(offset + channel.offset);
 
-    var done = false;
+    let done = false;
+
+    // eslint-disable-next-line no-constant-condition
     while (true) {
-      var op = u8();
-      var params = [];
+      const op = u8();
+      const params = [];
 
       switch (op) {
         case 0xc8:

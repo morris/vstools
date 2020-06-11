@@ -1,18 +1,20 @@
-VSTOOLS.WEPFace = function (reader) {
+import { hex } from './VSTOOLS.js';
+
+export function WEPFace(reader) {
   reader.extend(this);
 
   this.read = function () {
-    var u8 = this.u8,
+    const u8 = this.u8,
       u16 = this.u16;
 
-    var type = (this.type = u8()); // 1
+    this.type = u8(); // 1
 
-    if (type === 0x24) {
+    if (this.type === 0x24) {
       // triangle
-    } else if (type === 0x2c) {
+    } else if (this.type === 0x2c) {
       // quad
     } else {
-      throw new Error('Unknown face type: ' + VSTOOLS.hex(type));
+      throw new Error('Unknown face type: ' + hex(this.type));
     }
 
     this.size = u8(); // 2
@@ -49,4 +51,4 @@ VSTOOLS.WEPFace = function (reader) {
   this.double = function () {
     return this.info === 0x5;
   };
-};
+}

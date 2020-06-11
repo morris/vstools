@@ -1,21 +1,23 @@
-VSTOOLS.SHP = function (reader) {
-  VSTOOLS.WEP.call(this, reader);
-};
+import { WEP } from './WEP.js';
 
-VSTOOLS.SHP.prototype = Object.create(VSTOOLS.WEP.prototype);
+export function SHP(reader) {
+  WEP.call(this, reader);
+}
 
-VSTOOLS.SHP.prototype.read = function () {
+SHP.prototype = Object.create(WEP.prototype);
+
+SHP.prototype.read = function () {
   this.header();
   this.data();
 };
 
-VSTOOLS.SHP.prototype.header = function () {
-  var u8 = this.u8,
-    s8 = this.s8,
+SHP.prototype.header = function () {
+  const u8 = this.u8,
     u16 = this.u16,
     s16 = this.s16,
     u32 = this.u32,
     skip = this.skip;
+  let i;
 
   this.header1(); // inherited from WEP
 
@@ -24,7 +26,7 @@ VSTOOLS.SHP.prototype.header = function () {
   this.width = [];
   this.height = [];
 
-  for (var i = 0; i < 8; ++i) {
+  for (i = 0; i < 8; ++i) {
     this.overlayX.push(u8());
     this.overlayY.push(u8());
     this.width.push(u8());
@@ -47,17 +49,17 @@ VSTOOLS.SHP.prototype.header = function () {
   skip(8);
 
   this.animLBAs = [];
-  for (var i = 0; i < 0xc; ++i) {
+  for (i = 0; i < 0xc; ++i) {
     this.animLBAs.push(u32());
   }
 
   this.chainIds = [];
-  for (var i = 0; i < 0xc; ++i) {
+  for (i = 0; i < 0xc; ++i) {
     this.chainIds.push(u16());
   }
 
   this.specialLBAs = [];
-  for (var i = 0; i < 4; ++i) {
+  for (i = 0; i < 4; ++i) {
     this.specialLBAs.push(u32());
   }
 
@@ -74,9 +76,8 @@ VSTOOLS.SHP.prototype.header = function () {
   this.bonePtr = 0x138;
 };
 
-VSTOOLS.SHP.prototype.data = function () {
-  var u16 = this.u16,
-    u32 = this.u32,
+SHP.prototype.data = function () {
+  const u32 = this.u32,
     skip = this.skip;
 
   // inherited
@@ -90,7 +91,7 @@ VSTOOLS.SHP.prototype.data = function () {
 
   // skip magic section
   skip(4);
-  var length = u32();
+  const length = u32();
   skip(length);
 
   // inherited

@@ -1,16 +1,18 @@
-VSTOOLS.SEQ = function (reader, shp) {
+import { SEQAnimation } from './SEQAnimation.js';
+
+export function SEQ(reader, shp) {
   reader.extend(this);
 
   this.shp = shp;
-};
+}
 
-VSTOOLS.SEQ.prototype.read = function () {
+SEQ.prototype.read = function () {
   this.header();
   this.data();
 };
 
-VSTOOLS.SEQ.prototype.header = function () {
-  var u8 = this.u8,
+SEQ.prototype.header = function () {
+  const u8 = this.u8,
     u16 = this.u16,
     u32 = this.u32,
     skip = this.skip;
@@ -31,24 +33,23 @@ VSTOOLS.SEQ.prototype.header = function () {
   this.dataPtr = this.slotPtr + this.numSlots; // ptr to rotation and keyframe data
 };
 
-VSTOOLS.SEQ.prototype.data = function () {
-  var s8 = this.s8,
-    skip = this.skip;
+SEQ.prototype.data = function () {
+  const s8 = this.s8;
 
-  var dataPtr = this.dataPtr,
+  const dataPtr = this.dataPtr,
     numBones = this.numBones,
     numSlots = this.numSlots;
 
   // number of animations has to be computed
-  //                                         length of all headers     /   length of one animation header
-  var numAnimations = (this.numAnimations =
+  // length of all headers / length of one animation header
+  const numAnimations = (this.numAnimations =
     (dataPtr - numSlots - 16) / (numBones * 4 + 10));
 
   // read animation headers
-  var animations = (this.animations = []);
+  const animations = (this.animations = []);
 
-  for (var i = 0; i < numAnimations; ++i) {
-    var animation = new VSTOOLS.SEQAnimation(this.reader, this);
+  for (let i = 0; i < numAnimations; ++i) {
+    const animation = new SEQAnimation(this.reader, this);
     animation.header(i);
 
     animations.push(animation);
@@ -57,27 +58,27 @@ VSTOOLS.SEQ.prototype.data = function () {
   // read 'slots'
   // these are animation ids, can be used as in this.animations[ id ].
   // purpose unknown
-  var slots = (this.slots = []);
+  const slots = (this.slots = []);
 
-  for (var i = 0; i < numSlots; ++i) {
+  for (let i = 0; i < numSlots; ++i) {
     slots[i] = s8();
   }
 
   // read animation data
-  for (var i = 0; i < numAnimations; ++i) {
+  for (let i = 0; i < numAnimations; ++i) {
     animations[i].data();
   }
 };
 
-VSTOOLS.SEQ.prototype.build = function () {
-  var numAnimations = this.numAnimations,
+SEQ.prototype.build = function () {
+  const numAnimations = this.numAnimations,
     animations = this.animations;
 
-  for (var i = 0; i < numAnimations; ++i) {
+  for (let i = 0; i < numAnimations; ++i) {
     animations[i].build();
   }
 };
 
-VSTOOLS.SEQ.prototype.ptrData = function (i) {
+SEQ.prototype.ptrData = function (i) {
   return i + this.dataPtr + this.basePtr;
 };

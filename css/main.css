@@ -10,7 +10,7 @@ body {
 	overflow: hidden;
 }
 
-#sidebar {
+.ui-sidebar {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -22,49 +22,37 @@ body {
 	background: #ccc;
 }
 
-	#sidebar .panel {
-		padding: 0 10px;
+.ui-panel {
+  padding: 0 10px;
+  border-bottom: 1px solid #aaa;
+}
 
-		border-bottom: 1px solid #aaa;
-	}
+.ui-panel > h2 {
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: uppercase;
+  color: #666;
+  cursor: pointer;
+}
 
-		#sidebar .panel h2 {
+.ui-panel > h2:before {
+  content: '- ';
+  display: inline-block;
+  width: 12px;
+}
 
-			font-size: 12px;
-			font-weight: normal;
-			text-transform: uppercase;
-			color: #666;
+.ui-panel.collapsed > h2:before {
+  content: '+ ';
+}
 
-			cursor: pointer;
-		}
+.ui-panel.collapsed > p,
+.ui-panel.collapsed > div {
+  display: none;
+}
 
-		#sidebar .panel h2:before {
-			content: '- ';
-			display: inline-block;
-			width: 12px;
-		}
-
-		#sidebar .panel h2.collapsed:before {
-			content: '+ ';
-		}
-
-			#sidebar .panel h2.collapsed ~ p,
-			#sidebar .panel h2.collapsed ~ div {
-				display: none;
-			}
-
-#textures img {
+.textures img {
 	width: 150px;
 	margin: 0 10px 10px 0;
-	image-rendering: -moz-crisp-edges;
-	image-rendering: crisp-edges;
-}
-
-#image {
-	margin-right: 360px;
-}
-
-#image img:only-child {
 	image-rendering: -moz-crisp-edges;
 	image-rendering: crisp-edges;
 }

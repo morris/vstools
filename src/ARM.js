@@ -1,41 +1,43 @@
-VSTOOLS.ARM = function (reader) {
+import { Object3D } from './three.js';
+import { ARMRoom } from './ARMRoom.js';
+
+export function ARM(reader) {
   reader.extend(this);
-};
+}
 
-VSTOOLS.ARM.prototype.read = function () {
-  var u32 = this.u32;
+ARM.prototype.read = function () {
+  const u32 = this.u32;
 
-  var numRooms = (this.numRooms = u32());
-  var rooms = (this.rooms = []);
+  this.numRooms = u32();
+  this.rooms = [];
 
   // headers
-  for (var i = 0; i < numRooms; ++i) {
-    var room = new VSTOOLS.ARMRoom(this.reader);
+  for (let i = 0; i < this.numRooms; ++i) {
+    const room = new ARMRoom(this.reader);
     room.header();
-    rooms.push(room);
+    this.rooms.push(room);
   }
 
   // graphics
-  for (var i = 0; i < numRooms; ++i) {
-    rooms[i].graphics();
+  for (let i = 0; i < this.numRooms; ++i) {
+    this.rooms[i].graphics();
   }
 
   // names
-  for (var i = 0; i < numRooms; ++i) {
-    rooms[i].name();
+  for (let i = 0; i < this.numRooms; ++i) {
+    this.rooms[i].name();
   }
 };
 
-VSTOOLS.ARM.prototype.build = function () {
-  var object = (this.object = new THREE.Object3D());
-  var numRooms = this.numRooms;
+ARM.prototype.build = function () {
+  this.object = new Object3D();
 
-  for (var i = 0; i < numRooms; ++i) {
-    var room = this.rooms[i];
+  for (let i = 0; i < this.numRooms; ++i) {
+    const room = this.rooms[i];
     room.build();
-    object.add(room.mesh);
-    object.add(room.lines);
+    this.object.add(room.mesh);
+    this.object.add(room.lines);
   }
 
-  object.rotation.x = Math.PI;
+  this.object.rotation.x = Math.PI;
 };

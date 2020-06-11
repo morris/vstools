@@ -1,21 +1,25 @@
-VSTOOLS.FrameBuffer = function () {
-  var width = 1024;
-  var height = 512;
+import {
+  DataTexture,
+  NearestFilter,
+  MeshBasicMaterial,
+  Mesh,
+  BoxGeometry,
+  RGBAFormat,
+} from './three.js';
+
+export function FrameBuffer() {
+  const width = 1024;
+  const height = 512;
 
   this.buffer = new Uint8Array(width * height * 4);
 
-  this.texture = new THREE.DataTexture(
-    this.buffer,
-    width,
-    height,
-    THREE.RGBAFormat
-  );
-  this.texture.magFilter = THREE.NearestFilter;
-  this.texture.minFilter = THREE.NearestFilter;
+  this.texture = new DataTexture(this.buffer, width, height, RGBAFormat);
+  this.texture.magFilter = NearestFilter;
+  this.texture.minFilter = NearestFilter;
 
   this.setPixel = function (x, y, c) {
-    var buffer = this.buffer;
-    var i = (y * width + x) * 4;
+    const buffer = this.buffer;
+    const i = (y * width + x) * 4;
 
     buffer[i + 0] = c[0];
     buffer[i + 1] = c[1];
@@ -26,29 +30,26 @@ VSTOOLS.FrameBuffer = function () {
   };
 
   this.build = function () {
-    this.material = new THREE.MeshBasicMaterial({
+    this.material = new MeshBasicMaterial({
       map: this.texture,
-      shading: THREE.FlatShading,
+      flatShading: true,
       transparent: false,
     });
 
-    //this.material = new THREE.MeshNormalMaterial();
+    //this.material = new MeshNormalMaterial();
 
-    this.mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(500, 250, 1),
-      this.material
-    );
+    this.mesh = new Mesh(new BoxGeometry(500, 250, 1), this.material);
     this.mesh.position.z = -120;
   };
 
   // debug
 
   this.markCLUT = function (id) {
-    var buffer = this.buffer;
-    var ilo = id * 64;
-    var ihi = ilo + 64;
+    const buffer = this.buffer;
+    const ilo = id * 64;
+    //const ihi = ilo + 64;
 
-    for (var i = ilo; i < ilo + 4; i += 4) {
+    for (let i = ilo; i < ilo + 4; i += 4) {
       buffer[i + 0] = 255;
       buffer[i + 1] = 0;
       buffer[i + 2] = 0;
@@ -57,4 +58,4 @@ VSTOOLS.FrameBuffer = function () {
 
     this.texture.needsUpdate = true;
   };
-};
+}

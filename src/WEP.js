@@ -1,14 +1,28 @@
-VSTOOLS.WEP = function (reader) {
-  reader.extend(this);
-};
+import {
+  BufferGeometry,
+  Skeleton,
+  Float32BufferAttribute,
+  MeshBasicMaterial,
+  SkinnedMesh,
+  Bone,
+} from './three.js';
+import { WEPVertex } from './WEPVertex.js';
+import { WEPBone } from './WEPBone.js';
+import { WEPFace } from './WEPFace.js';
+import { WEPGroup } from './WEPGroup.js';
+import { WEPTextureMap } from './WEPTextureMap.js';
 
-VSTOOLS.WEP.prototype.read = function () {
+export function WEP(reader) {
+  reader.extend(this);
+}
+
+WEP.prototype.read = function () {
   this.header();
   this.data();
 };
 
-VSTOOLS.WEP.prototype.header = function () {
-  var u32 = this.u32;
+WEP.prototype.header = function () {
+  const u32 = this.u32;
 
   this.header1();
 
@@ -26,13 +40,13 @@ VSTOOLS.WEP.prototype.header = function () {
   this.bonePtr = 0x4c + 0x04;
 };
 
-VSTOOLS.WEP.prototype.header1 = function () {
-  var u8 = this.u8,
+WEP.prototype.header1 = function () {
+  const u8 = this.u8,
     u16 = this.u16,
     buffer = this.buffer;
 
   // magic 'H01' + 0x00
-  var magic = buffer(4);
+  buffer(4);
 
   this.numBones = u8();
   this.numGroups = u8();
@@ -42,7 +56,7 @@ VSTOOLS.WEP.prototype.header1 = function () {
   this.numAllPolygons = this.numTriangles + this.numQuads + this.numPolygons;
 };
 
-VSTOOLS.WEP.prototype.data = function () {
+WEP.prototype.data = function () {
   this.boneSection();
   this.groupSection();
   this.vertexSection();
@@ -50,233 +64,233 @@ VSTOOLS.WEP.prototype.data = function () {
   this.textureSection(7, true); // 7 palettes with WEP handle palette
 };
 
-VSTOOLS.WEP.prototype.boneSection = function () {
-  var bones = (this.bones = []);
-  var numBones = this.numBones;
-  var i;
+WEP.prototype.boneSection = function () {
+  this.bones = [];
 
-  for (i = 0; i < numBones; ++i) {
-    var bone = new VSTOOLS.WEPBone(this.reader);
+  for (let i = 0; i < this.numBones; ++i) {
+    let bone = new WEPBone(this.reader);
     bone.read();
-    bones.push(bone);
+    this.bones.push(bone);
   }
 
-  for (var i = 0; i < numBones; ++i) {
-    var bone = bones[i];
+  for (let i = 0; i < this.numBones; ++i) {
+    let bone = this.bones[i];
 
     // set parent bone
-
-    if (bone.parentBoneId < numBones) {
-      bone.parentBone = bones[bone.parentBoneId];
+    if (bone.parentBoneId < this.numBones) {
+      bone.parentBone = this.bones[bone.parentBoneId];
     }
   }
 };
 
-VSTOOLS.WEP.prototype.groupSection = function () {
-  var bones = this.bones;
-  var groups = (this.groups = []);
-  var numGroups = this.numGroups;
+WEP.prototype.groupSection = function () {
+  this.groups = [];
 
-  for (var i = 0; i < numGroups; ++i) {
-    var group = new VSTOOLS.WEPGroup(this.reader);
+  for (let i = 0; i < this.numGroups; ++i) {
+    const group = new WEPGroup(this.reader);
     group.read();
-    group.bone = bones[group.boneId];
+    group.bone = this.bones[group.boneId];
 
-    groups.push(group);
+    this.groups.push(group);
   }
 };
 
-VSTOOLS.WEP.prototype.vertexSection = function () {
-  var groups = this.groups;
-  var numGroups = this.numGroups;
-  var numVertices = (this.numVertices = groups[numGroups - 1].lastVertex);
+WEP.prototype.vertexSection = function () {
+  this.vertices = [];
+  this.numVertices = this.groups[this.numGroups - 1].lastVertex;
 
-  var vertices = (this.vertices = []);
+  let g = 0;
 
-  var g = 0;
+  for (let i = 0; i < this.numVertices; ++i) {
+    if (i >= this.groups[g].lastVertex) ++g;
 
-  for (var i = 0; i < numVertices; ++i) {
-    if (i >= groups[g].lastVertex) ++g;
-
-    var vertex = new VSTOOLS.WEPVertex(this.reader);
+    const vertex = new WEPVertex(this.reader);
     vertex.read();
     vertex.groupId = g;
-    vertex.group = groups[g];
-    vertex.boneId = groups[g].boneId;
+    vertex.group = this.groups[g];
+    vertex.boneId = this.groups[g].boneId;
 
-    vertices.push(vertex);
+    this.vertices.push(vertex);
   }
 };
 
-VSTOOLS.WEP.prototype.faceSection = function () {
-  var faces = (this.faces = []);
-  var numAllPolygons = this.numAllPolygons;
+WEP.prototype.faceSection = function () {
+  this.faces = [];
 
-  for (var i = 0; i < numAllPolygons; ++i) {
-    var face = new VSTOOLS.WEPFace(this.reader);
+  for (let i = 0; i < this.numAllPolygons; ++i) {
+    const face = new WEPFace(this.reader);
     face.read();
 
-    faces.push(face);
+    this.faces.push(face);
   }
 };
 
-VSTOOLS.WEP.prototype.textureSection = function (numPalettes, wep) {
-  this.textureMap = new VSTOOLS.WEPTextureMap(this.reader);
+WEP.prototype.textureSection = function (numPalettes, wep) {
+  this.textureMap = new WEPTextureMap(this.reader);
   this.textureMap.read(numPalettes, wep);
 };
 
-VSTOOLS.WEP.prototype.build = function () {
+WEP.prototype.build = function () {
   this.buildGeometry();
   this.buildMaterial();
   this.buildBones();
   this.buildMesh();
 };
 
-VSTOOLS.WEP.prototype.buildGeometry = function () {
-  var tw = this.textureMap.width;
-  var th = this.textureMap.height;
+WEP.prototype.buildGeometry = function () {
+  const tw = this.textureMap.width;
+  const th = this.textureMap.height;
 
-  var geometry = (this.geometry = new THREE.Geometry());
-  geometry.influencesPerVertex = 4;
+  let iv = 0;
+  const index = [];
+  const position = [];
+  const uv = [];
+  const skinWeight = [];
+  const skinIndex = [];
 
-  for (var i = 0, l = this.faces.length; i < l; ++i) {
-    var f = this.faces[i];
-
-    var v1 = this.vertices[f.vertex1];
-    var v2 = this.vertices[f.vertex2];
-    var v3 = this.vertices[f.vertex3];
-
-    var iv = geometry.vertices.length;
-
-    geometry.vertices.push(v1.v, v2.v, v3.v);
-
-    geometry.skinWeights.push(
-      new THREE.Vector4(1, 0, 0, 0),
-      new THREE.Vector4(1, 0, 0, 0),
-      new THREE.Vector4(1, 0, 0, 0)
-    );
-
-    geometry.skinIndices.push(
-      new THREE.Vector4(v1.boneId, 0, 0, 0),
-      new THREE.Vector4(v2.boneId, 0, 0, 0),
-      new THREE.Vector4(v3.boneId, 0, 0, 0)
-    );
+  for (let i = 0, l = this.faces.length; i < l; ++i) {
+    const f = this.faces[i];
 
     if (f.quad()) {
-      var v4 = this.vertices[f.vertex4];
+      const v1 = this.vertices[f.vertex1];
+      const v2 = this.vertices[f.vertex2];
+      const v3 = this.vertices[f.vertex3];
+      const v4 = this.vertices[f.vertex4];
 
-      geometry.vertices.push(v4.v);
-      geometry.skinWeights.push(new THREE.Vector4(1, 0, 0, 0));
-      geometry.skinIndices.push(new THREE.Vector4(v4.boneId, 0, 0, 0));
+      position.push(v1.x, v1.y, v1.z);
+      position.push(v2.x, v2.y, v2.z);
+      position.push(v3.x, v3.y, v3.z);
+      position.push(v4.x, v4.y, v4.z);
 
-      var uv1 = [
-        new THREE.Vector2(f.u3 / tw, f.v3 / th),
-        new THREE.Vector2(f.u2 / tw, f.v2 / th),
-        new THREE.Vector2(f.u1 / tw, f.v1 / th),
-      ];
+      skinWeight.push(1, 0, 0, 0);
+      skinWeight.push(1, 0, 0, 0);
+      skinWeight.push(1, 0, 0, 0);
+      skinWeight.push(1, 0, 0, 0);
 
-      var uv2 = [
-        new THREE.Vector2(f.u2 / tw, f.v2 / th),
-        new THREE.Vector2(f.u3 / tw, f.v3 / th),
-        new THREE.Vector2(f.u4 / tw, f.v4 / th),
-      ];
+      skinIndex.push(v1.boneId, 0, 0, 0);
+      skinIndex.push(v2.boneId, 0, 0, 0);
+      skinIndex.push(v3.boneId, 0, 0, 0);
+      skinIndex.push(v4.boneId, 0, 0, 0);
 
-      geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0));
-      geometry.faces.push(new THREE.Face3(iv + 1, iv + 2, iv + 3));
+      uv.push(f.u1 / tw, f.v1 / th);
+      uv.push(f.u2 / tw, f.v2 / th);
+      uv.push(f.u3 / tw, f.v3 / th);
+      uv.push(f.u4 / tw, f.v4 / th);
 
-      geometry.faceVertexUvs[0].push(uv1);
-      geometry.faceVertexUvs[0].push(uv2);
+      index.push(iv + 2, iv + 1, iv + 0);
+      index.push(iv + 1, iv + 2, iv + 3);
 
       if (f.double()) {
-        geometry.faces.push(new THREE.Face3(iv + 0, iv + 1, iv + 2));
-        geometry.faces.push(new THREE.Face3(iv + 3, iv + 2, iv + 1));
-
-        uv1 = [uv1[2], uv1[1], uv1[0]];
-        uv2 = [uv2[2], uv2[1], uv2[0]];
-
-        geometry.faceVertexUvs[0].push(uv1);
-        geometry.faceVertexUvs[0].push(uv2);
+        index.push(iv + 0, iv + 1, iv + 2);
+        index.push(iv + 3, iv + 2, iv + 1);
       }
+
+      iv += 4;
     } else {
-      var uv = [
-        new THREE.Vector2(f.u1 / tw, f.v1 / th),
-        new THREE.Vector2(f.u3 / tw, f.v3 / th),
-        new THREE.Vector2(f.u2 / tw, f.v2 / th),
-      ];
+      const v1 = this.vertices[f.vertex1];
+      const v2 = this.vertices[f.vertex2];
+      const v3 = this.vertices[f.vertex3];
 
-      geometry.faces.push(new THREE.Face3(iv + 2, iv + 1, iv + 0));
-      geometry.faceVertexUvs[0].push(uv);
+      position.push(v1.x, v1.y, v1.z);
+      position.push(v2.x, v2.y, v2.z);
+      position.push(v3.x, v3.y, v3.z);
+
+      skinWeight.push(1, 0, 0, 0);
+      skinWeight.push(1, 0, 0, 0);
+      skinWeight.push(1, 0, 0, 0);
+
+      skinIndex.push(v1.boneId, 0, 0, 0);
+      skinIndex.push(v2.boneId, 0, 0, 0);
+      skinIndex.push(v3.boneId, 0, 0, 0);
+
+      uv.push(f.u2 / tw, f.v2 / th);
+      uv.push(f.u3 / tw, f.v3 / th);
+      uv.push(f.u1 / tw, f.v1 / th);
+
+      index.push(iv + 2, iv + 1, iv + 0);
 
       if (f.double()) {
-        geometry.faces.push(new THREE.Face3(iv + 0, iv + 1, iv + 2));
-        uv = [uv[2], uv[1], uv[0]];
-        geometry.faceVertexUvs[0].push(uv);
+        index.push(iv + 0, iv + 1, iv + 2);
       }
+
+      iv += 3;
     }
   }
 
-  geometry.computeFaceNormals();
+  const geometry = new BufferGeometry();
+  geometry.setIndex(index);
+  geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
+  geometry.setAttribute(
+    'skinWeight',
+    new Float32BufferAttribute(skinWeight, 4)
+  );
+  geometry.setAttribute('skinIndex', new Float32BufferAttribute(skinIndex, 4));
+  geometry.setAttribute('uv', new Float32BufferAttribute(uv, 2));
+  geometry.computeBoundingSphere();
   geometry.computeVertexNormals();
+
+  this.geometry = geometry;
 };
 
-VSTOOLS.WEP.prototype.buildMaterial = function () {
+WEP.prototype.buildMaterial = function () {
   this.textureMap.build();
 
-  this.material = new THREE.MeshBasicMaterial({
+  this.material = new MeshBasicMaterial({
     map: this.textureMap.textures[0],
-    shading: THREE.FlatShading,
+    flatShading: true,
     skinning: true,
     transparent: true,
   });
 };
 
-VSTOOLS.WEP.prototype.buildBones = function () {
-  var bones = this.bones,
-    numBones = this.numBones;
-  this.geometry.bones = [];
+WEP.prototype.buildBones = function () {
+  this.skeletonBones = [];
 
   // binding pose is identity
 
   // rotation bones
-  for (var i = 0; i < numBones; ++i) {
-    var parent = bones[i].parentBoneId;
+  for (let i = 0; i < this.numBones; ++i) {
+    const bone = new Bone();
+    bone.name = 'rbone' + i;
 
-    var bone = {
-      name: 'bone' + i,
-      pos: [0, 0, 0],
-      rotq: [0, 0, 0, 1],
-      scl: [1, 1, 1],
-      parent: parent < numBones ? parent + numBones : -1,
-    };
-
-    this.geometry.bones.push(bone);
+    this.skeletonBones.push(bone);
   }
 
   // translation bones
-  for (var i = numBones; i < numBones * 2; ++i) {
-    var bone = {
-      name: 'bone' + i,
-      pos: [0, 0, 0],
-      rotq: [0, 0, 0, 1],
-      scl: [1, 1, 1],
-      parent: i - numBones,
-    };
+  for (let i = this.numBones; i < this.numBones * 2; ++i) {
+    const bone = new Bone();
+    bone.name = 'tbone' + i;
 
-    this.geometry.bones.push(bone);
+    this.skeletonBones[i - this.numBones].add(bone);
+    this.skeletonBones.push(bone);
+  }
+
+  // set rotation bone parents
+  for (let i = 0; i < this.numBones; ++i) {
+    const parentBoneId = this.bones[i].parentBoneId;
+
+    if (parentBoneId < this.numBones) {
+      this.skeletonBones[parentBoneId + this.numBones].add(
+        this.skeletonBones[i]
+      );
+    }
   }
 };
 
-VSTOOLS.WEP.prototype.buildMesh = function () {
-  var bones = this.bones,
-    numBones = this.numBones;
-  var mesh = (this.mesh = new THREE.SkinnedMesh(this.geometry, this.material));
+WEP.prototype.buildMesh = function () {
+  this.mesh = new SkinnedMesh(this.geometry, this.material);
+  this.skeleton = new Skeleton(this.skeletonBones);
 
-  mesh.rotation.x = Math.PI;
+  this.mesh.add(this.skeleton.bones[0]);
+  this.mesh.bind(this.skeleton);
+
+  this.mesh.rotation.x = Math.PI;
 
   // sets length of bones. just for WEP.
   // SHP's animations will override this
 
-  for (var i = numBones; i < numBones * 2; ++i) {
-    mesh.skeleton.bones[i].position.x = bones[i - numBones].length;
+  for (let i = this.numBones; i < this.numBones * 2; ++i) {
+    const b = this.bones[i - this.numBones];
+    this.mesh.skeleton.bones[i].position.x = b.length;
   }
 };

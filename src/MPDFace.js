@@ -1,10 +1,12 @@
-VSTOOLS.MPDFace = function (reader, group) {
+import { Vector3 } from './three.js';
+
+export function MPDFace(reader, group) {
   reader.extend(this);
 
   this.group = group;
 
   this.read = function (quad) {
-    var s8 = this.s8,
+    const s8 = this.s8,
       u8 = this.u8,
       s16 = this.s16,
       u16 = this.u16;
@@ -70,42 +72,35 @@ VSTOOLS.MPDFace = function (reader, group) {
       this.b4 = u8();
 
       this.v4 = u8();
-    } else {
-      var u1 = this.u1;
-      var v1 = this.v1;
-      this.u1 = this.u2;
-      this.v1 = this.v2;
-      this.u2 = u1;
-      this.v2 = v1;
     }
   };
 
   this.build = function () {
-    this.p1 = new THREE.Vector3(this.p1x, this.p1y, this.p1z);
+    this.p1 = new Vector3(this.p1x, this.p1y, this.p1z);
 
-    this.p2 = new THREE.Vector3(
+    this.p2 = new Vector3(
       this.p2x * this.group.scale + this.p1x,
       this.p2y * this.group.scale + this.p1y,
       this.p2z * this.group.scale + this.p1z
     );
 
-    this.p3 = new THREE.Vector3(
+    this.p3 = new Vector3(
       this.p3x * this.group.scale + this.p1x,
       this.p3y * this.group.scale + this.p1y,
       this.p3z * this.group.scale + this.p1z
     );
 
     if (this.quad) {
-      this.p4 = new THREE.Vector3(
+      this.p4 = new Vector3(
         this.p4x * this.group.scale + this.p1x,
         this.p4y * this.group.scale + this.p1y,
         this.p4z * this.group.scale + this.p1z
       );
     }
 
-    var n = (this.n = new THREE.Vector3(this.p2x, this.p2y, this.p2z));
-    n.cross(new THREE.Vector3(this.p3x, this.p3y, this.p3z));
-    n.normalize();
-    n.negate();
+    this.n = new Vector3(this.p2x, this.p2y, this.p2z);
+    this.n.cross(new Vector3(this.p3x, this.p3y, this.p3z));
+    this.n.normalize();
+    this.n.negate();
   };
-};
+}

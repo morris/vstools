@@ -1,9 +1,17 @@
-VSTOOLS.TIM = function (reader) {
-  reader.extend(this);
-};
+import {
+  DataTexture,
+  RGBAFormat,
+  NearestFilter,
+  RepeatWrapping,
+} from './three.js';
+import { color } from './VSTOOLS.js';
 
-VSTOOLS.TIM.prototype.read = function () {
-  var u16 = this.u16,
+export function TIM(reader) {
+  reader.extend(this);
+}
+
+TIM.prototype.read = function () {
+  const u16 = this.u16,
     u32 = this.u32,
     buf = this.buffer,
     skip = this.skip;
@@ -31,46 +39,51 @@ VSTOOLS.TIM.prototype.read = function () {
   skip(this.dataLen);
 };
 
-VSTOOLS.TIM.prototype.copyToFrameBuffer = function (fb) {
-  var s16 = this.s16,
+TIM.prototype.copyToFrameBuffer = function (fb) {
+  const s16 = this.s16,
     seek = this.seek;
 
-  var fx = this.fx,
+  const fx = this.fx,
     fy = this.fy;
 
   seek(this.dataPtr);
 
-  for (var y = 0; y < this.height; ++y) {
-    for (var x = 0; x < this.width; ++x) {
-      var c = VSTOOLS.color(s16());
+  for (let y = 0; y < this.height; ++y) {
+    for (let x = 0; x < this.width; ++x) {
+      const c = color(s16());
       fb.setPixel(fx + x, fy + y, c);
     }
   }
 };
 
-VSTOOLS.TIM.prototype.markFrameBuffer = function (fb) {
-  var c = [255, Math.random() * 255, Math.random() * 255, Math.random() * 255];
+TIM.prototype.markFrameBuffer = function (fb) {
+  const c = [
+    255,
+    Math.random() * 255,
+    Math.random() * 255,
+    Math.random() * 255,
+  ];
 
-  for (var y = 0; y < this.height; ++y) {
-    for (var x = 0; x < this.width; ++x) {
+  for (let y = 0; y < this.height; ++y) {
+    for (let x = 0; x < this.width; ++x) {
       fb.setPixel(this.fx + x, this.fy + y, c);
     }
   }
 };
 
-VSTOOLS.TIM.prototype.buildCLUT = function (x, y) {
-  var s16 = this.s16,
+TIM.prototype.buildCLUT = function (x, y) {
+  const s16 = this.s16,
     seek = this.seek;
 
-  var ox = x - this.fx;
-  var oy = y - this.fy;
+  const ox = x - this.fx;
+  const oy = y - this.fy;
 
   seek(this.dataPtr + (oy * this.width + ox) * 2);
 
-  var buffer = new Uint8Array(64);
+  const buffer = new Uint8Array(64);
 
-  for (var i = 0; i < 64; i += 4) {
-    var c = VSTOOLS.color(s16());
+  for (let i = 0; i < 64; i += 4) {
+    const c = color(s16());
 
     buffer[i + 0] = c[0];
     buffer[i + 1] = c[1];
@@ -81,23 +94,23 @@ VSTOOLS.TIM.prototype.buildCLUT = function (x, y) {
   return buffer;
 };
 
-VSTOOLS.TIM.prototype.build = function (clut) {
-  var u8 = this.u8,
-    seek = this.seek;
+TIM.prototype.build = function (clut) {
+  const u8 = this.u8;
+  const seek = this.seek;
 
-  var width = this.width,
-    height = this.height;
+  const width = this.width;
+  const height = this.height;
 
   seek(this.dataPtr);
 
-  var size = width * height * 16;
-  var buffer = new Uint8Array(size);
+  const size = width * height * 16;
+  const buffer = new Uint8Array(size);
 
-  for (var i = 0; i < size; i += 8) {
-    var c = u8();
+  for (let i = 0; i < size; i += 8) {
+    const c = u8();
 
-    var l = ((c & 0xf0) >> 4) * 4;
-    var r = (c & 0x0f) * 4;
+    const l = ((c & 0xf0) >> 4) * 4;
+    const r = (c & 0x0f) * 4;
 
     buffer[i + 0] = clut[r + 0];
     buffer[i + 1] = clut[r + 1];
@@ -110,16 +123,11 @@ VSTOOLS.TIM.prototype.build = function (clut) {
     buffer[i + 7] = clut[l + 3];
   }
 
-  var texture = new THREE.DataTexture(
-    buffer,
-    width * 4,
-    height,
-    THREE.RGBAFormat
-  );
-  texture.magFilter = THREE.NearestFilter;
-  texture.minFilter = THREE.NearestFilter;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
+  const texture = new DataTexture(buffer, width * 4, height, RGBAFormat);
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = RepeatWrapping;
   texture.needsUpdate = true;
 
   return texture;
