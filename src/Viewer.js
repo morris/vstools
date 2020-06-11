@@ -351,6 +351,11 @@ export function Viewer() {
   function updateSettings() {
     const wireframe = document.querySelector('.app-settings .wireframe')
       .checked;
+    const noVertexColors = document.querySelector(
+      '.app-settings .no-vertex-colors'
+    ).checked;
+    const noTexture = document.querySelector('.app-settings .no-texture')
+      .checked;
     const normals = document.querySelector('.app-settings .normals').checked;
     const skeleton = document.querySelector('.app-settings .skeleton').checked;
 
@@ -365,6 +370,7 @@ export function Viewer() {
           object.material = new MeshNormalMaterial();
           object.material.skinning = object.originalMaterial.skinning;
         }
+
         if (
           !normals &&
           object.material instanceof MeshNormalMaterial &&
@@ -375,6 +381,25 @@ export function Viewer() {
 
         object.material.wireframe = wireframe;
         object.material.wireframeLinewidth = 2;
+
+        if (!normals) {
+          object.material.vertexColors = !noVertexColors;
+
+          if (noTexture && object.material.map) {
+            object.material.originalMap = object.material.map;
+            object.material.map = null;
+          }
+
+          if (
+            !noTexture &&
+            !object.material.map &&
+            object.material.originalMap
+          ) {
+            object.material.map = object.material.originalMap;
+          }
+
+          object.material.needsUpdate = true;
+        }
       }
 
       if (skeleton && object instanceof SkinnedMesh) {
