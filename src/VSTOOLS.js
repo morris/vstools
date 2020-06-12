@@ -6,9 +6,7 @@ export const UnitX = new Vector3(1, 0, 0);
 export const UnitY = new Vector3(0, 1, 0);
 export const UnitZ = new Vector3(0, 0, 1);
 
-// utility
-
-export function ext(path) {
+export function parseExt(path) {
   const dot = path.lastIndexOf('.');
   const slash = path.lastIndexOf('/');
 
@@ -50,7 +48,7 @@ export function exportPng(data, width, height) {
 // get RGBA from 16 bit color value
 // TODO first bit === 1 or bits === 0 means fully transparent?
 // then 5 bits for each of B, G, R
-export function color(c) {
+export function parseColor(c) {
   //const t = (c & 0x8000) >> 15;
   const b = (c & 0x7c00) >> 10;
   const g = (c & 0x03e0) >> 5;

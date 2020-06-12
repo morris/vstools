@@ -8,202 +8,200 @@ import {
   LineSegments,
 } from './three.js';
 
-export function ARMRoom(reader) {
-  reader.extend(this);
-}
-
-ARMRoom.prototype.header = function () {
-  const u16 = this.u16,
-    u32 = this.u32;
-
-  this.u1 = u32();
-  this.mapLength = u32();
-  this.zoneNumber = u16();
-  this.mapNumber = u16();
-};
-
-ARMRoom.prototype.graphics = function () {
-  const u8 = this.u8,
-    s16 = this.s16,
-    u32 = this.u32,
-    skip = this.skip;
-
-  this.numVertices = u32();
-  this.vertices = [];
-
-  for (let i = 0; i < this.numVertices; ++i) {
-    this.vertices.push(new Vector3(s16(), s16(), s16()));
-    skip(2); // zero padding
+export class ARMRoom {
+  constructor(reader) {
+    this.reader = reader;
   }
 
-  this.numTriangles = u32();
-  this.triangles = [];
+  header() {
+    const r = this.reader;
 
-  for (let i = 0; i < this.numTriangles; ++i) {
-    this.triangles.push(readIndices());
+    this.u1 = r.u32();
+    this.mapLength = r.u32();
+    this.zoneNumber = r.u16();
+    this.mapNumber = r.u16();
   }
 
-  this.numQuads = u32();
-  this.quads = [];
+  graphics() {
+    const r = this.reader;
 
-  for (let i = 0; i < this.numQuads; ++i) {
-    this.quads.push(readIndices());
+    this.numVertices = r.u32();
+    this.vertices = [];
+
+    for (let i = 0; i < this.numVertices; ++i) {
+      this.vertices.push(new Vector3(r.s16(), r.s16(), r.s16()));
+      r.skip(2); // TODO zero padding
+    }
+
+    this.numTriangles = r.u32();
+    this.triangles = [];
+
+    for (let i = 0; i < this.numTriangles; ++i) {
+      this.triangles.push(readIndices());
+    }
+
+    this.numQuads = r.u32();
+    this.quads = [];
+
+    for (let i = 0; i < this.numQuads; ++i) {
+      this.quads.push(readIndices());
+    }
+
+    this.numFloorLines = r.u32();
+    this.floorLines = [];
+
+    for (let i = 0; i < this.numFloorLines; ++i) {
+      this.floorLines.push(readIndices());
+    }
+
+    this.numWallLines = r.u32();
+    this.wallLines = [];
+
+    for (let i = 0; i < this.numWallLines; ++i) {
+      this.wallLines.push(readIndices());
+    }
+
+    this.numDoors = r.u32();
+    this.doors = [];
+
+    for (let i = 0; i < this.numDoors; ++i) {
+      this.doors.push(readIndices());
+    }
+
+    function readIndices() {
+      return [r.u8(), r.u8(), r.u8(), r.u8()];
+    }
   }
 
-  this.numFloorLines = u32();
-  this.floorLines = [];
-
-  for (let i = 0; i < this.numFloorLines; ++i) {
-    this.floorLines.push(readIndices());
+  name() {
+    this.reader.skip(0x24); // TODO
+    //this.name = text( 0x24 );
   }
 
-  this.numWallLines = u32();
-  this.wallLines = [];
-
-  for (let i = 0; i < this.numWallLines; ++i) {
-    this.wallLines.push(readIndices());
+  build() {
+    this.buildMesh();
+    this.buildLines();
   }
 
-  this.numDoors = u32();
-  this.doors = [];
+  buildMesh() {
+    const position = [];
+    const normal = [];
+    const index = [];
 
-  for (let i = 0; i < this.numDoors; ++i) {
-    this.doors.push(readIndices());
-  }
+    let iv = 0;
 
-  function readIndices() {
-    return [u8(), u8(), u8(), u8()];
-  }
-};
+    for (let i = 0; i < this.numTriangles; ++i) {
+      const p = this.triangles[i];
 
-ARMRoom.prototype.name = function () {
-  this.skip(0x24);
-  //this.name = text( 0x24 );
-};
+      const v1 = this.vertices[p[0]];
+      const v2 = this.vertices[p[1]];
+      const v3 = this.vertices[p[2]];
 
-ARMRoom.prototype.build = function () {
-  this.buildMesh();
-  this.buildLines();
-};
+      position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
 
-ARMRoom.prototype.buildMesh = function () {
-  const position = [];
-  const normal = [];
-  const index = [];
+      const n = new Vector3().subVectors(v2, v1);
+      n.cross(new Vector3().subVectors(v3, v1));
+      n.normalize();
+      n.negate();
 
-  let iv = 0;
+      normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
 
-  for (let i = 0; i < this.numTriangles; ++i) {
-    const p = this.triangles[i];
+      index.push(iv + 2, iv + 1, iv + 0);
 
-    const v1 = this.vertices[p[0]];
-    const v2 = this.vertices[p[1]];
-    const v3 = this.vertices[p[2]];
+      iv += 3;
+    }
 
-    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
+    for (let i = 0; i < this.numQuads; ++i) {
+      const p = this.quads[i];
 
-    const n = new Vector3().subVectors(v2, v1);
-    n.cross(new Vector3().subVectors(v3, v1));
-    n.normalize();
-    n.negate();
+      const v1 = this.vertices[p[0]];
+      const v2 = this.vertices[p[1]];
+      const v3 = this.vertices[p[2]];
+      const v4 = this.vertices[p[3]];
 
-    normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
+      position.push(
+        v1.x,
+        v1.y,
+        v1.z,
+        v2.x,
+        v2.y,
+        v2.z,
+        v3.x,
+        v3.y,
+        v3.z,
+        v4.x,
+        v4.y,
+        v4.z
+      );
 
-    index.push(iv + 2, iv + 1, iv + 0);
+      const n = new Vector3().subVectors(v2, v1);
+      n.cross(new Vector3().subVectors(v3, v1));
+      n.normalize();
+      n.negate();
 
-    iv += 3;
-  }
+      normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
 
-  for (let i = 0; i < this.numQuads; ++i) {
-    const p = this.quads[i];
+      index.push(iv + 2, iv + 1, iv + 0);
+      index.push(iv + 0, iv + 3, iv + 2);
 
-    const v1 = this.vertices[p[0]];
-    const v2 = this.vertices[p[1]];
-    const v3 = this.vertices[p[2]];
-    const v4 = this.vertices[p[3]];
+      iv += 4;
+    }
 
-    position.push(
-      v1.x,
-      v1.y,
-      v1.z,
-      v2.x,
-      v2.y,
-      v2.z,
-      v3.x,
-      v3.y,
-      v3.z,
-      v4.x,
-      v4.y,
-      v4.z
+    this.geometry = new BufferGeometry();
+    this.geometry.setAttribute(
+      'position',
+      new Float32BufferAttribute(position, 3)
     );
+    this.geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
+    this.geometry.setIndex(index);
 
-    const n = new Vector3().subVectors(v2, v1);
-    n.cross(new Vector3().subVectors(v3, v1));
-    n.normalize();
-    n.negate();
-
-    normal.push(n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z, n.x, n.y, n.z);
-
-    index.push(iv + 2, iv + 1, iv + 0);
-    index.push(iv + 0, iv + 3, iv + 2);
-
-    iv += 4;
+    this.material = new MeshNormalMaterial();
+    this.mesh = new Mesh(this.geometry, this.material);
   }
 
-  this.geometry = new BufferGeometry();
-  this.geometry.setAttribute(
-    'position',
-    new Float32BufferAttribute(position, 3)
-  );
-  this.geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
-  this.geometry.setIndex(index);
+  buildLines() {
+    const position = [];
+    const index = [];
 
-  this.material = new MeshNormalMaterial();
-  this.mesh = new Mesh(this.geometry, this.material);
-};
+    let iv = 0;
 
-ARMRoom.prototype.buildLines = function () {
-  const position = [];
-  const index = [];
+    for (let i = 0; i < this.numFloorLines; ++i) {
+      const p = this.floorLines[i];
 
-  let iv = 0;
+      const v1 = this.vertices[p[0]];
+      const v2 = this.vertices[p[1]];
 
-  for (let i = 0; i < this.numFloorLines; ++i) {
-    const p = this.floorLines[i];
+      position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
 
-    const v1 = this.vertices[p[0]];
-    const v2 = this.vertices[p[1]];
+      index.push(iv + 0, iv + 1);
 
-    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+      iv += 2;
+    }
 
-    index.push(iv + 0, iv + 1);
+    for (let i = 0; i < this.numWallLines; ++i) {
+      const p = this.wallLines[i];
 
-    iv += 2;
+      const v1 = this.vertices[p[0]];
+      const v2 = this.vertices[p[1]];
+
+      position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+
+      index.push(iv + 0, iv + 1);
+
+      iv += 2;
+    }
+
+    this.lineGeometry = new BufferGeometry();
+    this.lineGeometry.setAttribute(
+      'position',
+      new Float32BufferAttribute(position, 3)
+    );
+    this.lineGeometry.setIndex(index);
+
+    this.lineMaterial = new LineBasicMaterial({
+      color: 0x000000,
+      linewidth: 2,
+    });
+    this.lines = new LineSegments(this.lineGeometry, this.lineMaterial);
   }
-
-  for (let i = 0; i < this.numWallLines; ++i) {
-    const p = this.wallLines[i];
-
-    const v1 = this.vertices[p[0]];
-    const v2 = this.vertices[p[1]];
-
-    position.push(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
-
-    index.push(iv + 0, iv + 1);
-
-    iv += 2;
-  }
-
-  this.lineGeometry = new BufferGeometry();
-  this.lineGeometry.setAttribute(
-    'position',
-    new Float32BufferAttribute(position, 3)
-  );
-  this.lineGeometry.setIndex(index);
-
-  this.lineMaterial = new LineBasicMaterial({
-    color: 0x000000,
-    linewidth: 2,
-  });
-  this.lines = new LineSegments(this.lineGeometry, this.lineMaterial);
-};
+}

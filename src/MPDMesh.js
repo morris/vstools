@@ -5,19 +5,21 @@ import {
   MeshNormalMaterial,
 } from './three.js';
 
-export function MPDMesh(reader, group, textureId, clutId) {
-  reader.extend(this);
+export class MPDMesh {
+  constructor(reader, group, textureId, clutId) {
+    this.reader = reader;
 
-  this.group = group;
-  this.textureId = textureId;
-  this.clutId = clutId;
-  this.faces = [];
+    this.group = group;
+    this.textureId = textureId;
+    this.clutId = clutId;
+    this.faces = [];
+  }
 
-  this.add = function (face) {
+  add(face) {
     this.faces.push(face);
-  };
+  }
 
-  this.build = function () {
+  build() {
     const tw = 256;
     const th = 256;
 
@@ -169,5 +171,5 @@ export function MPDMesh(reader, group, textureId, clutId) {
     this.mesh = new Mesh(this.geometry, this.material);
     this.mesh.rotation.x = Math.PI;
     this.mesh.scale.set(0.1, 0.1, 0.1);
-  };
+  }
 }

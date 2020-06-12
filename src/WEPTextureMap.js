@@ -6,19 +6,19 @@
 import { DataTexture, RGBAFormat, NearestFilter } from './three.js';
 import { WEPPalette } from './WEPPalette.js';
 
-export function WEPTextureMap(reader) {
-  reader.extend(this);
+export class WEPTextureMap {
+  constructor(reader) {
+    this.reader = reader;
+  }
 
-  this.read = function (numberOfPalettes, wep) {
-    const u8 = this.u8,
-      u32 = this.u32,
-      skip = this.skip;
+  read(numberOfPalettes, wep) {
+    const r = this.reader;
 
-    this.size = u32();
-    skip(1); // unknown, always 1?
-    const width = (this.width = u8() * 2);
-    const height = (this.height = u8() * 2);
-    const colorsPerPalette = (this.colorsPerPalette = u8());
+    this.size = r.u32();
+    r.skip(1); // TODO unknown, always 1?
+    this.width = r.u8() * 2;
+    this.height = r.u8() * 2;
+    this.colorsPerPalette = r.u8();
 
     const palettes = (this.palettes = []);
 
@@ -26,17 +26,17 @@ export function WEPTextureMap(reader) {
 
     if (wep) {
       handle = new WEPPalette(this.reader);
-      handle.read(colorsPerPalette / 3);
+      handle.read(this.colorsPerPalette / 3);
     }
 
     for (let i = 0; i < numberOfPalettes; ++i) {
       const palette = new WEPPalette(this.reader);
 
       if (wep) {
-        palette.push(handle.colors);
-        palette.read((colorsPerPalette / 3) * 2);
+        palette.add(handle.colors);
+        palette.read((this.colorsPerPalette / 3) * 2);
       } else {
-        palette.read(colorsPerPalette);
+        palette.read(this.colorsPerPalette);
       }
 
       palettes.push(palette);
@@ -44,16 +44,16 @@ export function WEPTextureMap(reader) {
 
     this.map = [];
 
-    for (let y = 0; y < height; ++y) {
-      for (let x = 0; x < width; ++x) {
+    for (let y = 0; y < this.height; ++y) {
+      for (let x = 0; x < this.width; ++x) {
         if (!this.map[x]) this.map[x] = [];
 
-        this.map[x][y] = u8();
+        this.map[x][y] = r.u8();
       }
     }
-  };
+  }
 
-  this.build = function () {
+  build() {
     this.textures = [];
 
     for (let i = 0, l = this.palettes.length; i < l; ++i) {
@@ -90,5 +90,5 @@ export function WEPTextureMap(reader) {
 
       this.textures.push(texture);
     }
-  };
+  }
 }

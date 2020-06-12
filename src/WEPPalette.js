@@ -1,15 +1,20 @@
-import { color } from './VSTOOLS.js';
+import { parseColor } from './VSTOOLS.js';
 
-export function WEPPalette(reader) {
-  this.colors = [];
+export class WEPPalette {
+  constructor(reader) {
+    this.reader = reader;
+    this.colors = [];
+  }
 
-  this.read = function (num) {
+  read(num) {
+    const r = this.reader;
+
     for (let i = 0; i < num; ++i) {
-      this.colors.push(color(reader.u16()));
+      this.colors.push(parseColor(r.u16()));
     }
-  };
+  }
 
-  this.push = function (colors) {
-    this.colors.push.apply(this.colors, colors);
-  };
+  add(colors) {
+    this.colors.push(...colors);
+  }
 }

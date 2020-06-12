@@ -1,81 +1,78 @@
 import { Vector3 } from './three.js';
 
-export function MPDFace(reader, group) {
-  reader.extend(this);
+export class MPDFace {
+  constructor(reader, group) {
+    this.reader = reader;
+    this.group = group;
+  }
 
-  this.group = group;
-
-  this.read = function (quad) {
-    const s8 = this.s8,
-      u8 = this.u8,
-      s16 = this.s16,
-      u16 = this.u16;
+  read(quad) {
+    const r = this.reader;
 
     this.quad = quad;
 
     // two bytes per axis
-    this.p1x = s16();
-    this.p1y = s16();
-    this.p1z = s16();
+    this.p1x = r.s16();
+    this.p1y = r.s16();
+    this.p1z = r.s16();
 
     // p2, p3, p4 are stored as offset vectors from p1
     // one byte per axis
-    this.p2x = s8();
-    this.p2y = s8();
-    this.p2z = s8();
+    this.p2x = r.s8();
+    this.p2y = r.s8();
+    this.p2z = r.s8();
 
-    this.p3x = s8();
-    this.p3y = s8();
-    this.p3z = s8();
+    this.p3x = r.s8();
+    this.p3y = r.s8();
+    this.p3z = r.s8();
 
-    this.r1 = u8();
-    this.g1 = u8();
-    this.b1 = u8();
+    this.r1 = r.u8();
+    this.g1 = r.u8();
+    this.b1 = r.u8();
 
     // type
     // 52, 54 triangles
     // 60, 62 quads
-    this.type = u8();
+    this.type = r.u8();
+    // TODO assert
 
-    this.r2 = u8();
-    this.g2 = u8();
-    this.b2 = u8();
+    this.r2 = r.u8();
+    this.g2 = r.u8();
+    this.b2 = r.u8();
 
-    this.u1 = u8();
+    this.u1 = r.u8();
 
-    this.r3 = u8();
-    this.g3 = u8();
-    this.b3 = u8();
+    this.r3 = r.u8();
+    this.g3 = r.u8();
+    this.b3 = r.u8();
 
-    this.v1 = u8();
-    this.u2 = u8();
-    this.v2 = u8();
+    this.v1 = r.u8();
+    this.u2 = r.u8();
+    this.v2 = r.u8();
 
-    this.clutId = u16();
+    this.clutId = r.u16();
 
-    this.u3 = u8();
-    this.v3 = u8();
+    this.u3 = r.u8();
+    this.v3 = r.u8();
 
-    this.textureId = s16();
-
-    //console.log( VSTOOLS.bin( this.clutId, 4 ), this.textureId );
+    this.textureId = r.s16();
 
     if (this.quad) {
-      this.p4x = s8();
-      this.p4y = s8();
-      this.p4z = s8();
+      this.p4x = r.s8();
+      this.p4y = r.s8();
+      this.p4z = r.s8();
 
-      this.u4 = u8();
+      this.u4 = r.u8();
 
-      this.r4 = u8();
-      this.g4 = u8();
-      this.b4 = u8();
+      this.r4 = r.u8();
+      this.g4 = r.u8();
+      this.b4 = r.u8();
 
-      this.v4 = u8();
+      this.v4 = r.u8();
     }
-  };
+  }
 
-  this.build = function () {
+  build() {
     this.p1 = new Vector3(this.p1x, this.p1y, this.p1z);
 
     this.p2 = new Vector3(
@@ -102,5 +99,5 @@ export function MPDFace(reader, group) {
     this.n.cross(new Vector3(this.p3x, this.p3y, this.p3z));
     this.n.normalize();
     this.n.negate();
-  };
+  }
 }

@@ -1,296 +1,291 @@
 import { AnimationClip } from './three.js';
 import { rot13toRad, rot2quat, TimeScale } from './VSTOOLS.js';
 
-export function SEQAnimation(reader, seq) {
-  reader.extend(this);
-
-  this.seq = seq;
-}
-
-SEQAnimation.prototype.header = function (id) {
-  const u8 = this.u8,
-    s8 = this.s8,
-    u16 = this.u16,
-    skip = this.skip;
-  const seq = this.seq;
-
-  this.id = id;
-  this.length = u16(); // 2
-
-  // some animations use a different animation as base
-  this.idOtherAnimation = s8(); // 3
-
-  this.mode = u8(); // unknown. has weird effects on mesh. 4
-
-  // seems to point to a data block that controls looping
-  this.ptr1 = u16(); // 6
-
-  // points to a translation vector for the animated mesh
-  this.ptrTranslation = u16(); // 8
-
-  // points to a data block that controls movement
-  this.ptrMove = u16(); // 10
-
-  // read pointers to pose and keyframes for individual bones
-  this.ptrBones = [];
-
-  let i;
-
-  for (i = 0; i < seq.numBones; ++i) {
-    const ptr = u16();
-    this.ptrBones.push(ptr);
-  } // 10 + numBones * 2
-
-  for (i = 0; i < seq.numBones; ++i) {
-    // TODO is this 0 for all SEQ?
-    skip(2);
-  } // 10 + numBones * 4
-};
-
-SEQAnimation.prototype.data = function () {
-  const s16big = this.s16big,
-    seek = this.seek;
-
-  const seq = this.seq;
-  //const shp = seq.shp;
-
-  // read translation
-  // big endian
-  seek(seq.ptrData(this.ptrTranslation));
-
-  s16big(); // x
-  s16big(); // y
-  s16big(); // z
-
-  // TODO implement move
-
-  // set base animation
-  this.base = this;
-  if (this.idOtherAnimation !== -1) {
-    this.base = seq.animations[this.idOtherAnimation];
+export class SEQAnimation {
+  constructor(reader, seq) {
+    this.reader = reader;
+    this.seq = seq;
   }
 
-  // this holds the initial rotation of bones,
-  // i.e. the initial pose for the animation
-  this.pose = [];
+  header(id) {
+    const r = this.reader;
+    const seq = this.seq;
 
-  this.keyframes = [];
+    this.id = id;
+    this.length = r.u16(); // 2
 
-  // read base pose and keyframes
-  for (let i = 0; i < seq.numBones; ++i) {
-    this.keyframes.push([[0, 0, 0, 0]]);
+    // some animations use a different animation as base
+    this.idOtherAnimation = r.s8(); // 3
 
-    seek(seq.ptrData(this.base.ptrBones[i]));
+    this.mode = r.u8(); // unknown. has weird effects on mesh. 4
 
-    this.readPose(i);
-    this.readKeyframes(i);
+    // seems to point to a data block that controls looping
+    this.ptr1 = r.u16(); // 6
+
+    // points to a translation vector for the animated mesh
+    this.ptrTranslation = r.u16(); // 8
+
+    // points to a data block that controls movement
+    this.ptrMove = r.u16(); // 10
+
+    // read pointers to pose and keyframes for individual bones
+    this.ptrBones = [];
+
+    let i;
+
+    for (i = 0; i < seq.numBones; ++i) {
+      const ptr = r.u16();
+      this.ptrBones.push(ptr);
+    } // 10 + numBones * 2
+
+    for (i = 0; i < seq.numBones; ++i) {
+      // TODO is this 0 for all SEQ?
+      r.skip(2);
+    } // 10 + numBones * 4
   }
-};
 
-SEQAnimation.prototype.readPose = function (i) {
-  const s16big = this.s16big;
+  data() {
+    const r = this.reader;
 
-  // big endian! but... WHY?!
-  const rx = s16big(),
-    ry = s16big(),
-    rz = s16big();
+    const seq = this.seq;
+    //const shp = seq.shp;
 
-  this.pose[i] = [rx, ry, rz];
-};
+    // read translation
+    // big endian
+    r.seek(seq.ptrData(this.ptrTranslation));
 
-SEQAnimation.prototype.readKeyframes = function (i) {
-  let f = 0;
+    r.s16big(); // x
+    r.s16big(); // y
+    r.s16big(); // z
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const op = this.readOpcode();
+    // TODO implement move
 
-    if (!op) break;
-
-    f += op[3];
-
-    this.keyframes[i].push(op);
-
-    if (f >= this.length - 1) break;
-  }
-};
-
-// opcodes
-// this is basically 0xafe90 to 0xb0000
-// reads one opcode and its X, Y, Z, T values
-// this is actually used for rotations AND a few translations
-SEQAnimation.prototype.readOpcode = function () {
-  const u8 = this.u8,
-    s8 = this.s8,
-    s16big = this.s16big;
-
-  let op = u8();
-
-  if (op === 0) return null;
-
-  // results
-  let x = null,
-    y = null,
-    z = null,
-    f = null;
-
-  if ((op & 0xe0) > 0) {
-    // number of frames, byte case
-
-    f = op & 0x1f;
-
-    if (f === 0x1f) {
-      f = 0x20 + u8();
-    } else {
-      f = 1 + f;
-    }
-  } else {
-    // number of frames, half word case
-
-    f = op & 0x3;
-
-    if (f === 0x3) {
-      f = 4 + u8();
-    } else {
-      f = 1 + f;
+    // set base animation
+    this.base = this;
+    if (this.idOtherAnimation !== -1) {
+      this.base = seq.animations[this.idOtherAnimation];
     }
 
-    // half word values
+    // this holds the initial rotation of bones,
+    // i.e. the initial pose for the animation
+    this.pose = [];
 
-    op = op << 3;
+    this.keyframes = [];
 
-    const h = s16big();
+    // read base pose and keyframes
+    for (let i = 0; i < seq.numBones; ++i) {
+      this.keyframes.push([[0, 0, 0, 0]]);
 
-    if ((h & 0x4) > 0) {
-      x = h >> 3;
-      op = op & 0x60;
+      r.seek(seq.ptrData(this.base.ptrBones[i]));
 
-      if ((h & 0x2) > 0) {
-        y = s16big();
+      this.readPose(i);
+      this.readKeyframes(i);
+    }
+  }
+
+  readPose(i) {
+    const r = this.reader;
+
+    // big endian! but... WHY?!
+    const rx = r.s16big(),
+      ry = r.s16big(),
+      rz = r.s16big();
+
+    this.pose[i] = [rx, ry, rz];
+  }
+
+  readKeyframes(i) {
+    let f = 0;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const op = this.readOpcode();
+
+      if (!op) break;
+
+      f += op[3];
+
+      this.keyframes[i].push(op);
+
+      if (f >= this.length - 1) break;
+    }
+  }
+
+  // opcodes
+  // this is basically 0xafe90 to 0xb0000
+  // reads one opcode and its X, Y, Z, T values
+  // this is actually used for rotations AND a few translations
+  readOpcode() {
+    const r = this.reader;
+
+    let op = r.u8();
+
+    if (op === 0) return null;
+
+    // results
+    let x = null,
+      y = null,
+      z = null,
+      f = null;
+
+    if ((op & 0xe0) > 0) {
+      // number of frames, byte case
+
+      f = op & 0x1f;
+
+      if (f === 0x1f) {
+        f = 0x20 + r.u8();
+      } else {
+        f = 1 + f;
+      }
+    } else {
+      // number of frames, half word case
+
+      f = op & 0x3;
+
+      if (f === 0x3) {
+        f = 4 + r.u8();
+      } else {
+        f = 1 + f;
+      }
+
+      // half word values
+
+      op = op << 3;
+
+      const h = r.s16big();
+
+      if ((h & 0x4) > 0) {
+        x = h >> 3;
+        op = op & 0x60;
+
+        if ((h & 0x2) > 0) {
+          y = r.s16big();
+          op = op & 0xa0;
+        }
+
+        if ((h & 0x1) > 0) {
+          z = r.s16big();
+          op = op & 0xc0;
+        }
+      } else if ((h & 0x2) > 0) {
+        y = h >> 3;
         op = op & 0xa0;
-      }
 
-      if ((h & 0x1) > 0) {
-        z = s16big();
+        if ((h & 0x1) > 0) {
+          z = r.s16big();
+          op = op & 0xc0;
+        }
+      } else if ((h & 0x1) > 0) {
+        z = h >> 3;
         op = op & 0xc0;
       }
-    } else if ((h & 0x2) > 0) {
-      y = h >> 3;
-      op = op & 0xa0;
+    }
 
-      if ((h & 0x1) > 0) {
-        z = s16big();
-        op = op & 0xc0;
+    // byte values (fallthrough)
+
+    if ((op & 0x80) > 0) {
+      x = r.s8();
+    }
+
+    if ((op & 0x40) > 0) {
+      y = r.s8();
+    }
+
+    if ((op & 0x20) > 0) {
+      z = r.s8();
+    }
+
+    return [x, y, z, f];
+  }
+
+  build() {
+    const seq = this.seq;
+    const shp = seq.shp;
+    const numBones = seq.numBones;
+    const hierarchy = [];
+    let i;
+
+    // rotation bones
+
+    for (i = 0; i < numBones; ++i) {
+      const keyframes = this.keyframes[i];
+      const pose = this.pose[i];
+
+      // multiplication by two at 0xad25c, 0xad274, 0xad28c
+      let rx = pose[0] * 2;
+      let ry = pose[1] * 2;
+      let rz = pose[2] * 2;
+
+      const keys = [];
+      let t = 0;
+
+      for (let j = 0, l = keyframes.length; j < l; ++j) {
+        const keyframe = keyframes[j];
+
+        const f = keyframe[3];
+
+        t += f;
+
+        if (keyframe[0] === null) keyframe[0] = keyframes[j - 1][0];
+        if (keyframe[1] === null) keyframe[1] = keyframes[j - 1][1];
+        if (keyframe[2] === null) keyframe[2] = keyframes[j - 1][2];
+
+        rx += keyframe[0] * f;
+        ry += keyframe[1] * f;
+        rz += keyframe[2] * f;
+
+        const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
+
+        keys.push({
+          time: t * TimeScale,
+          pos: [0, 0, 0],
+          rot: [q.x, q.y, q.z, q.w],
+          scl: [1, 1, 1],
+        });
       }
-    } else if ((h & 0x1) > 0) {
-      z = h >> 3;
-      op = op & 0xc0;
-    }
-  }
 
-  // byte values (fallthrough)
-
-  if ((op & 0x80) > 0) {
-    x = s8();
-  }
-
-  if ((op & 0x40) > 0) {
-    y = s8();
-  }
-
-  if ((op & 0x20) > 0) {
-    z = s8();
-  }
-
-  return [x, y, z, f];
-};
-
-SEQAnimation.prototype.build = function () {
-  const seq = this.seq;
-  const shp = seq.shp;
-  const numBones = seq.numBones;
-  const hierarchy = [];
-  let i;
-
-  // rotation bones
-
-  for (i = 0; i < numBones; ++i) {
-    const keyframes = this.keyframes[i];
-    const pose = this.pose[i];
-
-    // multiplication by two at 0xad25c, 0xad274, 0xad28c
-    let rx = pose[0] * 2;
-    let ry = pose[1] * 2;
-    let rz = pose[2] * 2;
-
-    const keys = [];
-    let t = 0;
-
-    for (let j = 0, l = keyframes.length; j < l; ++j) {
-      const keyframe = keyframes[j];
-
-      const f = keyframe[3];
-
-      t += f;
-
-      if (keyframe[0] === null) keyframe[0] = keyframes[j - 1][0];
-      if (keyframe[1] === null) keyframe[1] = keyframes[j - 1][1];
-      if (keyframe[2] === null) keyframe[2] = keyframes[j - 1][2];
-
-      rx += keyframe[0] * f;
-      ry += keyframe[1] * f;
-      rz += keyframe[2] * f;
-
-      const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
-
-      keys.push({
-        time: t * TimeScale,
-        pos: [0, 0, 0],
-        rot: [q.x, q.y, q.z, q.w],
-        scl: [1, 1, 1],
-      });
+      hierarchy.push({ keys: keys });
     }
 
-    hierarchy.push({ keys: keys });
-  }
+    // root's translation bone
 
-  // root's translation bone
-
-  hierarchy.push({
-    keys: [
-      {
-        time: 0,
-        pos: [0, 0, 0],
-        rot: [0, 0, 0, 1],
-        scl: [1, 1, 1],
-      },
-    ],
-  });
-
-  // translation bones
-
-  for (i = 1; i < numBones; ++i) {
     hierarchy.push({
       keys: [
         {
           time: 0,
-          pos: [shp.bones[i].length, 0, 0],
+          pos: [0, 0, 0],
           rot: [0, 0, 0, 1],
           scl: [1, 1, 1],
         },
       ],
     });
+
+    // translation bones
+
+    for (i = 1; i < numBones; ++i) {
+      hierarchy.push({
+        keys: [
+          {
+            time: 0,
+            pos: [shp.bones[i].length, 0, 0],
+            rot: [0, 0, 0, 1],
+            scl: [1, 1, 1],
+          },
+        ],
+      });
+    }
+
+    this.animationData = {
+      name: 'Animation' + this.id,
+      fps: 25,
+      length: this.length * TimeScale,
+      hierarchy,
+    };
+
+    this.animationClip = new AnimationClip.parseAnimation(
+      this.animationData,
+      shp.mesh.skeleton.bones
+    );
   }
-
-  this.animationData = {
-    name: 'Animation' + this.id,
-    fps: 25,
-    length: this.length * TimeScale,
-    hierarchy,
-  };
-
-  this.animationClip = new AnimationClip.parseAnimation(
-    this.animationData,
-    shp.mesh.skeleton.bones
-  );
-};
+}

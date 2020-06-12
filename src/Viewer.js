@@ -24,7 +24,7 @@ import { GIM } from './GIM.js';
 import { P } from './P.js';
 import { FBC } from './FBC.js';
 import { FBT } from './FBT.js';
-import { cloneMeshWithPose, exportPng, ext } from './VSTOOLS.js';
+import { cloneMeshWithPose, exportPng, parseExt } from './VSTOOLS.js';
 import { initUiPanel } from './ui/ui-panel.js';
 
 export function Viewer() {
@@ -99,7 +99,7 @@ export function Viewer() {
 
     const reader1 = new FileReader();
     reader1.onload = function () {
-      const x = ext(f1.name);
+      const x = parseExt(f1.name);
       load2(x, reader1);
 
       if ((x === 'znd' || x === 'shp' || x === 'fbc') && f2) {
@@ -109,7 +109,7 @@ export function Viewer() {
 
     const reader2 = new FileReader();
     reader2.onload = function () {
-      const x = ext(f2.name);
+      const x = parseExt(f2.name);
       load2(x, reader2);
     };
 

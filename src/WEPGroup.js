@@ -1,6 +1,11 @@
-export function WEPGroup(reader) {
-  this.read = function () {
-    this.boneId = reader.s16();
-    this.lastVertex = reader.u16();
-  };
+export class WEPGroup {
+  constructor(reader) {
+    this.reader = reader;
+  }
+
+  read() {
+    const r = this.reader;
+    this.boneId = r.s16();
+    this.lastVertex = r.u16();
+  }
 }

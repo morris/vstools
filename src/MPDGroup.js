@@ -1,23 +1,24 @@
 import { MPDFace } from './MPDFace.js';
 import { MPDMesh } from './MPDMesh.js';
 
-export function MPDGroup(reader, mpd) {
-  reader.extend(this);
+export class MPDGroup {
+  constructor(reader, mpd) {
+    this.reader = reader;
+    this.mpd = mpd;
+  }
 
-  this.mpd = mpd;
-
-  this.read = function () {
+  read() {
     this.header();
     this.data();
-  };
+  }
 
-  this.header = function () {
-    const u8 = this.u8;
+  header() {
+    const r = this.reader;
 
     this.head = [];
 
     for (let i = 0; i < 64; ++i) {
-      this.head[i] = u8();
+      this.head[i] = r.u8();
     }
 
     // the header is not well understood
@@ -29,13 +30,13 @@ export function MPDGroup(reader, mpd) {
     } else {
       this.scale = 8; // TODO is this the default?
     }
-  };
+  }
 
-  this.data = function () {
-    const u32 = this.u32;
+  data() {
+    const r = this.reader;
 
-    this.triangleCount = u32();
-    this.quadCount = u32();
+    this.triangleCount = r.u32();
+    this.quadCount = r.u32();
     this.faceCount = this.triangleCount + this.quadCount;
 
     this.meshes = {};
@@ -55,15 +56,15 @@ export function MPDGroup(reader, mpd) {
       const mesh = this.getMesh(face.textureId, face.clutId);
       mesh.add(face);
     }
-  };
+  }
 
-  this.build = function () {
+  build() {
     for (const id in this.meshes) {
       this.meshes[id].build();
     }
-  };
+  }
 
-  this.getMesh = function (textureId, clutId) {
+  getMesh(textureId, clutId) {
     const meshes = this.meshes;
     const id = textureId + '-' + clutId;
 
@@ -76,5 +77,5 @@ export function MPDGroup(reader, mpd) {
       meshes[id] = mesh;
       return mesh;
     }
-  };
+  }
 }

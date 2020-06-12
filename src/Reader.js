@@ -1,75 +1,60 @@
-export function Reader(data) {
-  let pos = 0;
-
-  function seek(i) {
-    pos = i;
+export class Reader {
+  constructor(data) {
+    this.data = data;
+    this.pos = 0;
   }
 
-  function skip(i) {
-    pos += i;
+  seek(i) {
+    this.pos = i;
+
+    return this;
   }
 
-  function u8() {
-    if (pos >= data.length) throw new Error('Out of bounds');
+  skip(i) {
+    this.pos += i;
 
-    pos += 1;
-    return data[pos - 1];
+    return this;
   }
 
-  function s8() {
-    return (u8() << 24) >> 24;
+  u8() {
+    if (this.pos >= this.data.length) throw new Error('Out of bounds');
+
+    this.pos += 1;
+    return this.data[this.pos - 1];
   }
 
-  function s16() {
-    return u8() | (s8() << 8);
+  s8() {
+    return (this.u8() << 24) >> 24;
   }
 
-  function s16big() {
-    return (s8() << 8) | u8();
+  s16() {
+    return this.u8() | (this.s8() << 8);
   }
 
-  function u16() {
-    return s16() & 0xffff;
+  s16big() {
+    return (this.s8() << 8) | this.u8();
   }
 
-  function s32() {
-    return u8() | (u8() << 8) | (u8() << 16) | (u8() << 24);
+  u16() {
+    return this.s16() & 0xffff;
   }
 
-  function u32() {
+  s32() {
+    return this.u8() | (this.u8() << 8) | (this.u8() << 16) | (this.u8() << 24);
+  }
+
+  u32() {
     // TODO only works if u32 are really all smaller than 0x7fffffff
-    return s32();
+    return this.s32();
   }
 
-  function buffer(len) {
+  buffer(len) {
     const arr = new Array(len);
 
     for (let i = 0; i < len; ++i) {
-      arr[i] = u8();
+      arr[i] = this.u8();
     }
 
     return arr;
   }
-
-  this.extend = function (obj) {
-    obj.reader = this;
-    obj.seek = seek;
-    obj.skip = skip;
-    obj.s8 = s8;
-    obj.u8 = u8;
-    obj.s16 = s16;
-    obj.s16big = s16big;
-    obj.u16 = u16;
-    obj.s32 = s32;
-    obj.u32 = u32;
-    obj.buffer = buffer;
-    obj.pos = function () {
-      return pos;
-    };
-    obj.length = data.length;
-  };
-
-  this.length = data.length;
-
-  this.extend(this);
 }
