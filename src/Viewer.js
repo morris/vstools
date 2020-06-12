@@ -10,6 +10,7 @@ import {
   SkinnedMesh,
   OrbitControls,
   Object3D,
+  BufferGeometry,
 } from './three.js';
 import { SHP } from './SHP.js';
 import { WEP } from './WEP.js';
@@ -379,29 +380,27 @@ export function Viewer() {
           object.material = object.originalMaterial;
         }
 
-        object.material.wireframe = wireframe;
-        object.material.wireframeLinewidth = 2;
-
-        if (!normals) {
-          if (!(object instanceof SkinnedMesh)) {
-            object.material.vertexColors = !noVertexColors;
-          }
-
-          if (noTexture && object.material.map) {
-            object.material.originalMap = object.material.map;
-            object.material.map = null;
-          }
-
-          if (
-            !noTexture &&
-            !object.material.map &&
-            object.material.originalMap
-          ) {
-            object.material.map = object.material.originalMap;
-          }
-
+        if (noTexture && object.material.map) {
+          object.material.originalMap = object.material.map;
+          object.material.map = null;
           object.material.needsUpdate = true;
         }
+
+        if (!noTexture && !object.material.map && object.material.originalMap) {
+          object.material.map = object.material.originalMap;
+          object.material.needsUpdate = true;
+        }
+
+        if (
+          object.geometry instanceof BufferGeometry &&
+          object.geometry.attributes.color
+        ) {
+          object.material.vertexColors = !noVertexColors;
+          object.material.needsUpdate = true;
+        }
+
+        object.material.wireframe = wireframe;
+        object.material.wireframeLinewidth = 2;
       }
 
       if (skeleton && object instanceof SkinnedMesh) {
