@@ -30,7 +30,7 @@ export class ARMRoom {
 
     for (let i = 0; i < this.numVertices; ++i) {
       this.vertices.push(new Vector3(r.s16(), r.s16(), r.s16()));
-      r.skip(2); // TODO zero padding
+      r.padding(2);
     }
 
     this.numTriangles = r.u32();

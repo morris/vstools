@@ -1,6 +1,7 @@
 export class WEPGroup {
-  constructor(reader) {
+  constructor(reader, id) {
     this.reader = reader;
+    this.id = id;
   }
 
   read() {

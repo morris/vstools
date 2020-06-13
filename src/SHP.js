@@ -60,9 +60,6 @@ export class SHP extends WEP {
     this.groupPtr = r.u32() + 0xf8;
     this.vertexPtr = r.u32() + 0xf8;
     this.facePtr = r.u32() + 0xf8;
-
-    // static, unused
-    this.bonePtr = 0x138;
   }
 
   data() {

@@ -22,7 +22,7 @@ export class ZUD {
     this.idShield = r.u8();
     this.idShieldMaterial = r.u8();
     this.unknown = r.u8();
-    r.skip(1); // padding
+    r.padding(1);
     this.ptrCharacterSHP = r.u32();
     this.lenCharacterSHP = r.u32();
     this.ptrWeaponWEP = r.u32();

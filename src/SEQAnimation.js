@@ -9,7 +9,6 @@ export class SEQAnimation {
 
   header(id) {
     const r = this.reader;
-    const seq = this.seq;
 
     this.id = id;
     this.length = r.u16(); // 2
@@ -29,69 +28,65 @@ export class SEQAnimation {
     this.ptrMove = r.u16(); // 10
 
     // read pointers to pose and keyframes for individual bones
-    this.ptrBones = [];
+    this.ptrRotation = [];
 
-    let i;
-
-    for (i = 0; i < seq.numBones; ++i) {
-      const ptr = r.u16();
-      this.ptrBones.push(ptr);
+    for (let i = 0; i < this.seq.numBones; ++i) {
+      this.ptrRotation.push(r.u16());
     } // 10 + numBones * 2
 
-    for (i = 0; i < seq.numBones; ++i) {
-      // TODO is this 0 for all SEQ?
-      r.skip(2);
+    this.ptrScale = [];
+
+    for (let i = 0; i < this.seq.numBones; ++i) {
+      this.ptrScale.push(r.u16());
     } // 10 + numBones * 4
   }
 
   data() {
     const r = this.reader;
 
-    const seq = this.seq;
-    //const shp = seq.shp;
-
     // read translation
     // big endian
-    r.seek(seq.ptrData(this.ptrTranslation));
+    r.seek(this.seq.ptrData(this.ptrTranslation));
 
-    r.s16big(); // x
-    r.s16big(); // y
-    r.s16big(); // z
+    this.tx = r.s16big();
+    this.ty = r.s16big();
+    this.tz = r.s16big();
 
     // TODO implement move
 
     // set base animation
-    this.base = this;
-    if (this.idOtherAnimation !== -1) {
-      this.base = seq.animations[this.idOtherAnimation];
-    }
+    this.base =
+      this.idOtherAnimation === -1
+        ? this
+        : this.seq.animations[this.idOtherAnimation];
 
     // this holds the initial rotation of bones,
     // i.e. the initial pose for the animation
     this.pose = [];
-
     this.keyframes = [];
 
     // read base pose and keyframes
-    for (let i = 0; i < seq.numBones; ++i) {
+    for (let i = 0; i < this.seq.numBones; ++i) {
       this.keyframes.push([[0, 0, 0, 0]]);
 
-      r.seek(seq.ptrData(this.base.ptrBones[i]));
+      r.seek(this.seq.ptrData(this.base.ptrRotation[i]));
 
-      this.readPose(i);
+      this.pose.push(this.readPose());
       this.readKeyframes(i);
+
+      // TODO read ptrScale data
     }
   }
 
-  readPose(i) {
+  readPose() {
     const r = this.reader;
 
     // big endian! but... WHY?!
-    const rx = r.s16big(),
-      ry = r.s16big(),
-      rz = r.s16big();
+    const rx = r.s16big();
+    const ry = r.s16big();
+    const rz = r.s16big();
 
-    this.pose[i] = [rx, ry, rz];
+    return [rx, ry, rz];
   }
 
   readKeyframes(i) {
@@ -120,13 +115,13 @@ export class SEQAnimation {
 
     let op = r.u8();
 
-    if (op === 0) return null;
+    if (op === 0) return;
 
     // results
-    let x = null,
-      y = null,
-      z = null,
-      f = null;
+    let x = null;
+    let y = null;
+    let z = null;
+    let f = null;
 
     if ((op & 0xe0) > 0) {
       // number of frames, byte case

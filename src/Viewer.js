@@ -134,7 +134,6 @@ export function Viewer() {
 
     root.remove(root.children[0]);
     root.add(wep.mesh);
-    console.log(scene, root);
 
     updateTextures(wep.textureMap.textures);
     updateAnim();

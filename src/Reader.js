@@ -1,3 +1,5 @@
+import { hex2 } from './VSTOOLS.js';
+
 export class Reader {
   constructor(data) {
     this.data = data;
@@ -44,8 +46,12 @@ export class Reader {
   }
 
   u32() {
-    // TODO only works if u32 are really all smaller than 0x7fffffff
-    return this.s32();
+    const u = this.s32();
+
+    // TODO if we see this error, need to switch to BigInt?
+    if (u < 0) throw new Error('Got unsigned int > 0x7fffffff');
+
+    return u;
   }
 
   buffer(len) {
@@ -56,5 +62,29 @@ export class Reader {
     }
 
     return arr;
+  }
+
+  constant(bytes) {
+    const actual = this.buffer(bytes.length);
+
+    for (let i = 0; i < bytes.length; ++i) {
+      if (actual[i] !== bytes[i]) {
+        throw new Error(`Expected ${bytes.join(' ')}, got ${actual.join(' ')}`);
+      }
+    }
+  }
+
+  padding(length, byte = 0) {
+    const actual = this.buffer(length);
+
+    for (let i = 0; i < length; ++i) {
+      if (actual[i] !== byte) {
+        throw new Error(
+          `Expected ${hex2(byte)}-padding (${length}), got ${actual
+            .map(hex2)
+            .join(' ')}`
+        );
+      }
+    }
   }
 }

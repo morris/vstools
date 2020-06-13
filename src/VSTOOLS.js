@@ -89,6 +89,10 @@ export function hex(i, pad) {
   return '0x' + x;
 }
 
+export function hex2(i) {
+  return hex(i, 2);
+}
+
 export function bin(i, pad) {
   let x = i.toString(2);
 

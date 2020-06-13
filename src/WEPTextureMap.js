@@ -15,12 +15,12 @@ export class WEPTextureMap {
     const r = this.reader;
 
     this.size = r.u32();
-    r.skip(1); // TODO unknown, always 1?
+    r.skip(1); // TODO unknown, always 1 for WEP; SHP and ZUD may have different values
     this.width = r.u8() * 2;
     this.height = r.u8() * 2;
     this.colorsPerPalette = r.u8();
 
-    const palettes = (this.palettes = []);
+    this.palettes = [];
 
     let handle;
 
@@ -39,7 +39,7 @@ export class WEPTextureMap {
         palette.read(this.colorsPerPalette);
       }
 
-      palettes.push(palette);
+      this.palettes.push(palette);
     }
 
     this.map = [];

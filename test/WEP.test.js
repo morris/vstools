@@ -1,6 +1,7 @@
 import { testFiles } from './util.js';
 import { WEP } from '../src/WEP.js';
 import { Reader } from '../src/Reader.js';
+import * as assert from 'assert';
 
 testFiles({
   label: 'WEP',
@@ -11,5 +12,10 @@ testFiles({
     const it = new WEP(reader);
     it.read();
     it.build();
+
+    for (const bone of it.bones) {
+      assert.equal(bone.mode, 0);
+      assert.equal(bone.bodyPartId, 0);
+    }
   },
 });

@@ -1,5 +1,7 @@
 import { SEQAnimation } from './SEQAnimation.js';
 
+// 00_COM.SEQ is at 0x80125ea0 in RAM
+
 export class SEQ {
   constructor(reader, shp) {
     this.reader = reader;
@@ -14,69 +16,61 @@ export class SEQ {
   header() {
     const r = this.reader;
 
-    this.ramPtr = 0x125e9e; // TODO fix this for ashley?
-    this.ramPtr = 0;
-
-    // base ptr needed because seq may be embedded
-    this.basePtr = r.pos;
+    // base ptr needed because SEQ may be embedded
+    this.baseOffset = r.pos;
 
     this.numSlots = r.u16(); // 'slots' is just some random name, purpose unknown
     this.numBones = r.u8();
-    r.skip(1); // padding
+    r.padding(1);
 
     this.size = r.u32(); // file size
-    this.h3 = r.u32(); // unknown
-    this.slotPtr = r.u32() + 8; // ptr to slots
-    this.dataPtr = this.slotPtr + this.numSlots; // ptr to rotation and keyframe data
+    this.dataOffset = r.u32() + 8; // offset to animation data
+    this.slotOffset = r.u32() + 8; // offset to slots
+    this.headerOffset = this.slotOffset + this.numSlots; // offset to rotation and keyframe data
   }
 
   data() {
     const r = this.reader;
 
-    const dataPtr = this.dataPtr,
-      numBones = this.numBones,
-      numSlots = this.numSlots;
+    const headerOffset = this.headerOffset;
 
     // number of animations has to be computed
     // length of all headers / length of one animation header
-    const numAnimations = (this.numAnimations =
-      (dataPtr - numSlots - 16) / (numBones * 4 + 10));
+    this.numAnimations =
+      (headerOffset - this.numSlots - 16) / (this.numBones * 4 + 10);
 
     // read animation headers
-    const animations = (this.animations = []);
+    this.animations = [];
 
-    for (let i = 0; i < numAnimations; ++i) {
+    for (let i = 0; i < this.numAnimations; ++i) {
       const animation = new SEQAnimation(this.reader, this);
       animation.header(i);
 
-      animations.push(animation);
+      this.animations.push(animation);
     }
 
     // read 'slots'
     // these are animation ids, can be used as in this.animations[ id ].
     // purpose unknown
-    const slots = (this.slots = []);
+    this.slots = [];
 
-    for (let i = 0; i < numSlots; ++i) {
-      slots[i] = r.s8();
+    for (let i = 0; i < this.numSlots; ++i) {
+      this.slots[i] = r.s8();
     }
 
     // read animation data
-    for (let i = 0; i < numAnimations; ++i) {
-      animations[i].data();
+    for (let i = 0; i < this.numAnimations; ++i) {
+      this.animations[i].data();
     }
   }
 
   build() {
-    const numAnimations = this.numAnimations,
-      animations = this.animations;
-
-    for (let i = 0; i < numAnimations; ++i) {
-      animations[i].build();
+    for (let i = 0; i < this.numAnimations; ++i) {
+      this.animations[i].build();
     }
   }
 
   ptrData(i) {
-    return i + this.dataPtr + this.basePtr;
+    return i + this.headerOffset + this.baseOffset;
   }
 }

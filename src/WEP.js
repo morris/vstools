@@ -28,24 +28,18 @@ export class WEP {
     this.header1();
 
     this.texturePtr1 = r.u32() + 0x10;
-
-    r.skip(0x30); // TODO whats this?
-
+    r.padding(0x30);
     this.texturePtr = r.u32() + 0x10;
-
     this.groupPtr = r.u32() + 0x10;
     this.vertexPtr = r.u32() + 0x10;
     this.facePtr = r.u32() + 0x10;
-
-    // unused
-    this.bonePtr = 0x4c + 0x04;
   }
 
   header1() {
     const r = this.reader;
 
     // magic 'H01' + 0x00
-    r.buffer(4);
+    r.constant([0x48, 0x30, 0x31, 0x00]);
 
     this.numBones = r.u8();
     this.numGroups = r.u8();
@@ -67,7 +61,7 @@ export class WEP {
     this.bones = [];
 
     for (let i = 0; i < this.numBones; ++i) {
-      let bone = new WEPBone(this.reader);
+      let bone = new WEPBone(this.reader, i);
       bone.read();
       this.bones.push(bone);
     }
@@ -76,8 +70,8 @@ export class WEP {
       let bone = this.bones[i];
 
       // set parent bone
-      if (bone.parentBoneId < this.numBones) {
-        bone.parentBone = this.bones[bone.parentBoneId];
+      if (bone.parentId < this.numBones) {
+        bone.parentBone = this.bones[bone.parentId];
       }
     }
   }
@@ -86,9 +80,14 @@ export class WEP {
     this.groups = [];
 
     for (let i = 0; i < this.numGroups; ++i) {
-      const group = new WEPGroup(this.reader);
+      const group = new WEPGroup(this.reader, i);
       group.read();
-      group.bone = this.bones[group.boneId];
+
+      const bone = this.bones[group.boneId];
+
+      if (group.id !== bone.groupId) {
+        throw new Error(`Unexpected group/bone reference`, group, bone);
+      }
 
       this.groups.push(group);
     }
@@ -269,12 +268,10 @@ export class WEP {
 
     // set rotation bone parents
     for (let i = 0; i < this.numBones; ++i) {
-      const parentBoneId = this.bones[i].parentBoneId;
+      const parentId = this.bones[i].parentId;
 
-      if (parentBoneId < this.numBones) {
-        this.skeletonBones[parentBoneId + this.numBones].add(
-          this.skeletonBones[i]
-        );
+      if (parentId < this.numBones) {
+        this.skeletonBones[parentId + this.numBones].add(this.skeletonBones[i]);
       }
     }
   }
@@ -291,9 +288,9 @@ export class WEP {
     // sets length of bones. just for WEP.
     // SHP's animations will override this
 
-    for (let i = this.numBones; i < this.numBones * 2; ++i) {
-      const b = this.bones[i - this.numBones];
-      this.mesh.skeleton.bones[i].position.x = b.length;
+    for (let i = 0; i < this.numBones; ++i) {
+      const bone = this.bones[i];
+      this.mesh.skeleton.bones[i + this.numBones].position.x = bone.length;
     }
   }
 }
