@@ -19,7 +19,7 @@ export class SEQAnimation {
     this.mode = r.u8(); // unknown. has weird effects on mesh. 4
 
     // seems to point to a data block that controls looping
-    this.ptr1 = r.u16(); // 6
+    this.ptrLoop = r.u16(); // 6
 
     // points to a translation vector for the animated mesh
     this.ptrTranslation = r.u16(); // 8
@@ -52,7 +52,9 @@ export class SEQAnimation {
     this.ty = r.s16big();
     this.tz = r.s16big();
 
-    // TODO implement move
+    // TODO implement loop and move
+    r.seek(this.seq.ptrData(this.ptrLoop)).mark(2);
+    r.seek(this.seq.ptrData(this.ptrMove)).mark(3);
 
     // set base animation
     this.base =
@@ -75,6 +77,7 @@ export class SEQAnimation {
       this.readKeyframes(i);
 
       // TODO read ptrScale data
+      r.seek(this.seq.ptrData(this.ptrScale[i])).mark(1);
     }
   }
 
@@ -195,15 +198,11 @@ export class SEQAnimation {
   }
 
   build() {
-    const seq = this.seq;
-    const shp = seq.shp;
-    const numBones = seq.numBones;
     const hierarchy = [];
-    let i;
 
     // rotation bones
 
-    for (i = 0; i < numBones; ++i) {
+    for (let i = 0; i < this.seq.numBones; ++i) {
       const keyframes = this.keyframes[i];
       const pose = this.pose[i];
 
@@ -258,12 +257,12 @@ export class SEQAnimation {
 
     // translation bones
 
-    for (i = 1; i < numBones; ++i) {
+    for (let i = 1; i < this.seq.numBones; ++i) {
       hierarchy.push({
         keys: [
           {
             time: 0,
-            pos: [shp.bones[i].length, 0, 0],
+            pos: [this.seq.shp.bones[i].length, 0, 0],
             rot: [0, 0, 0, 1],
             scl: [1, 1, 1],
           },
@@ -280,7 +279,7 @@ export class SEQAnimation {
 
     this.animationClip = new AnimationClip.parseAnimation(
       this.animationData,
-      shp.mesh.skeleton.bones
+      this.seq.shp.mesh.skeleton.bones
     );
   }
 }

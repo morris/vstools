@@ -49,3 +49,49 @@ export function printResults() {
     console.log(`${label}: ${ok}/${files.length} (${p}%)`);
   }
 }
+
+export function debugHtml(title, body) {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>${title}</title>
+    <link rel="stylesheet" href="../css/debug.css">
+  </head>
+  <body>
+    <h1>${title}</h1>
+    ${body}
+  </body>
+</html>`;
+}
+
+export function dumpReader(reader) {
+  let html = '';
+
+  let unread = 0;
+
+  for (let i = 0; i < reader.data.length; ++i) {
+    if (reader.type[i] === 0) ++unread;
+  }
+
+  const p = 1 - unread / reader.data.length;
+
+  html += `<p>${(p * 100).toFixed(2)}% complete, ${unread}/${
+    reader.data.length
+  } bytes unread</p>`;
+
+  html += '<pre class="hex">';
+
+  for (let i = 0; i < reader.data.length; ++i) {
+    let h = reader.data[i].toString(16);
+
+    if (h.length === 1) h = '0' + h;
+
+    html += `<i class="t${reader.type[i]} i${reader.info[i]}">${h}</i> `;
+
+    if (i % 16 === 15) html += '<br>';
+  }
+
+  html += '</pre>';
+
+  return html;
+}

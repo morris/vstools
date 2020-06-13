@@ -1,0 +1,56 @@
+.hex i {
+  font-style: normal;
+  color: #000000;
+}
+
+.hex .t1 {
+  color: #0074D9;
+}
+
+.hex .t-1 {
+  color: #FF851B;
+}
+
+.hex .t2 {
+  color: #39CCCC;
+}
+
+.hex .t-2 {
+  color: #85144b;
+}
+
+.hex .t-20 {
+  color: #B10DC9;
+}
+
+.hex .t3 {
+  color: #39CCCC;
+}
+
+.hex .t4 {
+  color: #3D9970;
+}
+
+.hex .t-4 {
+  color: #85144b;
+}
+
+.hex .t5 {
+  color: #FF4136;
+}
+
+.hex .t7 {
+  color: #DDDDDD;
+}
+
+.hex .i1 {
+  text-decoration: underline;
+}
+
+.hex .i2 {
+  font-weight: bold;
+}
+
+.hex .i3 {
+  background: #DDDDDD;
+}
