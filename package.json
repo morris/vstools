@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --single-quote --write src/*.js test/*.js",
-    "test": "node --experimental-loader ./test/loader.js test/test.js"
+    "test": "node --experimental-loader ./test/loader.js test/test.js",
+    "serve": "http-server"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "eslint": "^7.2.0",
+    "http-server": "^0.12.3",
     "mocha": "^7.2.0",
     "prettier": "^2.0.5"
   }
