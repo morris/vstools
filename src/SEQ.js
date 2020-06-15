@@ -50,12 +50,18 @@ export class SEQ {
     }
 
     // read 'slots'
-    // these are animation ids, can be used as in this.animations[ id ].
+    // these are animation ids, can be used as in this.animations[id].
     // purpose unknown
     this.slots = [];
 
     for (let i = 0; i < this.numSlots; ++i) {
-      this.slots[i] = r.s8();
+      const slot = r.u8();
+
+      if (slot >= this.numAnimations && slot !== 255) {
+        throw new Error('?');
+      }
+
+      this.slots.push(slot);
     }
 
     // read animation data

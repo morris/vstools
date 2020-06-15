@@ -53,7 +53,8 @@ export class SEQAnimation {
     // some animations use a different animation as base
     this.idOtherAnimation = r.s8(); // 3
 
-    this.mode = r.u8(); // unknown. has weird effects on mesh. 4
+    // unknown. has weird effects on mesh.
+    this.mode = r.u8(); // 4
 
     // points to special actions per frame, e.g. looping and special effects
     this.ptrActions = r.u16(); // 6
@@ -62,10 +63,9 @@ export class SEQAnimation {
     // plus translation keys
     this.ptrTranslation = r.u16(); // 8
 
-    // points to a data block that controls movement
-    this.ptrMove = r.u16(); // 10
+    r.padding(2); // 10
 
-    // read pointers to pose and rotation keys for individual bones
+    // pointers to pose and rotation keys for individual bones
     this.ptrBoneRotation = [];
 
     for (let i = 0; i < this.seq.numBones; ++i) {
@@ -89,37 +89,41 @@ export class SEQAnimation {
     this.translationKeys = this.readKeys();
 
     if (this.ptrActions > 0) {
-      r.seek(this.seq.ptrData(this.ptrActions)).mark(2);
+      r.seek(this.seq.ptrData(this.ptrActions));
       this.readActions();
     }
 
-    // TODO
-    r.seek(this.seq.ptrData(this.ptrMove));
-
-    // set base animation
-    this.base =
-      this.idOtherAnimation === -1
-        ? this
-        : this.seq.animations[this.idOtherAnimation];
-
-    // this holds the initial rotation of bones,
+    // initial rotation of bones,
     // i.e. the initial pose for the animation
     this.pose = [];
     this.boneRotationKeys = [];
+    this.scale = [];
+    this.boneScaleKeys = [];
 
-    // read base pose and boneRotationKeys
+    // read bone animation data
     for (let i = 0; i < this.seq.numBones; ++i) {
-      r.seek(this.seq.ptrData(this.base.ptrBoneRotation[i]));
+      r.seek(this.seq.ptrData(this.ptrBoneRotation[i]));
 
-      this.pose.push(this.readXYZ());
+      if (this.idOtherAnimation === -1) {
+        this.pose.push(this.readXYZ());
+      } // else use pose of other animation
+
       this.boneRotationKeys.push(this.readKeys());
 
-      // TODO read ptrBoneScale data
-      //r.seek(this.seq.ptrData(this.ptrBoneScale[i])).mark(1);
+      if (this.ptrBoneScale[i] > 0) {
+        r.seek(this.seq.ptrData(this.ptrBoneScale[i])).mark(3);
+
+        const x = r.u8();
+        const y = r.u8();
+        const z = r.u8();
+
+        this.scale.push({ x, y, z });
+        this.boneScaleKeys.push(this.readKeys());
+      }
     }
   }
 
-  // read frame keys until 0x00-key is found
+  // read keyframes until 0x00-key is found
   // or animation length is exhausted
   readKeys() {
     const keys = [{ f: 0, x: 0, y: 0, z: 0 }];
@@ -141,7 +145,7 @@ export class SEQAnimation {
     return keys;
   }
 
-  // read one compressed frame key into F, X?, Y?, Z? values
+  // read one compressed keyframe into F, X?, Y?, Z? values
   // used for translation keys and bone rotation keys
   // this is basically reverse engineered from 0xafe90 to 0xb0000
   readKey() {
@@ -149,7 +153,7 @@ export class SEQAnimation {
 
     let code = r.u8();
 
-    if (code === 0) return;
+    if (code === 0x00) return;
 
     let f = null;
     let x = null;
@@ -245,7 +249,7 @@ export class SEQAnimation {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const f = r.mark().u8(); // frame number or 0xff
+      const f = r.u8(); // frame number or 0xff
 
       // TODO probably wrong to break here
       if (f === 0xff) break;
@@ -254,25 +258,20 @@ export class SEQAnimation {
         throw new Error(
           `Unexpected frame number ${hex2(f)} > ${
             this.length
-          } in SEQ action section; prev: ${hex2(r.data[r.pos - 2])}`
+          } in SEQ action section`
         );
       }
 
-      const a = r.mark(3).u8(); // action
+      const a = r.mark(1).u8(); // action
 
       if (a === 0x00) return;
-      //if (a === 0x27) console.log('27 @ ' + this.id)
 
       const action = ACTIONS[a];
 
       if (!action) {
-        //return;
-        console.warn(
-          `Unknown SEQ action ${hex2(a)} at frame ${f}; next byte is ${hex2(
-            r.u8()
-          )}`
+        throw new Error(
+          `Unknown SEQ action ${hex2(a)} at frame ${f}`
         );
-        return;
       }
 
       const [name, paramCount] = action;
@@ -309,7 +308,8 @@ export class SEQAnimation {
     // rotation bones
 
     for (let i = 0; i < this.seq.numBones; ++i) {
-      const pose = this.pose[i];
+      const pose = this.idOtherAnimation === -1 ? this.pose[i] :
+        this.seq.animations[this.idOtherAnimation].pose[i];
       const boneRotationKeys = this.boneRotationKeys[i];
 
       // multiplication by two at 0xad25c, 0xad274, 0xad28c
