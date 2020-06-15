@@ -1,40 +1,41 @@
 import { AnimationClip } from './three.js';
 import { rot13toRad, rot2quat, TimeScale, hex2 } from './VSTOOLS.js';
 
+// TODO bug with 00_BT3 (action data and rotation data overlap?)
+
 const ACTIONS = {
   0x01: ['loop', 0], // verified
-  0x02: ['?', 0],
-  0x04: ['?', 1],
-  0x05: ['?', 1],
-  //0x07: ['?', 1],
+  0x02: ['?', 0], // often at end
+  0x04: ['?', 1], //
   0x0a: ['?', 1], // verified in 00_COM (no other options, 0x00 x00 follows)
   0x0b: ['?', 0], // pretty sure
-  0x0c: ['?', 1], // frame may be 0
+  0x0c: ['?', 1],
   0x0d: ['?', 0],
-  0x0f: ['?', 0], // frame may be 0
-  0x13: ['unlockBone', 1], // verified
+  0x0f: ['?', 1], // first
+  0x13: ['unlockBone', 1], // verified in emulation
   0x14: ['?', 1],
   0x15: ['?', 1], // verified 00_COM (no other options, 0x00 0x00 follows)
-  0x16: ['?', 2], // pretty sure
-  0x17: ['?', 0],
-  0x18: ['?', 0],
-  0x19: ['?', 0], // frame may be 0, verified 00_COM (no other options, 0x00 0x00 follows)
-  0x1a: ['?', 0], // frame may be 0
-  0x1b: ['?', 1], // frame may be 0
+  0x16: ['?', 2], // first, verified 00_BT3
+  0x17: ['?', 0], // + often at end
+  0x18: ['?', 0], // + often at end
+  0x19: ['?', 0], // first, verified 00_COM (no other options, 0x00 0x00 follows)
+  0x1a: ['?', 1], // first, verified 00_BT1 (0x00 0x00 follows)
+  0x1b: ['?', 1], // first, verified 00_BT1 (0x00 0x00 follows)
   0x1c: ['?', 1],
-  0x1e: ['?', 0], // frame may be 0
-  0x1d: ['paralyze?', 0], // frame may be 0
-  0x24: ['?', 2], // frame may be 0
-  0x27: ['?', 4], // frame may be 0, verified see 00_COM
-  0x35: ['?', 5], // frame may be 0
-  0x36: ['?', 0], // frame may be 0
-  0x37: ['?', 1], // frame may be 0, pretty sure
+  0x1d: ['paralyze?', 0], // first, verified 1C_BT1
+  0x24: ['?', 2], // first
+  0x27: ['?', 4], // first, verified see 00_COM
+  0x34: ['?', 3], // first
+  0x35: ['?', 5], // first
+  0x36: ['?', 3],
+  0x37: ['?', 1], // pretty sure
+  0x38: ['?', 1],
+  0x39: ['?', 1],
   0x3a: ['disappear', 0],
   0x3b: ['land', 0],
   0x3c: ['adjustShadow', 1], // verified
-  0x3f: ['?', 0], // frame may be 0, pretty sure, often followed by 0x16
-  0x40: ['?', 0],
-  //0xc8: ['?', 0]
+  0x3f: ['?', 0], // first, pretty sure, often followed by 0x16
+  0x40: ['?', 0], // often preceded by 0x1a, 0x1b, often at end
 };
 
 export class SEQAnimation {
