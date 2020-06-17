@@ -63,16 +63,8 @@ export class WEP {
     for (let i = 0; i < this.numBones; ++i) {
       let bone = new WEPBone(this.reader, i);
       bone.read();
-      this.bones.push(bone);
-    }
 
-    for (let i = 0; i < this.numBones; ++i) {
-      let bone = this.bones[i];
-
-      // set parent bone
-      if (bone.parentId < this.numBones) {
-        bone.parentBone = this.bones[bone.parentId];
-      }
+      this.bones[i] = bone;
     }
   }
 

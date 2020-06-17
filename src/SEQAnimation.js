@@ -1,4 +1,4 @@
-import { AnimationClip } from './three.js';
+import { AnimationClip, QuaternionKeyframeTrack } from './three.js';
 import { rot13toRad, rot2quat, TimeScale, hex2 } from './VSTOOLS.js';
 
 // TODO bug with 00_BT3 (action data and rotation data overlap?)
@@ -303,7 +303,7 @@ export class SEQAnimation {
   //
 
   build() {
-    const hierarchy = [];
+    const tracks = [];
 
     // TODO use secondary rotations, too
 
@@ -321,7 +321,9 @@ export class SEQAnimation {
       let ry = pose.y * 2;
       let rz = pose.z * 2;
 
-      const keys = [];
+      const times = [];
+      const values = [];
+
       let t = 0;
 
       for (let j = 0, l = boneRotationKeys.length; j < l; ++j) {
@@ -339,57 +341,17 @@ export class SEQAnimation {
 
         const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
 
-        keys.push({
-          time: t * TimeScale,
-          pos: [0, 0, 0],
-          rot: [q.x, q.y, q.z, q.w],
-          scl: [1, 1, 1],
-        });
+        times.push(t * TimeScale);
+        values.push(q.x, q.y, q.z, q.w);
       }
 
-      hierarchy.push({ keys });
+      tracks.push(new QuaternionKeyframeTrack(`.bones[${i}].quaternion`, times, values));
     }
 
-    // root's translation bone
-
-    hierarchy.push({
-      keys: [
-        {
-          time: 0,
-          pos: [0, 0, 0],
-          rot: [0, 0, 0, 1],
-          scl: [1, 1, 1],
-        },
-      ],
-    });
-
-    // translation bones
-
-    for (let i = 1; i < this.seq.numBones; ++i) {
-      hierarchy.push({
-        keys: [
-          {
-            time: 0,
-            pos: [this.seq.shp ? this.seq.shp.bones[i].length : 10, 0, 0],
-            rot: [0, 0, 0, 1],
-            scl: [1, 1, 1],
-          },
-        ],
-      });
-    }
-
-    this.animationData = {
-      name: 'Animation' + this.id,
-      fps: 25,
-      length: this.length * TimeScale,
-      hierarchy,
-    };
-
-    if (this.seq.shp) {
-      this.animationClip = new AnimationClip.parseAnimation(
-        this.animationData,
-        this.seq.shp.mesh.skeleton.bones
-      );
-    }
+    this.animationClip = new AnimationClip(
+      this.id.toString(),
+      this.length * TimeScale,
+      tracks
+    );
   }
 }
