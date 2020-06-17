@@ -10,6 +10,7 @@ testFiles({
   test: (file, buffer) => {
     const reader = new Reader(buffer);
     const it = new SEQ(reader);
+    //console.log(file);
     it.read();
     it.build();
 

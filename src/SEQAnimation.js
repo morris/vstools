@@ -69,13 +69,15 @@ export class SEQAnimation {
     this.ptrBoneRotation = [];
 
     for (let i = 0; i < this.seq.numBones; ++i) {
-      this.ptrBoneRotation.push(r.u16());
+      this.ptrBoneRotation[i] = r.u16();
     } // 10 + numBones * 2
 
-    this.ptrBoneScale = [];
+    this.ptrSecondaryBoneRotation = [];
 
+    // pointers to (optional) additional rotation keys for bones
+    // mostly used for hair and cloth animation (01.SHP, 03.SHP)
     for (let i = 0; i < this.seq.numBones; ++i) {
-      this.ptrBoneScale.push(r.u16());
+      this.ptrSecondaryBoneRotation[i] = r.u16();
     } // 10 + numBones * 4
   }
 
@@ -93,32 +95,32 @@ export class SEQAnimation {
       this.readActions();
     }
 
-    // initial rotation of bones,
-    // i.e. the initial pose for the animation
-    this.pose = [];
+    this.pose = []; // initial rotation per bone
     this.boneRotationKeys = [];
-    this.scale = [];
-    this.boneScaleKeys = [];
+    this.secondaryPose = []; // TODO not too sure about this
+    this.secondaryBoneRotationKeys = [];
 
     // read bone animation data
     for (let i = 0; i < this.seq.numBones; ++i) {
       r.seek(this.seq.ptrData(this.ptrBoneRotation[i]));
 
       if (this.idOtherAnimation === -1) {
-        this.pose.push(this.readXYZ());
-      } // else use pose of other animation
+        this.pose[i] = this.readXYZ();
+      } // else use pose of other animation (at build)
 
-      this.boneRotationKeys.push(this.readKeys());
+      this.boneRotationKeys[i] = this.readKeys();
 
-      if (this.ptrBoneScale[i] > 0) {
-        r.seek(this.seq.ptrData(this.ptrBoneScale[i])).mark(3);
+      // secondary is optional
+      if (this.ptrSecondaryBoneRotation[i] > 0) {
+        r.seek(this.seq.ptrData(this.ptrSecondaryBoneRotation[i])).mark(3);
 
-        const x = r.u8();
-        const y = r.u8();
-        const z = r.u8();
+        const x = r.s8();
+        const y = r.s8();
+        const z = r.s8();
 
-        this.scale.push({ x, y, z });
-        this.boneScaleKeys.push(this.readKeys());
+        this.secondaryPose[i] = { x, y, z };
+        //console.log(this.pose[i], this.secondaryPose[i]);
+        this.secondaryBoneRotationKeys[i] = this.readKeys();
       }
     }
   }
@@ -269,9 +271,7 @@ export class SEQAnimation {
       const action = ACTIONS[a];
 
       if (!action) {
-        throw new Error(
-          `Unknown SEQ action ${hex2(a)} at frame ${f}`
-        );
+        throw new Error(`Unknown SEQ action ${hex2(a)} at frame ${f}`);
       }
 
       const [name, paramCount] = action;
@@ -305,11 +305,15 @@ export class SEQAnimation {
   build() {
     const hierarchy = [];
 
+    // TODO use secondary rotations, too
+
     // rotation bones
 
     for (let i = 0; i < this.seq.numBones; ++i) {
-      const pose = this.idOtherAnimation === -1 ? this.pose[i] :
-        this.seq.animations[this.idOtherAnimation].pose[i];
+      const pose =
+        this.idOtherAnimation === -1
+          ? this.pose[i]
+          : this.seq.animations[this.idOtherAnimation].pose[i];
       const boneRotationKeys = this.boneRotationKeys[i];
 
       // multiplication by two at 0xad25c, 0xad274, 0xad28c

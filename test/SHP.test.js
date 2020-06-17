@@ -1,6 +1,7 @@
-import { testFiles } from './util.js';
+import { testFiles, debugHtml, dumpReader } from './util.js';
 import { SHP } from '../src/SHP.js';
 import { Reader } from '../src/Reader.js';
+import * as fs from 'fs';
 
 testFiles({
   label: 'SHP',
@@ -9,7 +10,15 @@ testFiles({
   test: (file, buffer) => {
     const reader = new Reader(buffer);
     const it = new SHP(reader);
-    it.read();
-    it.build();
+
+    try {
+      it.read();
+      it.build();
+    } finally {
+      fs.writeFileSync(
+        `debug/${file}.html`,
+        debugHtml(file, dumpReader(reader))
+      );
+    }
   },
 });

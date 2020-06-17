@@ -113,10 +113,12 @@ export class WEP {
   }
 
   faceSection() {
+    const r = this.reader;
+
     this.faces = [];
 
     for (let i = 0; i < this.numAllPolygons; ++i) {
-      const face = new WEPFace(this.reader);
+      const face = new WEPFace(r);
       face.read();
 
       this.faces.push(face);
@@ -127,6 +129,8 @@ export class WEP {
     this.textureMap = new WEPTextureMap(this.reader);
     this.textureMap.read(numPalettes, wep);
   }
+
+  //
 
   build() {
     this.buildGeometry();
