@@ -97,8 +97,6 @@ export class WEP {
       const vertex = new WEPVertex(this.reader);
       vertex.read();
       vertex.groupId = g;
-      vertex.group = this.groups[g];
-      vertex.boneId = this.groups[g].boneId;
 
       this.vertices.push(vertex);
     }
@@ -127,7 +125,7 @@ export class WEP {
   build() {
     this.buildGeometry();
     this.buildMaterial();
-    this.buildBones();
+    this.buildSkeleton();
     this.buildMesh();
   }
 
@@ -142,6 +140,22 @@ export class WEP {
     const skinWeight = [];
     const skinIndex = [];
 
+    const getOffset = (vertex) => {
+      let offset = 0;
+      let bone = this.getParentBone(this.groups[vertex.groupId].boneId);
+
+      while (bone) {
+        offset += -bone.length;
+        bone = this.getParentBone(bone.id);
+      }
+
+      return offset;
+    };
+
+    const getBoneId = (vertex) => {
+      return this.groups[vertex.groupId].boneId;
+    };
+
     for (let i = 0, l = this.faces.length; i < l; ++i) {
       const f = this.faces[i];
 
@@ -151,20 +165,20 @@ export class WEP {
         const v3 = this.vertices[f.vertex3];
         const v4 = this.vertices[f.vertex4];
 
-        position.push(v1.x, v1.y, v1.z);
-        position.push(v2.x, v2.y, v2.z);
-        position.push(v3.x, v3.y, v3.z);
-        position.push(v4.x, v4.y, v4.z);
+        position.push(v1.x + getOffset(v1), v1.y, v1.z);
+        position.push(v2.x + getOffset(v2), v2.y, v2.z);
+        position.push(v3.x + getOffset(v3), v3.y, v3.z);
+        position.push(v4.x + getOffset(v4), v4.y, v4.z);
 
         skinWeight.push(1, 0, 0, 0);
         skinWeight.push(1, 0, 0, 0);
         skinWeight.push(1, 0, 0, 0);
         skinWeight.push(1, 0, 0, 0);
 
-        skinIndex.push(v1.boneId, 0, 0, 0);
-        skinIndex.push(v2.boneId, 0, 0, 0);
-        skinIndex.push(v3.boneId, 0, 0, 0);
-        skinIndex.push(v4.boneId, 0, 0, 0);
+        skinIndex.push(getBoneId(v1), 0, 0, 0);
+        skinIndex.push(getBoneId(v2), 0, 0, 0);
+        skinIndex.push(getBoneId(v3), 0, 0, 0);
+        skinIndex.push(getBoneId(v4), 0, 0, 0);
 
         uv.push(f.u1 / tw, f.v1 / th);
         uv.push(f.u2 / tw, f.v2 / th);
@@ -185,17 +199,17 @@ export class WEP {
         const v2 = this.vertices[f.vertex2];
         const v3 = this.vertices[f.vertex3];
 
-        position.push(v1.x, v1.y, v1.z);
-        position.push(v2.x, v2.y, v2.z);
-        position.push(v3.x, v3.y, v3.z);
+        position.push(v1.x + getOffset(v1), v1.y, v1.z);
+        position.push(v2.x + getOffset(v2), v2.y, v2.z);
+        position.push(v3.x + getOffset(v3), v3.y, v3.z);
 
         skinWeight.push(1, 0, 0, 0);
         skinWeight.push(1, 0, 0, 0);
         skinWeight.push(1, 0, 0, 0);
 
-        skinIndex.push(v1.boneId, 0, 0, 0);
-        skinIndex.push(v2.boneId, 0, 0, 0);
-        skinIndex.push(v3.boneId, 0, 0, 0);
+        skinIndex.push(getBoneId(v1), 0, 0, 0);
+        skinIndex.push(getBoneId(v2), 0, 0, 0);
+        skinIndex.push(getBoneId(v3), 0, 0, 0);
 
         uv.push(f.u2 / tw, f.v2 / th);
         uv.push(f.u3 / tw, f.v3 / th);
@@ -240,53 +254,44 @@ export class WEP {
     });
   }
 
-  buildBones() {
-    this.skeletonBones = [];
+  buildSkeleton() {
+    const skeletonBones = [];
 
-    // binding pose is identity
-
-    // rotation bones
+    // create bones
     for (let i = 0; i < this.numBones; ++i) {
       const bone = new Bone();
-      bone.name = 'rbone' + i;
+      bone.name = 'bone' + i;
 
-      this.skeletonBones.push(bone);
+      skeletonBones.push(bone);
     }
 
-    // translation bones
-    for (let i = this.numBones; i < this.numBones * 2; ++i) {
-      const bone = new Bone();
-      bone.name = 'tbone' + i;
-
-      this.skeletonBones[i - this.numBones].add(bone);
-      this.skeletonBones.push(bone);
-    }
-
-    // set rotation bone parents
+    // set parents and lengths
     for (let i = 0; i < this.numBones; ++i) {
-      const parentId = this.bones[i].parentId;
+      const parent = this.getParentBone(i);
 
-      if (parentId < this.numBones) {
-        this.skeletonBones[parentId + this.numBones].add(this.skeletonBones[i]);
+      if (parent) {
+        skeletonBones[parent.id].add(skeletonBones[i]);
+        skeletonBones[i].position.x = -parent.length;
       }
     }
+
+    this.skeleton = new Skeleton(skeletonBones);
   }
 
   buildMesh() {
     this.mesh = new SkinnedMesh(this.geometry, this.material);
-    this.skeleton = new Skeleton(this.skeletonBones);
-
     this.mesh.add(this.skeleton.bones[0]);
     this.mesh.bind(this.skeleton);
 
+    // TODO why?
     this.mesh.rotation.x = Math.PI;
+  }
 
-    // sets length of bones. just for WEP.
-    // SHP's animations will override this
+  getParentBone(id) {
+    const bone = this.bones[id];
 
-    for (let i = 0; i < this.numBones; ++i) {
-      const bone = this.bones[i];
-      this.mesh.skeleton.bones[i + this.numBones].position.x = bone.length;
-    }
+    return bone.parentId < this.numBones
+      ? this.bones[bone.parentId]
+      : undefined;
   }
 }

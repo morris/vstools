@@ -7,12 +7,7 @@ export class WEPBone {
   read() {
     const r = this.reader;
 
-    this.length = -r.s32(); // negative
-
-    if (this.length < 0) {
-      throw new Error('Unexpected negative bone length');
-    }
-
+    this.length = r.s32();
     this.parentId = r.s8();
     this.groupId = r.s8(); // doubly linked (groups reference bones as well)
     this.mountId = r.u8(); // for mounting weapons etc.

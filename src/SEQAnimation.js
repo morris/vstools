@@ -345,7 +345,9 @@ export class SEQAnimation {
         values.push(q.x, q.y, q.z, q.w);
       }
 
-      tracks.push(new QuaternionKeyframeTrack(`.bones[${i}].quaternion`, times, values));
+      tracks.push(
+        new QuaternionKeyframeTrack(`.bones[${i}].quaternion`, times, values)
+      );
     }
 
     this.animationClip = new AnimationClip(

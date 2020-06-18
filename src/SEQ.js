@@ -3,9 +3,8 @@ import { SEQAnimation } from './SEQAnimation.js';
 // 00_COM.SEQ is at 0x80125ea0 in RAM
 
 export class SEQ {
-  constructor(reader, shp) {
+  constructor(reader) {
     this.reader = reader;
-    this.shp = shp;
   }
 
   read() {
