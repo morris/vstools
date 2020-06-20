@@ -1,41 +1,45 @@
-import { AnimationClip, QuaternionKeyframeTrack } from './three.js';
+import {
+  AnimationClip,
+  QuaternionKeyframeTrack,
+  VectorKeyframeTrack,
+} from './three.js';
 import { rot13toRad, rot2quat, TimeScale, hex2 } from './VSTOOLS.js';
 
 // TODO bug with 00_BT3 (action data and rotation data overlap?)
 
 const ACTIONS = {
   0x01: ['loop', 0], // verified
-  0x02: ['?', 0], // often at end
-  0x04: ['?', 1], //
-  0x0a: ['?', 1], // verified in 00_COM (no other options, 0x00 x00 follows)
-  0x0b: ['?', 0], // pretty sure
-  0x0c: ['?', 1],
-  0x0d: ['?', 0],
-  0x0f: ['?', 1], // first
+  0x02: ['0x02', 0], // often at end, used for attack animations
+  0x04: ['0x04', 1], //
+  0x0a: ['0x0a', 1], // verified in 00_COM (no other options, 0x00 x00 follows)
+  0x0b: ['0x0b', 0], // pretty sure, used with walk/run, followed by 0x17/left, 0x18/right
+  0x0c: ['0x0c', 1],
+  0x0d: ['0x0d', 0],
+  0x0f: ['0x0f', 1], // first
   0x13: ['unlockBone', 1], // verified in emulation
-  0x14: ['?', 1],
-  0x15: ['?', 1], // verified 00_COM (no other options, 0x00 0x00 follows)
-  0x16: ['?', 2], // first, verified 00_BT3
-  0x17: ['?', 0], // + often at end
-  0x18: ['?', 0], // + often at end
-  0x19: ['?', 0], // first, verified 00_COM (no other options, 0x00 0x00 follows)
-  0x1a: ['?', 1], // first, verified 00_BT1 (0x00 0x00 follows)
-  0x1b: ['?', 1], // first, verified 00_BT1 (0x00 0x00 follows)
-  0x1c: ['?', 1],
+  0x14: ['0x14', 1], // often at end of non-looping
+  0x15: ['0x15', 1], // verified 00_COM (no other options, 0x00 0x00 follows)
+  0x16: ['0x16', 2], // first, verified 00_BT3
+  0x17: ['0x17', 0], // + often at end
+  0x18: ['0x18', 0], // + often at end
+  0x19: ['0x19', 0], // first, verified 00_COM (no other options, 0x00 0x00 follows)
+  0x1a: ['0x1a', 1], // first, verified 00_BT1 (0x00 0x00 follows)
+  0x1b: ['0x1b', 1], // first, verified 00_BT1 (0x00 0x00 follows)
+  0x1c: ['0x1c', 1],
   0x1d: ['paralyze?', 0], // first, verified 1C_BT1
-  0x24: ['?', 2], // first
-  0x27: ['?', 4], // first, verified see 00_COM
-  0x34: ['?', 3], // first
-  0x35: ['?', 5], // first
-  0x36: ['?', 3],
-  0x37: ['?', 1], // pretty sure
-  0x38: ['?', 1],
-  0x39: ['?', 1],
-  0x3a: ['disappear', 0],
+  0x24: ['0x24', 2], // first
+  0x27: ['0x27', 4], // first, verified see 00_COM
+  0x34: ['0x34', 3], // first
+  0x35: ['0x35', 5], // first
+  0x36: ['0x36', 3],
+  0x37: ['0x37', 1], // pretty sure
+  0x38: ['0x38', 1],
+  0x39: ['0x39', 1],
+  0x3a: ['disappear', 0], // used in death animations
   0x3b: ['land', 0],
   0x3c: ['adjustShadow', 1], // verified
-  0x3f: ['?', 0], // first, pretty sure, often followed by 0x16
-  0x40: ['?', 0], // often preceded by 0x1a, 0x1b, often at end
+  0x3f: ['0x3f', 0], // first, pretty sure, often followed by 0x16
+  0x40: ['0x40', 0], // often preceded by 0x1a, 0x1b, often at end
 };
 
 export class SEQAnimation {
@@ -50,11 +54,12 @@ export class SEQAnimation {
     this.id = id;
     this.length = r.u16(); // 2
 
-    // some animations use a different animation as base
-    this.idOtherAnimation = r.s8(); // 3
+    // optional base animation to use initial rotation per bone (pose)
+    // -1 means undefined
+    this.baseAnimationId = r.s8(); // 3
 
-    // unknown. has weird effects on mesh.
-    this.mode = r.u8(); // 4
+    // determines scale key parsing
+    this.scaleFlags = r.u8(); // 4
 
     // points to special actions per frame, e.g. looping and special effects
     this.ptrActions = r.u16(); // 6
@@ -72,12 +77,12 @@ export class SEQAnimation {
       this.ptrBoneRotation[i] = r.u16();
     } // 10 + numBones * 2
 
-    this.ptrSecondaryBoneRotation = [];
+    this.ptrBoneScale = [];
 
-    // pointers to (optional) additional rotation keys for bones
-    // mostly used for hair and cloth animation (01.SHP, 03.SHP)
+    // pointers to (optional) scale keys for bones
+    // only used if scaleFlags & 0x02 is set
     for (let i = 0; i < this.seq.numBones; ++i) {
-      this.ptrSecondaryBoneRotation[i] = r.u16();
+      this.ptrBoneScale[i] = r.u16();
     } // 10 + numBones * 4
   }
 
@@ -95,32 +100,33 @@ export class SEQAnimation {
       this.readActions();
     }
 
-    this.pose = []; // initial rotation per bone
-    this.boneRotationKeys = [];
-    this.secondaryPose = []; // TODO not too sure about this
-    this.secondaryBoneRotationKeys = [];
+    this.rotationPerBone = [];
+    this.rotationKeysPerBone = [];
+    this.scalePerBone = [];
+    this.scaleKeysPerBone = [];
 
     // read bone animation data
     for (let i = 0; i < this.seq.numBones; ++i) {
       r.seek(this.seq.ptrData(this.ptrBoneRotation[i]));
 
-      if (this.idOtherAnimation === -1) {
-        this.pose[i] = this.readXYZ();
-      } // else use pose of other animation (at build)
+      if (this.baseAnimationId === -1) {
+        this.rotationPerBone[i] = this.readXYZ();
+      } // else use pose of base animation (at build)
 
-      this.boneRotationKeys[i] = this.readKeys();
+      this.rotationKeysPerBone[i] = this.readKeys();
 
-      // secondary is optional
-      if (this.ptrSecondaryBoneRotation[i] > 0) {
-        r.seek(this.seq.ptrData(this.ptrSecondaryBoneRotation[i])).mark(3);
+      r.seek(this.seq.ptrData(this.ptrBoneScale[i]));
 
-        const x = r.s8();
-        const y = r.s8();
-        const z = r.s8();
+      if (this.scaleFlags & 0x1) {
+        const x = r.u8();
+        const y = r.u8();
+        const z = r.u8();
 
-        this.secondaryPose[i] = { x, y, z };
-        //console.log(this.pose[i], this.secondaryPose[i]);
-        this.secondaryBoneRotationKeys[i] = this.readKeys();
+        this.scalePerBone[i] = { x, y, z };
+      }
+
+      if (this.scaleFlags & 0x2) {
+        this.scaleKeysPerBone[i] = this.readKeys();
       }
     }
   }
@@ -148,7 +154,7 @@ export class SEQAnimation {
   }
 
   // read one compressed keyframe into F, X?, Y?, Z? values
-  // used for translation keys and bone rotation keys
+  // used for translation, rotation, and scale keys
   // this is basically reverse engineered from 0xafe90 to 0xb0000
   readKey() {
     const r = this.reader;
@@ -264,7 +270,7 @@ export class SEQAnimation {
         );
       }
 
-      const a = r.mark(1).u8(); // action
+      const a = r.u8(); // action
 
       if (a === 0x00) return;
 
@@ -305,49 +311,11 @@ export class SEQAnimation {
   build() {
     const tracks = [];
 
-    // TODO use secondary rotations, too
-
-    // rotation bones
+    // TODO build translation track
 
     for (let i = 0; i < this.seq.numBones; ++i) {
-      const pose =
-        this.idOtherAnimation === -1
-          ? this.pose[i]
-          : this.seq.animations[this.idOtherAnimation].pose[i];
-      const boneRotationKeys = this.boneRotationKeys[i];
-
-      // multiplication by two at 0xad25c, 0xad274, 0xad28c
-      let rx = pose.x * 2;
-      let ry = pose.y * 2;
-      let rz = pose.z * 2;
-
-      const times = [];
-      const values = [];
-
-      let t = 0;
-
-      for (let j = 0, l = boneRotationKeys.length; j < l; ++j) {
-        const key = boneRotationKeys[j];
-        const f = key.f;
-
-        if (key.x === null) key.x = boneRotationKeys[j - 1].x;
-        if (key.y === null) key.y = boneRotationKeys[j - 1].y;
-        if (key.z === null) key.z = boneRotationKeys[j - 1].z;
-
-        t += f;
-        rx += key.x * f;
-        ry += key.y * f;
-        rz += key.z * f;
-
-        const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
-
-        times.push(t * TimeScale);
-        values.push(q.x, q.y, q.z, q.w);
-      }
-
-      tracks.push(
-        new QuaternionKeyframeTrack(`.bones[${i}].quaternion`, times, values)
-      );
+      tracks.push(this.buildRotationTrackForBone(i));
+      if (this.scaleFlags & 0x3) tracks.push(this.buildScaleTrackForBone(i));
     }
 
     this.animationClip = new AnimationClip(
@@ -355,5 +323,87 @@ export class SEQAnimation {
       this.length * TimeScale,
       tracks
     );
+  }
+
+  buildRotationTrackForBone(boneId) {
+    const base =
+      this.baseAnimationId === -1
+        ? this.rotationPerBone[boneId]
+        : this.seq.animations[this.baseAnimationId].rotationPerBone[boneId];
+    const keys = this.rotationKeysPerBone[boneId];
+
+    // multiplication by two at 0xad25c, 0xad274, 0xad28c
+    let rx = base.x * 2;
+    let ry = base.y * 2;
+    let rz = base.z * 2;
+
+    const times = [];
+    const values = [];
+
+    let t = 0;
+
+    for (let i = 0, l = keys.length; i < l; ++i) {
+      const key = keys[i];
+      const f = key.f;
+
+      if (key.x === null) key.x = keys[i - 1].x;
+      if (key.y === null) key.y = keys[i - 1].y;
+      if (key.z === null) key.z = keys[i - 1].z;
+
+      t += f;
+      rx += key.x * f;
+      ry += key.y * f;
+      rz += key.z * f;
+
+      const q = rot2quat(rot13toRad(rx), rot13toRad(ry), rot13toRad(rz));
+
+      times.push(t * TimeScale);
+      values.push(q.x, q.y, q.z, q.w);
+    }
+
+    return new QuaternionKeyframeTrack(
+      `.bones[${boneId}].quaternion`,
+      times,
+      values
+    );
+  }
+
+  buildScaleTrackForBone(boneId) {
+    const base =
+      this.scaleFlags & 0x1
+        ? this.scalePerBone[boneId]
+        : { x: 64, y: 64, z: 64 };
+    const keys =
+      this.scaleFlags & 0x2
+        ? this.scaleKeysPerBone[boneId]
+        : [{ f: 0, x: 0, y: 0, z: 0 }];
+
+    let sx = base.x / 64;
+    let sy = base.y / 64;
+    let sz = base.z / 64;
+
+    const times = [];
+    const values = [];
+
+    let t = 0;
+
+    for (let i = 0, l = keys.length; i < l; ++i) {
+      const key = keys[i];
+      const f = key.f;
+
+      if (key.x === null) key.x = keys[i - 1].x;
+      if (key.y === null) key.y = keys[i - 1].y;
+      if (key.z === null) key.z = keys[i - 1].z;
+
+      t += f;
+      sx += (key.x / 64) * f;
+      sy += (key.y / 64) * f;
+      sz += (key.z / 64) * f;
+
+      times.push(t * TimeScale);
+      values.push(sx, sy, sz);
+    }
+
+    return new VectorKeyframeTrack(`.bones[${boneId}].scale`, times, values);
   }
 }

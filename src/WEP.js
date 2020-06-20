@@ -251,6 +251,7 @@ export class WEP {
       flatShading: true,
       skinning: true,
       transparent: true,
+      alphaTest: 0.1,
     });
   }
 
