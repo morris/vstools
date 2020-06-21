@@ -6,6 +6,7 @@ import {
   SkinnedMesh,
   Bone,
   VertexColors,
+  MeshNormalMaterial,
 } from './three.js';
 import { WEPVertex } from './WEPVertex.js';
 import { WEPBone } from './WEPBone.js';
@@ -274,6 +275,14 @@ export class WEP {
 
   buildMaterial() {
     this.textureMap.build();
+
+    if (!this.textureMap.textures[0]) {
+      this.material = new MeshNormalMaterial({
+        skinning: true
+      });
+
+      return;
+    }
 
     this.material = new MeshBasicMaterial({
       map: this.textureMap.textures[0],

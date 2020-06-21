@@ -77,13 +77,15 @@ export class WEPTextureMap {
           ? this.buildV16(palette)
           : null; // TODO
 
-      texture.magFilter = NearestFilter;
-      texture.minFilter = NearestFilter;
-      texture.wrapS = RepeatWrapping;
-      texture.wrapT = RepeatWrapping;
-      texture.needsUpdate = true;
+      if (texture) {
+        texture.magFilter = NearestFilter;
+        texture.minFilter = NearestFilter;
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+        texture.needsUpdate = true;
 
-      this.textures.push(texture);
+        this.textures.push(texture);
+      }
     }
   }
 
