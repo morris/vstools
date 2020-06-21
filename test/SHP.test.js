@@ -6,7 +6,7 @@ import * as fs from 'fs';
 testFiles({
   label: 'SHP',
   dir: 'data/OBJ',
-  filter: (it) => it.match(/\.SHP$/),
+  filter: (it) => it.match(/\.SHP$/) && it.match(/./),
   test: (file, buffer) => {
     const reader = new Reader(buffer);
     const it = new SHP(reader);

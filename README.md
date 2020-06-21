@@ -44,6 +44,7 @@ featuring an outstanding character and level design.
 
 - Tremendous work in deciphering Vagrant Story by [Michael Collins](https://github.com/collinsmichael)
 - WEP textures fixed by [Oliver Barraza](https://github.com/MercurialForge)
+- SHP with vertex colors found and reversed by [korobetski](https://github.com/korobetski)
 
 A lot of information on Vagrant Story hacking can be found here:
 http://datacrystal.romhacking.net/wiki/Vagrant_Story

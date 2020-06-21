@@ -36,7 +36,7 @@
 23.SHP flying demon
 24.SHP bird
 25.SHP minotaur king
-
+26.SHP mimic
 27.SHP weird fire fingers
 28.SHP hellhound
 29.SHP bat
@@ -56,8 +56,8 @@
 37.SHP golem
 38.SHP asura-like
 39.SHP crab
-
-
+3A.SHP wyvern (graylands)
+3B.SHP wyvern
 3C.SHP harpy
 3D.SHP green dragon
 3E.SHP blue dragon
@@ -92,15 +92,15 @@
 62.SHP ogre king
 63.SHP ogre zombie
 64.SHP silver golem
-
+65.SHP damascus golem
 66.SHP kali
 67.SHP asura
 68.SHP black crab
 69.SHP brown crab
-
-
+6A.SHP gold wyvern
+6B.SHP dark wyvern
 6C.SHP evil doll
-6D.SHP sidney (no texture, on-armed?)
+6D.SHP sidney (no texture, one-armed?)
 6E.SHP sidney's arm
 6F.SHP sidney (blood-sin removed)
 70.SHP bardorba
@@ -116,11 +116,9 @@
 7A.SHP counselor d
 7B.SHP female counselor
 7C.SHP rosencrantz
+
 7E.SHP wolf
 80.SHP knight
-
-
-64.SHP black golem
 
 Z001U00 guildenstern
 Z001U01 graylands attacker 1 (broken)

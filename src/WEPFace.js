@@ -1,5 +1,7 @@
 import { hex } from './VSTOOLS.js';
 
+// weird order of data is likely due to alignment in blocks of size 4
+
 export class WEPFace {
   constructor(reader) {
     this.reader = reader;
@@ -10,17 +12,13 @@ export class WEPFace {
 
     this.type = r.u8(); // 1
 
-    if (this.type === 0x24) {
-      // triangle
-    } else if (this.type === 0x2c) {
-      // quad
-    } else {
+    if (this.type !== 0x24 && this.type !== 0x2c) {
       throw new Error('Unknown face type: ' + hex(this.type));
     }
 
     this.size = r.u8(); // 2
     this.info = r.u8(); // 3
-    this.u = r.u8(); // TODO whats this? 4
+    r.skip(1); // TODO whats this? 4
 
     this.vertex1 = r.u16() / 4; // 6
     this.vertex2 = r.u16() / 4; // 8
@@ -43,10 +41,116 @@ export class WEPFace {
     }
 
     // size of triangle is 16, quad is 20
+
+    // default vertex color is white
+    this.r1 = 255;
+    this.g1 = 255;
+    this.b1 = 255;
+    this.r2 = 255;
+    this.g2 = 255;
+    this.b2 = 255;
+    this.r3 = 255;
+    this.g3 = 255;
+    this.b3 = 255;
+
+    if (this.quad()) {
+      this.r4 = 255;
+      this.g4 = 255;
+      this.b4 = 255;
+    }
+  }
+
+  readColored() {
+    const r = this.reader;
+
+    this.type = r.data[r.pos + 11];
+
+    if (this.type === 0x34) {
+      return this.readTriangleColored();
+    } else if (this.type === 0x3c) {
+      return this.readQuadColored();
+    } else {
+      throw new Error('Unknown face type: ' + hex(this.type));
+    }
+  }
+
+  readTriangleColored() {
+    const r = this.reader;
+
+    this.vertex1 = r.u16() / 4;
+    this.vertex2 = r.u16() / 4;
+
+    this.vertex3 = r.u16() / 4;
+    this.u1 = r.u8();
+    this.v1 = r.u8();
+
+    this.r1 = r.u8();
+    this.g1 = r.u8();
+    this.b1 = r.u8();
+    r.constant([0x34]); // type
+
+    this.r2 = r.u8();
+    this.g2 = r.u8();
+    this.b2 = r.u8();
+    this.size = r.u8();
+
+    this.r3 = r.u8();
+    this.g3 = r.u8();
+    this.b3 = r.u8();
+    this.info = r.u8();
+
+    this.u2 = r.u8();
+    this.v2 = r.u8();
+    this.u3 = r.u8();
+    this.v3 = r.u8();
+
+    // 28
+  }
+
+  readQuadColored() {
+    const r = this.reader;
+
+    this.vertex1 = r.u16() / 4;
+    this.vertex2 = r.u16() / 4;
+
+    this.vertex3 = r.u16() / 4;
+    this.vertex4 = r.u16() / 4;
+
+    this.r1 = r.u8();
+    this.g1 = r.u8();
+    this.b1 = r.u8();
+    r.constant([0x3c]); // type
+
+    this.r2 = r.u8();
+    this.g2 = r.u8();
+    this.b2 = r.u8();
+    this.size = r.u8();
+
+    this.r3 = r.u8();
+    this.g3 = r.u8();
+    this.b3 = r.u8();
+    this.info = r.u8();
+
+    this.r4 = r.u8();
+    this.g4 = r.u8();
+    this.b4 = r.u8();
+    r.skip(1); // always 0x00 except for B1.SHP (0x01)
+
+    this.u1 = r.u8();
+    this.v1 = r.u8();
+    this.u2 = r.u8();
+    this.v2 = r.u8();
+
+    this.u3 = r.u8();
+    this.v3 = r.u8();
+    this.u4 = r.u8();
+    this.v4 = r.u8();
+
+    // 36
   }
 
   quad() {
-    return this.type === 0x2c;
+    return this.type === 0x2c || this.type === 0x3c;
   }
 
   double() {

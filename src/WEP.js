@@ -5,6 +5,7 @@ import {
   MeshBasicMaterial,
   SkinnedMesh,
   Bone,
+  VertexColors,
 } from './three.js';
 import { WEPVertex } from './WEPVertex.js';
 import { WEPBone } from './WEPBone.js';
@@ -15,6 +16,7 @@ import { WEPTextureMap } from './WEPTextureMap.js';
 export class WEP {
   constructor(reader) {
     this.reader = reader;
+    this.version = 1;
   }
 
   read() {
@@ -104,14 +106,30 @@ export class WEP {
 
   faceSection() {
     const r = this.reader;
+    const pos = r.pos;
 
-    this.faces = [];
+    try {
+      this.faces = [];
 
-    for (let i = 0; i < this.numAllPolygons; ++i) {
-      const face = new WEPFace(r);
-      face.read();
+      for (let i = 0; i < this.numAllPolygons; ++i) {
+        const face = new WEPFace(r);
+        face.read();
 
-      this.faces.push(face);
+        this.faces.push(face);
+      }
+    } catch (err) {
+      if (!err.message.match(/Unknown face type/)) throw err;
+
+      r.seek(pos);
+      this.faces = [];
+      this.version = 2;
+
+      for (let i = 0; i < this.numAllPolygons; ++i) {
+        const face = new WEPFace(r);
+        face.readColored();
+
+        this.faces.push(face);
+      }
     }
   }
 
@@ -130,7 +148,7 @@ export class WEP {
   }
 
   buildGeometry() {
-    const tw = this.textureMap.width;
+    const tw = this.textureMap.getWidth();
     const th = this.textureMap.height;
 
     let iv = 0;
@@ -139,6 +157,7 @@ export class WEP {
     const uv = [];
     const skinWeight = [];
     const skinIndex = [];
+    const color = [];
 
     const getOffset = (vertex) => {
       let offset = 0;
@@ -185,6 +204,11 @@ export class WEP {
         uv.push(f.u3 / tw, f.v3 / th);
         uv.push(f.u4 / tw, f.v4 / th);
 
+        color.push(f.r1 / 255, f.g1 / 255, f.b1 / 255);
+        color.push(f.r2 / 255, f.g2 / 255, f.b2 / 255);
+        color.push(f.r3 / 255, f.g3 / 255, f.b3 / 255);
+        color.push(f.r4 / 255, f.g4 / 255, f.b4 / 255);
+
         index.push(iv + 2, iv + 1, iv + 0);
         index.push(iv + 1, iv + 2, iv + 3);
 
@@ -215,6 +239,10 @@ export class WEP {
         uv.push(f.u3 / tw, f.v3 / th);
         uv.push(f.u1 / tw, f.v1 / th);
 
+        color.push(f.r1 / 255, f.g1 / 255, f.b1 / 255);
+        color.push(f.r2 / 255, f.g2 / 255, f.b2 / 255);
+        color.push(f.r3 / 255, f.g3 / 255, f.b3 / 255);
+
         index.push(iv + 2, iv + 1, iv + 0);
 
         if (f.double()) {
@@ -237,6 +265,7 @@ export class WEP {
       new Float32BufferAttribute(skinIndex, 4)
     );
     geometry.setAttribute('uv', new Float32BufferAttribute(uv, 2));
+    geometry.setAttribute('color', new Float32BufferAttribute(color, 3));
     geometry.computeBoundingSphere();
     geometry.computeVertexNormals();
 
@@ -252,6 +281,7 @@ export class WEP {
       skinning: true,
       transparent: true,
       alphaTest: 0.1,
+      vertexColors: VertexColors,
     });
   }
 

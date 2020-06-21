@@ -22,20 +22,20 @@ export class SHP extends WEP {
       this.height.push(r.u8());
     }
 
-    r.skip(0x24); // unknown
+    r.skip(0x24); // TODO unknown
+    r.skip(0x6); // TODO collision? not sure about this
 
-    r.skip(0x6); // collision, not sure about this
     this.menuPositionY = r.s16();
-    r.skip(0xc); // u
+    r.skip(0xc); // TODO unknown
     this.shadowRadius = r.s16();
     this.shadowSizeIncrease = r.s16();
     this.shadowSizeDecrease = r.s16();
-    r.skip(4);
+    r.skip(4); // TODO
 
     this.menuScale = r.s16();
-    r.skip(2);
+    r.skip(2); // TODO
     this.targetSpherePositionY = r.s16();
-    r.skip(8);
+    r.skip(8); // TODO
 
     this.animLBAs = [];
     for (let i = 0; i < 0xc; ++i) {
@@ -52,10 +52,10 @@ export class SHP extends WEP {
       this.specialLBAs.push(r.u32());
     }
 
-    r.skip(0x20); // unknown, more lbas?
+    r.skip(0x20); // TODO unknown, more lbas?
 
     this.magicPtr = r.u32() + 0xf8;
-    r.skip(0x18 * 2); // TODO whats this?
+    r.skip(0x30); // TODO whats this?
     this.akaoPtr = r.u32() + 0xf8;
     this.groupPtr = r.u32() + 0xf8;
     this.vertexPtr = r.u32() + 0xf8;
@@ -71,10 +71,10 @@ export class SHP extends WEP {
     this.vertexSection();
     this.faceSection();
 
-    // skip akao
+    // TODO skip akao
     r.skip(this.magicPtr - this.akaoPtr);
 
-    // skip magic section
+    // TODO skip magic section
     r.skip(4);
     const length = r.u32();
     r.skip(length);
