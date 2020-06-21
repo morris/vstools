@@ -278,7 +278,7 @@ export class WEP {
 
     if (!this.textureMap.textures[0]) {
       this.material = new MeshNormalMaterial({
-        skinning: true
+        skinning: true,
       });
 
       return;
