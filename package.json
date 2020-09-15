@@ -20,13 +20,13 @@
   },
   "homepage": "https://github.com/morris/vstools",
   "dependencies": {
-    "pngjs": "^3.3.3",
+    "pngjs": "^5.0.0",
     "three": "0.117.1"
   },
   "devDependencies": {
-    "eslint": "^7.2.0",
+    "eslint": "^7.9.0",
     "http-server": "^0.12.3",
-    "mocha": "^7.2.0",
-    "prettier": "^2.0.5"
+    "mocha": "^8.1.3",
+    "prettier": "^2.1.1"
   }
 }
