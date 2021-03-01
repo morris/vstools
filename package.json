@@ -21,7 +21,7 @@
   "homepage": "https://github.com/morris/vstools",
   "dependencies": {
     "pngjs": "^5.0.0",
-    "three": "0.117.1"
+    "three": "0.125.0"
   },
   "devDependencies": {
     "eslint": "^7.9.0",
