@@ -1,4 +1,5 @@
 import { Quaternion, Vector3, Vector4, Matrix4, Mesh } from './three.js';
+import { ShaderMaterial } from './three.js';
 
 export const TimeScale = 0.04;
 export const Rot13toRad = (1 / 4096) * Math.PI;
@@ -144,6 +145,75 @@ export function cloneMeshWithPose(mesh) {
   clone.geometry.computeVertexNormals();
 
   return clone;
+}
+
+export function newVSMaterial(parameters) {
+  parameters.vertexShader = `
+    #include <common>
+    #include <uv_pars_vertex>
+    #include <color_pars_vertex>
+    #include <skinning_pars_vertex>
+
+    void main() {
+      #ifdef USE_COLOR
+        vColor = color;
+
+        #ifdef USE_MAP
+          // On PS1, vertex color 0x80 (128/255) is "fully bright"
+          // and doesn't change the texture. 0x81-0xFF are "brighter
+          // than bright".
+          vColor *= (255.0 / 128.0);
+        #endif
+      #endif
+
+      vUv = uv;
+
+      #include <skinbase_vertex>
+      #include <begin_vertex>
+      #include <skinning_vertex>
+      #include <project_vertex>
+      #include <worldpos_vertex>
+    }
+  `;
+
+  parameters.fragmentShader = `
+    #ifndef FLAT_SHADED
+      varying vec3 vNormal;
+    #endif
+    #include <common>
+    #include <uv_pars_fragment>
+    #include <color_pars_fragment>
+    #include <map_pars_fragment>
+
+    void main() {
+      vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
+
+      #ifdef USE_MAP
+        diffuseColor *= texture2D( map, vUv );
+      #endif
+
+      #include <color_fragment>
+      #include <alphatest_fragment>
+
+      gl_FragColor = diffuseColor;
+
+      #include <tonemapping_fragment>
+      #include <premultiplied_alpha_fragment>
+    }
+  `;
+
+  parameters.uniforms = {
+    map: { type: 't', value: parameters.map },
+  };
+
+  parameters.defines = {
+    USE_MAP: !!(parameters.map),
+    USE_UV: true,
+  };
+
+  delete parameters.map;
+
+  return new ShaderMaterial(parameters);
 }
 
 export function assert(expr, expected) {
