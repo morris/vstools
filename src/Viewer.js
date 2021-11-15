@@ -379,14 +379,13 @@ export function Viewer() {
           object.material = object.originalMaterial;
         }
 
-        if (noTexture && object.material.map) {
-          object.material.originalMap = object.material.map;
-          object.material.map = null;
+        if (noTexture && object.material.defines.USE_MAP) {
+          object.material.defines.USE_MAP = false;
           object.material.needsUpdate = true;
         }
 
-        if (!noTexture && !object.material.map && object.material.originalMap) {
-          object.material.map = object.material.originalMap;
+        if (!noTexture && !object.material.defines.USE_MAP) {
+          object.material.defines.USE_MAP = true;
           object.material.needsUpdate = true;
         }
 

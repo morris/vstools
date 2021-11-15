@@ -42,21 +42,21 @@ export class WEPFace {
 
     // size of triangle is 16, quad is 20
 
-    // default vertex color is white
-    this.r1 = 255;
-    this.g1 = 255;
-    this.b1 = 255;
-    this.r2 = 255;
-    this.g2 = 255;
-    this.b2 = 255;
-    this.r3 = 255;
-    this.g3 = 255;
-    this.b3 = 255;
+    // default vertex color is 0x80
+    this.r1 = 0x80;
+    this.g1 = 0x80;
+    this.b1 = 0x80;
+    this.r2 = 0x80;
+    this.g2 = 0x80;
+    this.b2 = 0x80;
+    this.r3 = 0x80;
+    this.g3 = 0x80;
+    this.b3 = 0x80;
 
     if (this.quad()) {
-      this.r4 = 255;
-      this.g4 = 255;
-      this.b4 = 255;
+      this.r4 = 0x80;
+      this.g4 = 0x80;
+      this.b4 = 0x80;
     }
   }
 

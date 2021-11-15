@@ -1,11 +1,11 @@
 import {
   DataTexture,
   NearestFilter,
-  MeshBasicMaterial,
   Mesh,
   BoxGeometry,
   RGBAFormat,
 } from './three.js';
+import { newVSMaterial } from './VSTOOLS.js';
 
 const WIDTH = 1024;
 const HEIGHT = 512;
@@ -30,7 +30,7 @@ export class FrameBuffer {
   }
 
   build() {
-    this.material = new MeshBasicMaterial({
+    this.material = newVSMaterial({
       map: this.texture,
       flatShading: true,
       transparent: false,

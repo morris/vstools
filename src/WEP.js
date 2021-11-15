@@ -2,12 +2,12 @@ import {
   BufferGeometry,
   Skeleton,
   Float32BufferAttribute,
-  MeshBasicMaterial,
   SkinnedMesh,
   Bone,
   VertexColors,
   MeshNormalMaterial,
 } from './three.js';
+import { newVSMaterial } from './VSTOOLS.js';
 import { WEPVertex } from './WEPVertex.js';
 import { WEPBone } from './WEPBone.js';
 import { WEPFace } from './WEPFace.js';
@@ -284,7 +284,7 @@ export class WEP {
       return;
     }
 
-    this.material = new MeshBasicMaterial({
+    this.material = newVSMaterial({
       map: this.textureMap.textures[0],
       flatShading: true,
       skinning: true,

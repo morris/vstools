@@ -1,4 +1,5 @@
-import { MeshBasicMaterial, VertexColors } from './three.js';
+import { VertexColors } from './three.js';
+import { newVSMaterial } from './VSTOOLS.js';
 import { FrameBuffer } from './FrameBuffer.js';
 import { TIM } from './TIM.js';
 
@@ -137,7 +138,7 @@ export class ZND {
       this.textures.push(texture);
 
       // build texture
-      material = new MeshBasicMaterial({
+      material = newVSMaterial({
         map: texture,
         flatShading: true,
         transparent: true,
